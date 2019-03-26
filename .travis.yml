@@ -1,4 +1,36 @@
 sudo: required
 language: java
 jdk:
-  - openjdk11
+- openjdk11
+env:
+  global:
+  - TZ='Europe/Oslo'
+  - RELEASE_VERSION="$(git fetch --unshallow || true && git rev-list --count $TRAVIS_COMMIT)"
+  - APPLICATION_NAME='data-catalog-policies'
+  - GITHUB_APP_ID=26100
+  - DOCKER_IMAGE_FULL_NAME="navikt/$APPLICATION_NAME:$RELEASE_VERSION"
+  - DOCKER_USERNAME=naviktdocker
+  - secure: g4BZamXZL+/rbTqdZpSmtDTwaBwI9MGI8Ux1IjBnTy0K6rL+kbgAoCbIVEMMFSkOOjGgVBQ9/5GF/XRFox59+rigX65zYQfNF/bpo0MNg8YMnTKBzgiOja/BYKzunW0fEI1WEdtumjHRyK01Hmlr7T3CCQxyHVn6D7dy1zGX/Lr6I79rGd0jwd5DpYJ7zgprtPjVZObSi+H56JKltmy4I24f+aa+YIhioqssQ3pNdOYrd0EVilj0lV0vDtN7w4NF8mrHn5e6cV7vnJ1Ha18ADxaIlQsRDPNrKIaturfAqv/aJe+qHzts+Lpk2qqyKWzl+Gp2P66kCRuHO60o0pJ0ZsqE2DYYly/rXsSTt0dgSiXfpSOgQfyD9HudmwpG5fo0CO/5KmaSeBxyhUKc6rHgssz74PePIiKbvZZB21apEEeJKqjaOigXoH6BBXYyTV9s5xsWI8qtQs/p8yeTVQuzGX9ZVL7QwXTN/PA3EHiWVVDXGeEulgJrdbfzRm2fREoInYLyo47EDSeqxm3l5q2unErWVpeqVrf5uJ2xBRL0jqA46A8t6hnJU6tjjVYVFsohgIEDo5mLKFj1SoMqArPIy5/ROa0eJ1aq9xKzLRx3H5RsRmrTTWiNpQMhimIVqS5pOAqHuMTzIkD6ER7OggCjN5TdSPIaR35U8mj9il/a6iU=
+before_install:
+- openssl aes-256-cbc -K $encrypted_77e1b194c21d_key -iv $encrypted_77e1b194c21d_iv
+  -in travis/datajegerne-private-key.enc -out travis/datajegerne-private-key.pem -d
+- git clone https://github.com/navikt/github-apps-support.git
+- export PATH=`pwd`/github-apps-support/bin:$PATH
+- export INSTALLATION_TOKEN=$(generate-installation-token.sh `generate-jwt.sh ./travis/datajegerne-private-key.pem
+  $GITHUB_APP_ID`)
+script:
+- mvn install
+- git config user.name datajegerne[bot]
+- git config user.email datajegerne[bot]@users.noreply.github.com
+- docker build --build-arg app_name="$APPLICATION_NAME" -t "$DOCKER_IMAGE_FULL_NAME"
+  .
+deploy:
+  provider: script
+  skip_cleanup: true
+  script: chmod +x travis/deploy.sh && travis/deploy.sh
+  on:
+    branch: master
+after_deploy:
+- git remote add auth-origin "https://x-access-token:${INSTALLATION_TOKEN}@github.com/${TRAVIS_REPO_SLUG}"
+- git tag $RELEASE_VERSION
+- git push auth-origin --tags
