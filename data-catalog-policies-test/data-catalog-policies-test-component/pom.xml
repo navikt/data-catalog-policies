@@ -23,6 +23,12 @@
             <artifactId>spring-boot-starter-web</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>no.nav.data</groupId>
+            <artifactId>data-catalog-policies-app</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 	<build>
