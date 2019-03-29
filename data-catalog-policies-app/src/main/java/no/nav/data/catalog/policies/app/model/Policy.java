@@ -17,6 +17,10 @@ public class Policy {
     @Column(name="id")
     private Long id;
 
-    @Column(columnDefinition = "text", name="description")
-    private String description;
+    @Column(name="information_type_id")
+    private String informationTypeId;
+
+    @Column(name="policy_code")
+    private String policyCode;
+
 }
