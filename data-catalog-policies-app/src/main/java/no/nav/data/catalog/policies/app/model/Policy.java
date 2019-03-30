@@ -4,23 +4,24 @@ import lombok.Data;
 import javax.persistence.*;
 
 @Entity
-@Table(name="T_POLICY")
+@Table(name="POLICY")
 @Data
 public class Policy {
+
     @Id
-    @GeneratedValue(generator = "policy_generator")
-    @SequenceGenerator(
-            name = "policy_generator",
-            sequenceName = "policy_generator",
-            initialValue = 1000
-    )
-    @Column(name="id")
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="policy_id")
+    private Long policyId;
 
+    //TODO Relation ro InformationType
     @Column(name="information_type_id")
-    private String informationTypeId;
+    private Long informationTypeId;
 
-    @Column(name="policy_code")
-    private String policyCode;
+    @ManyToOne
+    @JoinColumn(name="purpose_id", nullable=false)
+    private Purpose purpose;
 
+    @ManyToOne
+    @JoinColumn(name="legal_basis_id", nullable=false)
+    private LegalBasis legalBasis;
 }
