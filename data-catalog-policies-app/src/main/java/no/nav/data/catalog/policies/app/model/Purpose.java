@@ -12,7 +12,6 @@ import java.util.Set;
 public class Purpose {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="purpose_id")
     private String purposeId;
 
