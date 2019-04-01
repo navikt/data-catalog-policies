@@ -3,6 +3,7 @@ package no.nav.data.catalog.policies.app.model;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -19,6 +20,5 @@ public class LegalBasis {
     private String description;
 
     @OneToMany(mappedBy = "legalBasis")
-    private Set<Policy> policies;
-
+    private Set<Policy> policiyListe = new HashSet<>();
 }
