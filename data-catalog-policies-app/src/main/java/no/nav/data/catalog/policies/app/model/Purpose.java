@@ -1,5 +1,6 @@
 package no.nav.data.catalog.policies.app.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -9,6 +10,7 @@ import java.util.Set;
 @Entity
 @Table(name="PURPOSE")
 @Data
+@AllArgsConstructor
 public class Purpose {
 
     @Id
@@ -19,6 +21,11 @@ public class Purpose {
     private String description;
 
     @OneToMany(mappedBy = "purpose")
-    private Set<Policy> policyListe = new HashSet<>();
+    private Set<Policy> policyList = new HashSet<>();
 
+    /**
+     * Default constructor.
+     */
+    public Purpose() {
+    }
 }

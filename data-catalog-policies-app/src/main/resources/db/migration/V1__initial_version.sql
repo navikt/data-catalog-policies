@@ -1,5 +1,9 @@
+CREATE SEQUENCE SEQ_LEGAL_BASIS;
+
+CREATE SEQUENCE SEQ_POLICY;
+
 CREATE TABLE LEGAL_BASIS (
-    legal_basis_id SERIAL PRIMARY KEY,
+    legal_basis_id INTEGER DEFAULT nextval('SEQ_LEGAL_BASIS') PRIMARY KEY ,
     description VARCHAR(500) NOT NULL
 );
 
@@ -9,7 +13,7 @@ CREATE TABLE PURPOSE (
 );
 
 CREATE TABLE POLICY (
-    policy_id SERIAL PRIMARY KEY,
+    policy_id INTEGER DEFAULT nextval('SEQ_POLICY') PRIMARY KEY ,
     information_type_id INTEGER NOT NULL,
     purpose_id VARCHAR(10) NOT NULL,
     legal_basis_id INTEGER NOT NULL,
