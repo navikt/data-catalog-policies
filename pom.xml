@@ -23,6 +23,8 @@
 	<properties>
 		<start-class>no.nav.data.catalog.policies.app.AppStarter</start-class>
 		<junit.version>4.12</junit.version>
+		<flyway.version>5.2.4</flyway.version>
+		<h2.version>1.4.199</h2.version>
 	</properties>
 
 	<dependencies>
