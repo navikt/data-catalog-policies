@@ -1,4 +1,4 @@
-package no.nav.data.catalog.policies.app.model;
+package no.nav.data.catalog.policies.app.model.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,8 +7,6 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name="LEGAL_BASIS")
@@ -28,8 +26,8 @@ public class LegalBasis {
     @Column(name="description")
     private String description;
 
-    @OneToMany(mappedBy = "legalBasis")
-    private Set<Policy> policyList = new HashSet<>();
+//    @OneToMany(mappedBy = "legalBasis")
+//    private Set<Policy> policyList = new HashSet<>();
 
     /**
      * Default constructor.

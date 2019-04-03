@@ -1,12 +1,13 @@
 package no.nav.data.catalog.policies.test.component.repository;
 
-import no.nav.data.catalog.policies.app.model.LegalBasis;
-import no.nav.data.catalog.policies.app.model.Policy;
-import no.nav.data.catalog.policies.app.model.Purpose;
+import no.nav.data.catalog.policies.app.model.entities.LegalBasis;
+import no.nav.data.catalog.policies.app.model.entities.Policy;
+import no.nav.data.catalog.policies.app.model.entities.Purpose;
 import no.nav.data.catalog.policies.app.repository.LegalBasisRepository;
 import no.nav.data.catalog.policies.app.repository.PolicyRepository;
 import no.nav.data.catalog.policies.app.repository.PurposeRepository;
 import no.nav.data.catalog.policies.test.component.ComponentTestConfig;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,7 +47,15 @@ public class RepositoryTest {
         TestTransaction.flagForCommit();
     }
 
-    @Test
+    @After
+    public void after() {
+        policyRepository.deleteAll();
+        purposeRepository.deleteAll();
+        legalBasisRepository.deleteAll();
+    }
+
+
+        @Test
     public void getOne() {
         createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, 1L);
         assertThat(purposeRepository.count(), is(1L));
