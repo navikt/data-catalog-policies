@@ -1,4 +1,4 @@
-package no.nav.data.catalog.policies.app.service;
+package no.nav.data.catalog.policies.app.service.mapper;
 
 import no.nav.data.catalog.policies.app.model.common.PolicyRequest;
 import no.nav.data.catalog.policies.app.model.entities.LegalBasis;

@@ -8,8 +8,6 @@ import no.nav.data.catalog.policies.app.repository.LegalBasisRepository;
 import no.nav.data.catalog.policies.app.repository.PolicyRepository;
 import no.nav.data.catalog.policies.app.repository.PurposeRepository;
 import no.nav.data.catalog.policies.app.rest.PolicyRestController;
-import no.nav.data.catalog.policies.app.service.PolicyMapper;
-import no.nav.data.catalog.policies.app.service.PolicyService;
 import no.nav.data.catalog.policies.test.component.ComponentTestConfig;
 import org.junit.After;
 import org.junit.Before;

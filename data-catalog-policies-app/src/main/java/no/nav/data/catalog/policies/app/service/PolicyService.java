@@ -7,6 +7,7 @@ import no.nav.data.catalog.policies.app.model.entities.Purpose;
 import no.nav.data.catalog.policies.app.repository.LegalBasisRepository;
 import no.nav.data.catalog.policies.app.repository.PolicyRepository;
 import no.nav.data.catalog.policies.app.repository.PurposeRepository;
+import no.nav.data.catalog.policies.app.service.mapper.PolicyMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
