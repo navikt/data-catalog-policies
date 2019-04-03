@@ -1,4 +1,4 @@
-package no.nav.data.catalog.policies.test.component.rest;
+package no.nav.data.catalog.policies.test.component.service;
 
 import no.nav.data.catalog.policies.app.model.common.PolicyRequest;
 import no.nav.data.catalog.policies.app.model.entities.LegalBasis;
@@ -7,7 +7,7 @@ import no.nav.data.catalog.policies.app.model.entities.Purpose;
 import no.nav.data.catalog.policies.app.repository.LegalBasisRepository;
 import no.nav.data.catalog.policies.app.repository.PolicyRepository;
 import no.nav.data.catalog.policies.app.repository.PurposeRepository;
-import no.nav.data.catalog.policies.app.rest.PolicyRestController;
+import no.nav.data.catalog.policies.app.service.PolicyService;
 import no.nav.data.catalog.policies.test.component.ComponentTestConfig;
 import org.junit.After;
 import org.junit.Before;
@@ -20,7 +20,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.transaction.TestTransaction;
 
 import javax.transaction.Transactional;
-
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -30,10 +29,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @SpringBootTest(classes = ComponentTestConfig.class)
 @ActiveProfiles("test")
 @Transactional
-public class PolicyRestControllerTest {
-    private static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
-    private static final String PURPOSE_CODE1 = "PUR1";
-    private static final String PURPOSE_DESCRIPTION1 = "Purpose 1";
+public class PolicyServiceTest {
+    public static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
+    public static final String PURPOSE_CODE1 = "PUR1";
+    public static final String PURPOSE_DESCRIPTION1 = "Purpose 1";
 
     @Autowired
     private PolicyRepository policyRepository;
@@ -45,7 +44,7 @@ public class PolicyRestControllerTest {
     private LegalBasisRepository legalBasisRepository;
 
     @Autowired
-    private PolicyRestController restController;
+    private PolicyService policyService;
 
     @Before
     public void setUp() {
@@ -55,7 +54,7 @@ public class PolicyRestControllerTest {
     }
 
     @After
-    public void after() {
+    public void cleanUp() {
         policyRepository.deleteAll();
         purposeRepository.deleteAll();
         legalBasisRepository.deleteAll();
@@ -70,7 +69,7 @@ public class PolicyRestControllerTest {
         assertThat(purposeRepository.count(), is(1L));
         Purpose storedPurpose = purposeRepository.findAll().get(0);
 
-        restController.createPolicy(new PolicyRequest(storedLegalBasis.getLegalBasisId(), storedPurpose.getPurposeId(), 1L));
+        policyService.createPolicy(new PolicyRequest(storedLegalBasis.getLegalBasisId(), storedPurpose.getPurposeId(), 1L));
         assertThat(policyRepository.count(), is(1L));
         assertThat(policyRepository.findAll().get(0).getLegalBasis(), is(storedLegalBasis));
         assertThat(policyRepository.findAll().get(0).getPurpose(), is(storedPurpose));
@@ -80,11 +79,28 @@ public class PolicyRestControllerTest {
     @Test
     public void getPolicies() {
         createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, 100);
-        List<Policy> policies = restController.getPolicies();
+        List<Policy> policies = policyService.getPolicies();
         assertThat(policyRepository.count(), is(100L));
         assertThat(purposeRepository.count(), is(100L));
         assertThat(legalBasisRepository.count(), is(100L));
         assertThat(policies.size(), is(100));
+    }
+
+    @Test
+    public void getLegalBasis() {
+        createBasicTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1);
+        List<LegalBasis> legalBasisList = policyService.getLegalBasis();
+        assertThat(legalBasisList.size(), is(1));
+        assertThat(legalBasisList.get(0).getDescription(), is(LEGAL_BASIS_DESCRIPTION1));
+    }
+
+    @Test
+    public void getPurpose() {
+        createBasicTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1);
+        List<Purpose> purposeList = policyService.getPurposes();
+        assertThat(purposeList.size(), is(1));
+        assertThat(purposeList.get(0).getPurposeId(), is(PURPOSE_CODE1));
+        assertThat(purposeList.get(0).getDescription(), is(PURPOSE_DESCRIPTION1));
     }
 
     private void createBasicTestdata(String legalBasisDescription, String purposeCode, String purposeDescription) {
@@ -119,5 +135,6 @@ public class PolicyRestControllerTest {
             i++;
         }
     }
+
 
 }
