@@ -48,7 +48,7 @@ public class RepositoryTest {
     }
 
     @After
-    public void after() {
+    public void cleanUp() {
         policyRepository.deleteAll();
         purposeRepository.deleteAll();
         legalBasisRepository.deleteAll();
