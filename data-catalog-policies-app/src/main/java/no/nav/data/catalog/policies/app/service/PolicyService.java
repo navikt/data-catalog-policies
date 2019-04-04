@@ -36,7 +36,7 @@ public class PolicyService {
         return purposeRepository.findAll();
     }
 
-    public List<LegalBasis> getLegalBasis() {
+    public List<LegalBasis> getLegalBases() {
         return legalBasisRepository.findAll();
     }
 
