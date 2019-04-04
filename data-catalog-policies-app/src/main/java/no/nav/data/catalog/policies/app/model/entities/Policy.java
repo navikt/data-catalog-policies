@@ -16,7 +16,7 @@ public class Policy {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_policy")
     @GenericGenerator(name = "seq_policy", strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
             parameters = {@org.hibernate.annotations.Parameter(name = "sequence_name", value = "SEQ_POLICY"),
-                    @org.hibernate.annotations.Parameter(name = "initial_value", value = "200000000")})
+                    @org.hibernate.annotations.Parameter(name = "initial_value", value = "1")})
     @Column(name="policy_id")
     private Long policyId;
 

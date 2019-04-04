@@ -55,7 +55,9 @@ public class PolicyMapperTest {
     public void shouldMap() {
         assertThat(legalBasisRepository.count(), is(1L));
         LegalBasis legalBasis = legalBasisRepository.findAll().get(0);
-        PolicyRequest request = new PolicyRequest(legalBasis.getLegalBasisId(), PURPOSE_CODE1, 1L);
+        assertThat(purposeRepository.count(), is(1L));
+        Purpose purpose = purposeRepository.findAll().get(0);
+        PolicyRequest request = new PolicyRequest(legalBasis.getLegalBasisId(), purpose.getPurposeId(), 1L);
         Policy policy = mapper.mapRequestToPolicy(request);
         assertThat(policy.getInformationTypeId(), is(request.getInformationTypeId()));
         assertThat(policy.getLegalBasis().getDescription(), is(LEGAL_BASIS_DESCRIPTION1));
@@ -67,24 +69,26 @@ public class PolicyMapperTest {
         expectedException.expect(DataCatalogPoliciesFunctionalException.class);
         expectedException.expectMessage("Cannot find Legal basis with id: 666");
         assertThat(legalBasisRepository.count(), is(1L));
-        PolicyRequest request = new PolicyRequest(666L, PURPOSE_CODE1, 1L);
+        assertThat(purposeRepository.count(), is(1L));
+        Purpose purpose = purposeRepository.findAll().get(0);
+        PolicyRequest request = new PolicyRequest(666L, purpose.getPurposeId(), 1L);
         mapper.mapRequestToPolicy(request);
     }
 
     @Test
     public void shouldThrowExceptionWhenPurposeNotFound() {
         expectedException.expect(DataCatalogPoliciesFunctionalException.class);
-        expectedException.expectMessage("Cannot find Purpose with id: NON EXISTING");
+        expectedException.expectMessage("Cannot find Purpose with id: 666");
         assertThat(legalBasisRepository.count(), is(1L));
         LegalBasis legalBasis = legalBasisRepository.findAll().get(0);
-        PolicyRequest request = new PolicyRequest(legalBasis.getLegalBasisId(), "NON EXISTING", 1L);
+        PolicyRequest request = new PolicyRequest(legalBasis.getLegalBasisId(), 666L, 1L);
         mapper.mapRequestToPolicy(request);
     }
 
     private void createBasicTestdata(String legalBasisDescription, String purposeCode, String purposeDescription) {
         legalBasisRepository.save(LegalBasis.builder().description(legalBasisDescription).build());
         Purpose purpose = new Purpose();
-        purpose.setPurposeId(purposeCode);
+        purpose.setPurposeCode(purposeCode);
         purpose.setDescription(purposeDescription);
         purposeRepository.save(purpose);
     }

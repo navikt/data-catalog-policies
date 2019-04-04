@@ -99,14 +99,14 @@ public class PolicyServiceTest {
         createBasicTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1);
         List<Purpose> purposeList = policyService.getPurposes();
         assertThat(purposeList.size(), is(1));
-        assertThat(purposeList.get(0).getPurposeId(), is(PURPOSE_CODE1));
+        assertThat(purposeList.get(0).getPurposeCode(), is(PURPOSE_CODE1));
         assertThat(purposeList.get(0).getDescription(), is(PURPOSE_DESCRIPTION1));
     }
 
     private void createBasicTestdata(String legalBasisDescription, String purposeCode, String purposeDescription) {
         legalBasisRepository.save(LegalBasis.builder().description(legalBasisDescription).build());
         Purpose purpose = new Purpose();
-        purpose.setPurposeId(purposeCode);
+        purpose.setPurposeCode(purposeCode);
         purpose.setDescription(purposeDescription);
         purposeRepository.save(purpose);
     }
@@ -121,7 +121,7 @@ public class PolicyServiceTest {
             LegalBasis lb = legalBasisRepository.save(LegalBasis.builder().description(legalBasisDescription).build());
 
             Purpose purpose = new Purpose();
-            purpose.setPurposeId(purposeCode + i);
+            purpose.setPurposeCode(purposeCode + i);
             purpose.setDescription(purposeDescription);
             purposeRepository.save(purpose);
             TestTransaction.flagForCommit();

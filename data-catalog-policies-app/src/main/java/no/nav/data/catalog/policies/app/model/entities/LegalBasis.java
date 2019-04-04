@@ -19,7 +19,7 @@ public class LegalBasis {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_legalBasis")
     @GenericGenerator(name = "seq_legalBasis", strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
             parameters = {@Parameter(name = "sequence_name", value = "SEQ_LEGAL_BASIS"),
-                    @Parameter(name = "initial_value", value = "200000000")})
+                    @Parameter(name = "initial_value", value = "1")})
     @Column(name="legal_basis_id")
     private Long legalBasisId;
 
