@@ -25,6 +25,7 @@
 		<junit.version>4.12</junit.version>
 		<flyway.version>5.2.4</flyway.version>
 		<h2.version>1.4.199</h2.version>
+		<springfox.version>2.9.2</springfox.version>
 	</properties>
 
 	<dependencies>
