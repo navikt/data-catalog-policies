@@ -10,6 +10,8 @@ import no.nav.data.catalog.policies.app.model.entities.Policy;
 import no.nav.data.catalog.policies.app.model.entities.Purpose;
 import no.nav.data.catalog.policies.app.service.PolicyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,27 +31,9 @@ public class PolicyRestController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "All policies fetched", response = Policy.class, responseContainer = "List"),
                 @ApiResponse(code = 500, message = "Internal server error")})
-    @GetMapping("/allpolicies")
-    public List<Policy> getPolicies() {
-        return service.getPolicies();
-    }
-
-    @ApiOperation(value = "Get all Purposes", tags = { "Policies" })
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "All purposes fetched", response = Purpose.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Internal server error")})
-    @GetMapping("/allpurposes")
-    public List<Purpose> getPurposes() {
-        return service.getPurposes();
-    }
-
-    @ApiOperation(value = "Get all Legal bases", tags = { "Policies" })
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "All Legal bases fetched", response = LegalBasis.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Internal server error")})
-    @GetMapping("/allegalbases")
-    public List<LegalBasis> getLegalBases() {
-        return service.getLegalBases();
+    @GetMapping("/policy")
+    public Page<Policy> getPolicies(Pageable pageable) {
+        return service.getPolicies(pageable);
     }
 
     @ApiOperation(value = "Create Policy", tags = { "Policies" })
@@ -62,5 +46,38 @@ public class PolicyRestController {
     public Policy createPolicy(@Valid @RequestBody PolicyRequest policyRequest) {
         Policy policy = service.createPolicy(policyRequest);
         return policy;
+    }
+
+    @GetMapping("/policy/{id}")
+    public Policy getPolicy(@PathVariable Long id) {
+        return service.getPolicy(id);
+    }
+
+    @DeleteMapping("/policy/{id}")
+    public void deletePolicy(@PathVariable Long id) {
+        service.deletePolicy(id);
+    }
+
+    @PutMapping("/policy/{id}")
+    public Policy updatePolicy(@PathVariable Long id, @Valid @RequestBody PolicyRequest policyRequest) {
+        return service.updatePolicy(id, policyRequest);
+    }
+
+    @ApiOperation(value = "Get all Purposes", tags = { "Policies" })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "All purposes fetched", response = Purpose.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Internal server error")})
+    @GetMapping("/purpose")
+    public List<Purpose> getPurposes() {
+        return service.getPurposes();
+    }
+
+    @ApiOperation(value = "Get all Legal bases", tags = { "Policies" })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "All Legal bases fetched", response = LegalBasis.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Internal server error")})
+    @GetMapping("/legalbasis")
+    public List<LegalBasis> getLegalBasis() {
+        return service.getLegalBases();
     }
 }

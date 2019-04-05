@@ -7,13 +7,13 @@ import lombok.Data;
 @Data
 public class PolicyRequest {
     private Long legalBasisId;
-    private String purposeId;
+    private Long purposeId;
     private Long informationTypeId;
 
     @JsonCreator
     public PolicyRequest(
             @JsonProperty(value = "legalBasisId", required = true) Long legalBasisId,
-            @JsonProperty(value = "purposeId", required = true) String purposeId,
+            @JsonProperty(value = "purposeId", required = true) Long purposeId,
             @JsonProperty(value = "informationTypeId", required = true) Long informationTypeId) {
         this.legalBasisId = legalBasisId;
         this.purposeId = purposeId;

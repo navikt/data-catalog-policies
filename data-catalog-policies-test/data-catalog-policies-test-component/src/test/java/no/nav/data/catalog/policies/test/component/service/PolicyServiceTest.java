@@ -15,6 +15,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.transaction.TestTransaction;
@@ -45,6 +49,8 @@ public class PolicyServiceTest {
 
     @Autowired
     private PolicyService policyService;
+
+    private Pageable pageRequest;
 
     @Before
     public void setUp() {
@@ -77,14 +83,80 @@ public class PolicyServiceTest {
     }
 
     @Test
-    public void getPolicies() {
+    public void getAllPolicies() {
         createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, 100);
-        List<Policy> policies = policyService.getPolicies();
+
+        pageRequest = new PageRequest(0, 100);
+        Page<Policy> policies = policyService.getPolicies(pageRequest);
         assertThat(policyRepository.count(), is(100L));
         assertThat(purposeRepository.count(), is(100L));
         assertThat(legalBasisRepository.count(), is(100L));
-        assertThat(policies.size(), is(100));
+        assertThat(policies.getTotalElements(), is(100L));
+        assertThat(policies.getTotalPages(), is(1));
     }
+
+    @Test
+    public void get50FirstPolicies() {
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, 100);
+
+        pageRequest = new PageRequest(0, 50);
+        Page<Policy> policies = policyService.getPolicies(pageRequest);
+        assertThat(policyRepository.count(), is(100L));
+        assertThat(purposeRepository.count(), is(100L));
+        assertThat(legalBasisRepository.count(), is(100L));
+        assertThat(policies.getTotalElements(), is(100L));
+        assertThat(policies.getTotalPages(), is(2));
+    }
+
+    @Test
+    public void getPolicy() {
+        createBasicTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1);
+        assertThat(legalBasisRepository.count(), is(1L));
+        LegalBasis storedLegalBasis = legalBasisRepository.findAll().get(0);
+
+        assertThat(purposeRepository.count(), is(1L));
+        Purpose storedPurpose = purposeRepository.findAll().get(0);
+
+        Policy storedPolicy = policyService.createPolicy(new PolicyRequest(storedLegalBasis.getLegalBasisId(), storedPurpose.getPurposeId(), 1L));
+        assertThat(policyRepository.count(), is(1L));
+
+        Policy policy = policyService.getPolicy(storedPolicy.getPolicyId());
+        assertThat(policy.getPurpose().getDescription(), is(PURPOSE_DESCRIPTION1));
+        assertThat(policy.getPurpose().getPurposeCode(), is(PURPOSE_CODE1));
+        assertThat(policy.getLegalBasis().getDescription(), is(LEGAL_BASIS_DESCRIPTION1));
+        assertThat(policy.getInformationTypeId(), is(1L));
+    }
+
+    @Test
+    public void updatePolicy() {
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, 1);
+        Policy storedPolicy = policyRepository.findAll().get(0);
+
+        Policy originalPolicy = policyService.getPolicy(storedPolicy.getPolicyId());
+        createBasicTestdata(LEGAL_BASIS_DESCRIPTION1 + "UPDATED", PURPOSE_CODE1 + "UPD", PURPOSE_DESCRIPTION1 + "UPDATED");
+        assertThat(legalBasisRepository.count(), is(2L));
+        LegalBasis storedLegalBasis = legalBasisRepository.findAll().get(1);
+
+        assertThat(purposeRepository.count(), is(2L));
+        Purpose storedPurpose = purposeRepository.findAll().get(1);
+
+        Policy updatedPolicy = policyService.updatePolicy(originalPolicy.getPolicyId(), new PolicyRequest(storedLegalBasis.getLegalBasisId(), storedPurpose.getPurposeId(), 2L));
+
+        assertThat(updatedPolicy.getPurpose().getDescription(), is(PURPOSE_DESCRIPTION1 + "UPDATED"));
+        assertThat(updatedPolicy.getPurpose().getPurposeCode(), is(PURPOSE_CODE1 + "UPD"));
+        assertThat(updatedPolicy.getLegalBasis().getDescription(), is(LEGAL_BASIS_DESCRIPTION1 + "UPDATED"));
+        assertThat(updatedPolicy.getInformationTypeId(), is(2L));
+    }
+
+    @Test
+    public void deletePolicy() {
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, 1);
+        assertThat(policyRepository.count(), is(1L));
+
+        policyService.deletePolicy(policyRepository.findAll().get(0).getPolicyId());
+        assertThat(policyRepository.count(), is(0L));
+    }
+
 
     @Test
     public void getLegalBasis() {
@@ -99,14 +171,14 @@ public class PolicyServiceTest {
         createBasicTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1);
         List<Purpose> purposeList = policyService.getPurposes();
         assertThat(purposeList.size(), is(1));
-        assertThat(purposeList.get(0).getPurposeId(), is(PURPOSE_CODE1));
+        assertThat(purposeList.get(0).getPurposeCode(), is(PURPOSE_CODE1));
         assertThat(purposeList.get(0).getDescription(), is(PURPOSE_DESCRIPTION1));
     }
 
     private void createBasicTestdata(String legalBasisDescription, String purposeCode, String purposeDescription) {
         legalBasisRepository.save(LegalBasis.builder().description(legalBasisDescription).build());
         Purpose purpose = new Purpose();
-        purpose.setPurposeId(purposeCode);
+        purpose.setPurposeCode(purposeCode);
         purpose.setDescription(purposeDescription);
         purposeRepository.save(purpose);
     }
@@ -121,7 +193,7 @@ public class PolicyServiceTest {
             LegalBasis lb = legalBasisRepository.save(LegalBasis.builder().description(legalBasisDescription).build());
 
             Purpose purpose = new Purpose();
-            purpose.setPurposeId(purposeCode + i);
+            purpose.setPurposeCode(purposeCode + i);
             purpose.setDescription(purposeDescription);
             purposeRepository.save(purpose);
             TestTransaction.flagForCommit();

@@ -83,7 +83,7 @@ public class RepositoryTest {
         LegalBasis lb = legalBasisRepository.save(LegalBasis.builder().description(legalBasisDescription).build());
 
         Purpose purpose = new Purpose();
-        purpose.setPurposeId(purposeCode);
+        purpose.setPurposeCode(purposeCode);
         purpose.setDescription(purposeDescription);
         purposeRepository.save(purpose);
         TestTransaction.flagForCommit();
@@ -103,7 +103,7 @@ public class RepositoryTest {
 
     private void assertPurpose() {
         Purpose purpose = purposeRepository.findAll().get(0);
-        assertThat(purpose.getPurposeId(), is(PURPOSE_CODE1));
+        assertThat(purpose.getPurposeCode(), is(PURPOSE_CODE1));
         assertThat(purpose.getDescription(), is(PURPOSE_DESCRIPTION1));
     }
 
