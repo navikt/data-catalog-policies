@@ -19,7 +19,7 @@ public class PolicyMapper {
     @Autowired
     private PurposeRepository purposeRepository;
 
-    public Policy mapRequestToPolicy(PolicyRequest policyRequest) {
+    public Policy mapRequestToPolicy(PolicyRequest policyRequest, Long id) {
         Policy policy = new Policy();
         Optional<LegalBasis> optionalLegalBasis = legalBasisRepository.findById(policyRequest.getLegalBasisId());
         if (!optionalLegalBasis.isPresent()) {
@@ -34,6 +34,9 @@ public class PolicyMapper {
         policy.setInformationTypeId(policyRequest.getInformationTypeId());
         policy.setLegalBasis(legalBasis);
         policy.setPurpose(purpose);
+        if (id != null) {
+            policy.setPolicyId(id);
+        }
         return policy;
     }
 }

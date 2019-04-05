@@ -58,7 +58,7 @@ public class PolicyMapperTest {
         assertThat(purposeRepository.count(), is(1L));
         Purpose purpose = purposeRepository.findAll().get(0);
         PolicyRequest request = new PolicyRequest(legalBasis.getLegalBasisId(), purpose.getPurposeId(), 1L);
-        Policy policy = mapper.mapRequestToPolicy(request);
+        Policy policy = mapper.mapRequestToPolicy(request, null);
         assertThat(policy.getInformationTypeId(), is(request.getInformationTypeId()));
         assertThat(policy.getLegalBasis().getDescription(), is(LEGAL_BASIS_DESCRIPTION1));
         assertThat(policy.getPurpose().getDescription(), is(PURPOSE_DESCRIPTION1));
@@ -72,7 +72,7 @@ public class PolicyMapperTest {
         assertThat(purposeRepository.count(), is(1L));
         Purpose purpose = purposeRepository.findAll().get(0);
         PolicyRequest request = new PolicyRequest(666L, purpose.getPurposeId(), 1L);
-        mapper.mapRequestToPolicy(request);
+        mapper.mapRequestToPolicy(request, null);
     }
 
     @Test
@@ -82,7 +82,7 @@ public class PolicyMapperTest {
         assertThat(legalBasisRepository.count(), is(1L));
         LegalBasis legalBasis = legalBasisRepository.findAll().get(0);
         PolicyRequest request = new PolicyRequest(legalBasis.getLegalBasisId(), 666L, 1L);
-        mapper.mapRequestToPolicy(request);
+        mapper.mapRequestToPolicy(request, null);
     }
 
     private void createBasicTestdata(String legalBasisDescription, String purposeCode, String purposeDescription) {
