@@ -161,7 +161,7 @@ public class PolicyServiceTest {
     @Test
     public void getLegalBasis() {
         createBasicTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1);
-        List<LegalBasis> legalBasisList = policyService.getLegalBasis();
+        List<LegalBasis> legalBasisList = policyService.getLegalBases();
         assertThat(legalBasisList.size(), is(1));
         assertThat(legalBasisList.get(0).getDescription(), is(LEGAL_BASIS_DESCRIPTION1));
     }
