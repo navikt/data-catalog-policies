@@ -1,6 +1,6 @@
 package no.nav.data.catalog.policies.app.service.mapper;
 
-import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesFunctionalException;
+import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.model.common.PolicyRequest;
 import no.nav.data.catalog.policies.app.model.entities.LegalBasis;
 import no.nav.data.catalog.policies.app.model.entities.Policy;
@@ -23,12 +23,12 @@ public class PolicyMapper {
         Policy policy = new Policy();
         Optional<LegalBasis> optionalLegalBasis = legalBasisRepository.findById(policyRequest.getLegalBasisId());
         if (!optionalLegalBasis.isPresent()) {
-            throw new DataCatalogPoliciesFunctionalException(String.format("Cannot find Legal basis with id: %s", policyRequest.getLegalBasisId()));
+            throw new DataCatalogPoliciesNotFoundException(String.format("Cannot find Legal basis with id: %s", policyRequest.getLegalBasisId()));
         }
         LegalBasis legalBasis = optionalLegalBasis.get();
         Optional<Purpose> optionalPurpose = purposeRepository.findById(policyRequest.getPurposeId());
         if (!optionalPurpose.isPresent()) {
-            throw new DataCatalogPoliciesFunctionalException(String.format("Cannot find Purpose with id: %s", policyRequest.getPurposeId()));
+            throw new DataCatalogPoliciesNotFoundException(String.format("Cannot find Purpose with id: %s", policyRequest.getPurposeId()));
         }
         Purpose purpose = optionalPurpose.get();
         policy.setInformationTypeId(policyRequest.getInformationTypeId());

@@ -21,7 +21,6 @@ import java.util.List;
 @RestController
 @CrossOrigin
 @Api(value = "Data Catalog Policies", description = "REST API for Policies", tags = { "Policies" })
-@RequestMapping("/policies")
 public class PolicyRestController {
 
     @Autowired
@@ -48,16 +47,31 @@ public class PolicyRestController {
         return policy;
     }
 
+    @ApiOperation(value = "Get Policy", tags = { "Policies" })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "All policies fetched", response = Policy.class),
+            @ApiResponse(code = 404, message = "Policy not found"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping("/policy/{id}")
     public Policy getPolicy(@PathVariable Long id) {
         return service.getPolicy(id);
     }
 
+    @ApiOperation(value = "Dekete Policy", tags = { "Policies" })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Policy deleted"),
+            @ApiResponse(code = 404, message = "Policy not found"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     @DeleteMapping("/policy/{id}")
     public void deletePolicy(@PathVariable Long id) {
         service.deletePolicy(id);
     }
 
+    @ApiOperation(value = "Update Policy", tags = { "Policies" })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Policy updated"),
+            @ApiResponse(code = 404, message = "Policy not found"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     @PutMapping("/policy/{id}")
     public Policy updatePolicy(@PathVariable Long id, @Valid @RequestBody PolicyRequest policyRequest) {
         return service.updatePolicy(id, policyRequest);
@@ -66,6 +80,7 @@ public class PolicyRestController {
     @ApiOperation(value = "Get all Purposes", tags = { "Policies" })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "All purposes fetched", response = Purpose.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Purpose not found"),
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping("/purpose")
     public List<Purpose> getPurposes() {
@@ -75,6 +90,7 @@ public class PolicyRestController {
     @ApiOperation(value = "Get all Legal bases", tags = { "Policies" })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "All Legal bases fetched", response = LegalBasis.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Legal basis not found"),
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping("/legalbasis")
     public List<LegalBasis> getLegalBasis() {

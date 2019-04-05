@@ -1,6 +1,6 @@
 package no.nav.data.catalog.policies.app.service;
 
-import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesFunctionalException;
+import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.model.common.PolicyRequest;
 import no.nav.data.catalog.policies.app.model.entities.LegalBasis;
 import no.nav.data.catalog.policies.app.model.entities.Policy;
@@ -39,7 +39,7 @@ public class PolicyService {
     public Policy getPolicy(Long id) {
         Optional<Policy> optionalPolicy = policyRepository.findById(id);
         if (!optionalPolicy.isPresent()) {
-            throw new DataCatalogPoliciesFunctionalException(String.format("Cannot find Policy with id: %s", id));
+            throw new DataCatalogPoliciesNotFoundException(String.format("Cannot find Policy with id: %s", id));
         }
         return optionalPolicy.get();
     }

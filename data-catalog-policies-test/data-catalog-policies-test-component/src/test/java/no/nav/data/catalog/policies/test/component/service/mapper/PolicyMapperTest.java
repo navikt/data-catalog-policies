@@ -1,6 +1,6 @@
 package no.nav.data.catalog.policies.test.component.service.mapper;
 
-import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesFunctionalException;
+import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.model.common.PolicyRequest;
 import no.nav.data.catalog.policies.app.model.entities.LegalBasis;
 import no.nav.data.catalog.policies.app.model.entities.Policy;
@@ -66,7 +66,7 @@ public class PolicyMapperTest {
 
     @Test
     public void shouldThrowExceptionWhenLegalBasisNotFound() {
-        expectedException.expect(DataCatalogPoliciesFunctionalException.class);
+        expectedException.expect(DataCatalogPoliciesNotFoundException.class);
         expectedException.expectMessage("Cannot find Legal basis with id: 666");
         assertThat(legalBasisRepository.count(), is(1L));
         assertThat(purposeRepository.count(), is(1L));
@@ -77,7 +77,7 @@ public class PolicyMapperTest {
 
     @Test
     public void shouldThrowExceptionWhenPurposeNotFound() {
-        expectedException.expect(DataCatalogPoliciesFunctionalException.class);
+        expectedException.expect(DataCatalogPoliciesNotFoundException.class);
         expectedException.expectMessage("Cannot find Purpose with id: 666");
         assertThat(legalBasisRepository.count(), is(1L));
         LegalBasis legalBasis = legalBasisRepository.findAll().get(0);
