@@ -1,4 +1,4 @@
-package no.nav.data.catalog.policies.app.model.entities;
+package no.nav.data.catalog.policies.app.policy.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

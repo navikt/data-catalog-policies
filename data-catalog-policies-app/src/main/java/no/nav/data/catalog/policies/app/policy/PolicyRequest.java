@@ -1,4 +1,4 @@
-package no.nav.data.catalog.policies.app.model.common;
+package no.nav.data.catalog.policies.app.policy;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

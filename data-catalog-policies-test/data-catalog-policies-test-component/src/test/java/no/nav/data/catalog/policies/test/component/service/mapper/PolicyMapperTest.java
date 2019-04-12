@@ -1,13 +1,13 @@
 package no.nav.data.catalog.policies.test.component.service.mapper;
 
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
-import no.nav.data.catalog.policies.app.model.common.PolicyRequest;
-import no.nav.data.catalog.policies.app.model.entities.LegalBasis;
-import no.nav.data.catalog.policies.app.model.entities.Policy;
-import no.nav.data.catalog.policies.app.model.entities.Purpose;
-import no.nav.data.catalog.policies.app.repository.LegalBasisRepository;
-import no.nav.data.catalog.policies.app.repository.PurposeRepository;
-import no.nav.data.catalog.policies.app.service.mapper.PolicyMapper;
+import no.nav.data.catalog.policies.app.policy.PolicyRequest;
+import no.nav.data.catalog.policies.app.policy.entities.LegalBasis;
+import no.nav.data.catalog.policies.app.policy.entities.Policy;
+import no.nav.data.catalog.policies.app.policy.entities.Purpose;
+import no.nav.data.catalog.policies.app.policy.repository.LegalBasisRepository;
+import no.nav.data.catalog.policies.app.policy.repository.PurposeRepository;
+import no.nav.data.catalog.policies.app.policy.service.mapper.PolicyMapper;
 import no.nav.data.catalog.policies.test.component.ComponentTestConfig;
 import org.junit.After;
 import org.junit.Before;
