@@ -32,6 +32,9 @@ public class Policy {
     @JoinColumn(name="legal_basis_id",  nullable = false)
     private LegalBasis legalBasis;
 
+    @Column(name="legal_basis_description")
+    private String legalBasisDescription;
+
     /**
      * Default constructor.
      */

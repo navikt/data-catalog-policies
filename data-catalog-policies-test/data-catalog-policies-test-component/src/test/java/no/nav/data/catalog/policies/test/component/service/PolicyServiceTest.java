@@ -74,7 +74,7 @@ public class PolicyServiceTest {
         assertThat(purposeRepository.count(), is(1L));
         Purpose storedPurpose = purposeRepository.findAll().get(0);
 
-        policyService.createPolicy(new PolicyRequest(storedLegalBasis.getLegalBasisId(), storedPurpose.getPurposeId(), 1L));
+        policyService.createPolicy(new PolicyRequest(storedLegalBasis.getLegalBasisId(), LEGAL_BASIS_DESCRIPTION1,  storedPurpose.getPurposeId(), 1L));
         assertThat(policyRepository.count(), is(1L));
         assertThat(policyRepository.findAll().get(0).getLegalBasis(), is(storedLegalBasis));
         assertThat(policyRepository.findAll().get(0).getPurpose(), is(storedPurpose));
@@ -116,7 +116,7 @@ public class PolicyServiceTest {
         assertThat(purposeRepository.count(), is(1L));
         Purpose storedPurpose = purposeRepository.findAll().get(0);
 
-        Policy storedPolicy = policyService.createPolicy(new PolicyRequest(storedLegalBasis.getLegalBasisId(), storedPurpose.getPurposeId(), 1L));
+        Policy storedPolicy = policyService.createPolicy(new PolicyRequest(storedLegalBasis.getLegalBasisId(), LEGAL_BASIS_DESCRIPTION1, storedPurpose.getPurposeId(), 1L));
         assertThat(policyRepository.count(), is(1L));
 
         Policy policy = policyService.getPolicy(storedPolicy.getPolicyId());
@@ -139,7 +139,7 @@ public class PolicyServiceTest {
         assertThat(purposeRepository.count(), is(2L));
         Purpose storedPurpose = purposeRepository.findAll().get(1);
 
-        Policy updatedPolicy = policyService.updatePolicy(originalPolicy.getPolicyId(), new PolicyRequest(storedLegalBasis.getLegalBasisId(), storedPurpose.getPurposeId(), 2L));
+        Policy updatedPolicy = policyService.updatePolicy(originalPolicy.getPolicyId(), new PolicyRequest(storedLegalBasis.getLegalBasisId(), LEGAL_BASIS_DESCRIPTION1, storedPurpose.getPurposeId(), 2L));
 
         assertThat(updatedPolicy.getPurpose().getDescription(), is(PURPOSE_DESCRIPTION1 + "UPDATED"));
         assertThat(updatedPolicy.getPurpose().getPurposeCode(), is(PURPOSE_CODE1 + "UPD"));

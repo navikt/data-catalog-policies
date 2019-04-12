@@ -20,6 +20,7 @@ CREATE TABLE POLICY (
     information_type_id INTEGER NOT NULL,
     purpose_id INTEGER NOT NULL,
     legal_basis_id INTEGER NOT NULL,
+    legal_basis_description TEXT,
     CONSTRAINT FK_POLICY_PURPOSE FOREIGN KEY (purpose_id)
         REFERENCES PURPOSE (purpose_id),
     CONSTRAINT FK_POLICY_LEGAL_BASIS FOREIGN KEY (legal_basis_id)

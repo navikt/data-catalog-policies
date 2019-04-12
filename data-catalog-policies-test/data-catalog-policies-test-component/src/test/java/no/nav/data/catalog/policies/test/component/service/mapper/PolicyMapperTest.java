@@ -57,9 +57,10 @@ public class PolicyMapperTest {
         LegalBasis legalBasis = legalBasisRepository.findAll().get(0);
         assertThat(purposeRepository.count(), is(1L));
         Purpose purpose = purposeRepository.findAll().get(0);
-        PolicyRequest request = new PolicyRequest(legalBasis.getLegalBasisId(), purpose.getPurposeId(), 1L);
+        PolicyRequest request = new PolicyRequest(legalBasis.getLegalBasisId(), LEGAL_BASIS_DESCRIPTION1, purpose.getPurposeId(), 1L);
         Policy policy = mapper.mapRequestToPolicy(request, null);
         assertThat(policy.getInformationTypeId(), is(request.getInformationTypeId()));
+        assertThat(policy.getLegalBasisDescription(), is(LEGAL_BASIS_DESCRIPTION1));
         assertThat(policy.getLegalBasis().getDescription(), is(LEGAL_BASIS_DESCRIPTION1));
         assertThat(policy.getPurpose().getDescription(), is(PURPOSE_DESCRIPTION1));
     }
@@ -71,7 +72,7 @@ public class PolicyMapperTest {
         assertThat(legalBasisRepository.count(), is(1L));
         assertThat(purposeRepository.count(), is(1L));
         Purpose purpose = purposeRepository.findAll().get(0);
-        PolicyRequest request = new PolicyRequest(666L, purpose.getPurposeId(), 1L);
+        PolicyRequest request = new PolicyRequest(666L, LEGAL_BASIS_DESCRIPTION1, purpose.getPurposeId(), 1L);
         mapper.mapRequestToPolicy(request, null);
     }
 
@@ -81,7 +82,7 @@ public class PolicyMapperTest {
         expectedException.expectMessage("Cannot find Purpose with id: 666");
         assertThat(legalBasisRepository.count(), is(1L));
         LegalBasis legalBasis = legalBasisRepository.findAll().get(0);
-        PolicyRequest request = new PolicyRequest(legalBasis.getLegalBasisId(), 666L, 1L);
+        PolicyRequest request = new PolicyRequest(legalBasis.getLegalBasisId(), LEGAL_BASIS_DESCRIPTION1, 666L, 1L);
         mapper.mapRequestToPolicy(request, null);
     }
 

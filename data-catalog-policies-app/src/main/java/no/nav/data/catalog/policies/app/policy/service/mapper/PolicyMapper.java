@@ -34,6 +34,7 @@ public class PolicyMapper {
         policy.setInformationTypeId(policyRequest.getInformationTypeId());
         policy.setLegalBasis(legalBasis);
         policy.setPurpose(purpose);
+        policy.setLegalBasisDescription(policyRequest.getLegalBasisDescription());
         if (id != null) {
             policy.setPolicyId(id);
         }
