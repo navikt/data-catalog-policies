@@ -49,7 +49,7 @@ public class PolicyRestController {
 
     @ApiOperation(value = "Get Policy", tags = { "Policies" })
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "All policies fetched", response = Policy.class),
+            @ApiResponse(code = 200, message = "Fetched policy", response = Policy.class),
             @ApiResponse(code = 404, message = "Policy not found"),
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping("/policy/{id}")
