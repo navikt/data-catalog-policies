@@ -94,7 +94,7 @@ public class PolicyRestController {
             @ApiResponse(code = 404, message = "Legal basis not found"),
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping("/legalbasis")
-    public List<LegalBasis> getLegalBasis() {
+    public List<LegalBasis> getLegalBases() {
         return service.getLegalBases();
     }
 }

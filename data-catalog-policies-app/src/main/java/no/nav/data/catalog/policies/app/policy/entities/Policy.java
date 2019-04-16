@@ -20,9 +20,9 @@ public class Policy {
     @Column(name="policy_id", nullable = false, updatable = false, unique = true)
     private Long policyId;
 
-    //TODO Relation to InformationType
-    @Column(name="information_type_id",  nullable = false)
-    private Long informationTypeId;
+    @ManyToOne
+    @JoinColumn(name="information_type_id",  nullable = false)
+    private InformationType informationType;
 
     @ManyToOne
     @JoinColumn(name="purpose_id",  nullable = false)
