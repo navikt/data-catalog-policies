@@ -21,6 +21,7 @@ import java.util.List;
 @RestController
 @CrossOrigin
 @Api(value = "Data Catalog Policies", description = "REST API for Policies", tags = { "Policies" })
+@RequestMapping("/policy")
 public class PolicyRestController {
 
     @Autowired
