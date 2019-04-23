@@ -12,7 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "BACKEND_SCHEMA.INFORMATION_TYPE")
+@Table(name = "INFORMATION_TYPE", schema = "BACKEND_SCHEMA")
 @Data
 @Builder
 @NoArgsConstructor
