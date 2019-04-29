@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS PURPOSE (
 );
 
 CREATE TABLE IF NOT EXISTS BACKEND_SCHEMA.INFORMATION_TYPE (
-    information_type_id INTEGER NOT NULL,
+    information_type_id INTEGER NOT NULL PRIMARY KEY ,
     name varchar(100) not null CONSTRAINT UK_INFORMATION_NAME UNIQUE,
     description text
 );
