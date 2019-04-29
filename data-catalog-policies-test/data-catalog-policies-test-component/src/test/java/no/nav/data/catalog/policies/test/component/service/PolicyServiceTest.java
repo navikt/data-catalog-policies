@@ -39,6 +39,7 @@ public class PolicyServiceTest {
     public static final String PURPOSE_CODE1 = "PUR1";
     public static final String PURPOSE_DESCRIPTION1 = "Purpose 1";
     public static final String INFORMATION_TYPE_DESCRIPTION1 = "InformationType 1";
+    public static final String INFORMATION_TYPE_NAME1 = "InformationTypeName1";
 
     @Autowired
     private PolicyRepository policyRepository;
@@ -63,6 +64,10 @@ public class PolicyServiceTest {
         purposeRepository.deleteAll();
         legalBasisRepository.deleteAll();
         informationTypeRepository.deleteAll();
+        if (TestTransaction.isActive()) {
+            TestTransaction.flagForCommit();
+            TestTransaction.end();
+        }
     }
 
     @After
@@ -75,7 +80,7 @@ public class PolicyServiceTest {
 
     @Test
     public void createPolicy() {
-        createBasicTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, 1L, INFORMATION_TYPE_DESCRIPTION1);
+        createBasicTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, 1L, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
         assertThat(legalBasisRepository.count(), is(1L));
         LegalBasis storedLegalBasis = legalBasisRepository.findAll().get(0);
 
@@ -94,7 +99,7 @@ public class PolicyServiceTest {
 
     @Test
     public void getAllPolicies() {
-        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, INFORMATION_TYPE_DESCRIPTION1, 100);
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1, 100);
 
         pageRequest = new PageRequest(0, 100);
         Page<Policy> policies = policyService.getPolicies(pageRequest);
@@ -108,7 +113,7 @@ public class PolicyServiceTest {
 
     @Test
     public void get50FirstPolicies() {
-        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, INFORMATION_TYPE_DESCRIPTION1, 100);
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1, 100);
 
         pageRequest = new PageRequest(0, 50);
         Page<Policy> policies = policyService.getPolicies(pageRequest);
@@ -122,7 +127,7 @@ public class PolicyServiceTest {
 
     @Test
     public void getPolicy() {
-        createBasicTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, 1L, INFORMATION_TYPE_DESCRIPTION1);
+        createBasicTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, 1L, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
         assertThat(legalBasisRepository.count(), is(1L));
         LegalBasis storedLegalBasis = legalBasisRepository.findAll().get(0);
 
@@ -144,11 +149,11 @@ public class PolicyServiceTest {
 
     @Test
     public void updatePolicy() {
-        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, INFORMATION_TYPE_DESCRIPTION1, 1);
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1, 1);
         Policy storedPolicy = policyRepository.findAll().get(0);
 
         Policy originalPolicy = policyService.getPolicy(storedPolicy.getPolicyId());
-        createBasicTestdata(LEGAL_BASIS_DESCRIPTION1 + "UPDATED", PURPOSE_CODE1 + "UPD", PURPOSE_DESCRIPTION1 + "UPDATED", 1L, INFORMATION_TYPE_DESCRIPTION1+ "UPDATED");
+        createBasicTestdata(LEGAL_BASIS_DESCRIPTION1 + "UPDATED", PURPOSE_CODE1 + "UPD", PURPOSE_DESCRIPTION1 + "UPDATED", 1L, INFORMATION_TYPE_DESCRIPTION1+ "UPDATED", INFORMATION_TYPE_NAME1 + "UPDATED");
         assertThat(legalBasisRepository.count(), is(2L));
         LegalBasis storedLegalBasis = legalBasisRepository.findAll().get(1);
 
@@ -166,7 +171,7 @@ public class PolicyServiceTest {
 
     @Test
     public void deletePolicy() {
-        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1,  INFORMATION_TYPE_DESCRIPTION1, 1);
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1,  INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1, 1);
         assertThat(policyRepository.count(), is(1L));
 
         policyService.deletePolicy(policyRepository.findAll().get(0).getPolicyId());
@@ -176,7 +181,7 @@ public class PolicyServiceTest {
 
     @Test
     public void getLegalBasis() {
-        createBasicTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, 1L,  INFORMATION_TYPE_DESCRIPTION1);
+        createBasicTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, 1L,  INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
         List<LegalBasis> legalBasisList = policyService.getLegalBases();
         assertThat(legalBasisList.size(), is(1));
         assertThat(legalBasisList.get(0).getDescription(), is(LEGAL_BASIS_DESCRIPTION1));
@@ -184,23 +189,23 @@ public class PolicyServiceTest {
 
     @Test
     public void getPurpose() {
-        createBasicTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, 1L, INFORMATION_TYPE_DESCRIPTION1);
+        createBasicTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, 1L, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
         List<Purpose> purposeList = policyService.getPurposes();
         assertThat(purposeList.size(), is(1));
         assertThat(purposeList.get(0).getPurposeCode(), is(PURPOSE_CODE1));
         assertThat(purposeList.get(0).getDescription(), is(PURPOSE_DESCRIPTION1));
     }
 
-    private void createBasicTestdata(String legalBasisDescription, String purposeCode, String purposeDescription, Long informationTypeId, String informationTypeDescription) {
+    private void createBasicTestdata(String legalBasisDescription, String purposeCode, String purposeDescription, Long informationTypeId, String informationTypeDescription, String informationTypeName) {
         legalBasisRepository.save(LegalBasis.builder().description(legalBasisDescription).build());
         Purpose purpose = new Purpose();
         purpose.setPurposeCode(purposeCode);
         purpose.setDescription(purposeDescription);
         purposeRepository.save(purpose);
-        informationTypeRepository.save(InformationType.builder().informationTypeId(informationTypeId).description(informationTypeDescription).build());
+        informationTypeRepository.save(InformationType.builder().informationTypeId(informationTypeId).description(informationTypeDescription).name(informationTypeName).build());
     }
 
-    private void createTestdata(String legalBasisDescription, String purposeCode, String purposeDescription, String informationTypeDescription, int rows) {
+    private void createTestdata(String legalBasisDescription, String purposeCode, String purposeDescription, String informationTypeDescription, String informationTypeName, int rows) {
         int i = 0;
         while (i < rows ){
             if (TestTransaction.isActive()) {
@@ -216,7 +221,7 @@ public class PolicyServiceTest {
             TestTransaction.flagForCommit();
             TestTransaction.end();
 
-            InformationType informationType = informationTypeRepository.save(InformationType.builder().informationTypeId(new Long(i)).description(informationTypeDescription).build());
+            InformationType informationType = informationTypeRepository.save(InformationType.builder().informationTypeId(new Long(i)).description(informationTypeDescription).name(informationTypeName + i).build());
             Policy policy = new Policy();
             policy.setInformationType(informationType);
             policy.setLegalBasis(lb);

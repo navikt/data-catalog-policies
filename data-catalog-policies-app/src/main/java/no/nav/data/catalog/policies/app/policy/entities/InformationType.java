@@ -25,8 +25,8 @@ public class InformationType {
     private Long informationTypeId;
 
     @ReadOnlyProperty
-    @Column(name = "information_type_name")
-    private String informationTypeName;
+    @Column(name = "name")
+    private String name;
 
     @ReadOnlyProperty
     @Column(name = "description")

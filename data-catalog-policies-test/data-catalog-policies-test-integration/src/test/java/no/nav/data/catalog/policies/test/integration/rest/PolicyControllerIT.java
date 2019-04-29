@@ -45,6 +45,7 @@ public class PolicyControllerIT {
     public static final String PURPOSE_CODE1 = "PUR1";
     public static final String PURPOSE_DESCRIPTION1 = "Purpose 1";
     public static final String INFORMATION_TYPE_DESCRIPTION1 = "InformationType 1";
+    public static final String INFORMATION_TYPE_NAME = "InformationTypeName";
 
     public static final String POLICY_REST_EMDPOINT = "/policy/";
 
@@ -62,6 +63,8 @@ public class PolicyControllerIT {
 
     @Autowired
     private InformationTypeRepository informationTypeRepository;
+
+
 
     @Before
     public void setUp() {
@@ -81,7 +84,7 @@ public class PolicyControllerIT {
 
     @Test
     public void getOnePolicy() {
-        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, INFORMATION_TYPE_DESCRIPTION1, 1);
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME, 1);
 
         ResponseEntity<PagedResources<Policy>> responseEntity = restTemplate.exchange(
                 POLICY_REST_EMDPOINT + "policy", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), new ParameterizedTypeReference<PagedResources<Policy>>() {});
@@ -91,7 +94,7 @@ public class PolicyControllerIT {
 
     @Test
     public void save100Get20Policies() {
-        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, INFORMATION_TYPE_DESCRIPTION1, 100);
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, INFORMATION_TYPE_DESCRIPTION1,INFORMATION_TYPE_NAME, 100);
 
         ResponseEntity<PagedResources<Policy>> responseEntity = restTemplate.exchange(
                 POLICY_REST_EMDPOINT + "policy", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), new ParameterizedTypeReference<PagedResources<Policy>>() {});
@@ -99,7 +102,7 @@ public class PolicyControllerIT {
         assertThat(responseEntity.getBody().getContent().size(), is(20));
     }
 
-    private void createTestdata(String legalBasisDescription, String purposeCode, String purposeDescription, String informationTypeDescription, int rows) {
+    private void createTestdata(String legalBasisDescription, String purposeCode, String purposeDescription, String informationTypeDescription, String informationTypeName, int rows) {
         int i = 0;
         while (i < rows) {
             if (TestTransaction.isActive()) {
@@ -112,7 +115,7 @@ public class PolicyControllerIT {
             purpose.setPurposeCode(purposeCode + i);
             purpose.setDescription(purposeDescription);
             purposeRepository.save(purpose);
-            InformationType informationType = informationTypeRepository.save(InformationType.builder().informationTypeId(new Long(i)).informationTypeName(informationTypeDescription).description(informationTypeDescription).build());
+            InformationType informationType = informationTypeRepository.save(InformationType.builder().informationTypeId(new Long(i)).name(informationTypeName + i).description(informationTypeDescription).build());
             TestTransaction.flagForCommit();
             TestTransaction.end();
 
