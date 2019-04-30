@@ -1,6 +1,6 @@
 sudo: required
 services:
-  - docker
+- docker
 language: java
 jdk:
 - openjdk11
@@ -12,7 +12,7 @@ env:
   - GITHUB_APP_ID=26100
   - DOCKER_IMAGE_FULL_NAME="navikt/$APPLICATION_NAME:$RELEASE_VERSION"
   - DOCKER_USERNAME=naviktdocker
-  - secure: g4BZamXZL+/rbTqdZpSmtDTwaBwI9MGI8Ux1IjBnTy0K6rL+kbgAoCbIVEMMFSkOOjGgVBQ9/5GF/XRFox59+rigX65zYQfNF/bpo0MNg8YMnTKBzgiOja/BYKzunW0fEI1WEdtumjHRyK01Hmlr7T3CCQxyHVn6D7dy1zGX/Lr6I79rGd0jwd5DpYJ7zgprtPjVZObSi+H56JKltmy4I24f+aa+YIhioqssQ3pNdOYrd0EVilj0lV0vDtN7w4NF8mrHn5e6cV7vnJ1Ha18ADxaIlQsRDPNrKIaturfAqv/aJe+qHzts+Lpk2qqyKWzl+Gp2P66kCRuHO60o0pJ0ZsqE2DYYly/rXsSTt0dgSiXfpSOgQfyD9HudmwpG5fo0CO/5KmaSeBxyhUKc6rHgssz74PePIiKbvZZB21apEEeJKqjaOigXoH6BBXYyTV9s5xsWI8qtQs/p8yeTVQuzGX9ZVL7QwXTN/PA3EHiWVVDXGeEulgJrdbfzRm2fREoInYLyo47EDSeqxm3l5q2unErWVpeqVrf5uJ2xBRL0jqA46A8t6hnJU6tjjVYVFsohgIEDo5mLKFj1SoMqArPIy5/ROa0eJ1aq9xKzLRx3H5RsRmrTTWiNpQMhimIVqS5pOAqHuMTzIkD6ER7OggCjN5TdSPIaR35U8mj9il/a6iU=
+  - secure: ZCsPTCIsILsxhw7ECQwe/WjSsxXUh+/rzxmhadDJGXA4R65E2lgtQKzWqC2qVaxeLFJ+6XB7cvgJWUHRISM1FCQmITtNeD7l/W913yuCwjDn3hrqJ04RXDSB8B0RJWv+6Iu05tA5MG9KOdtCrdQzbwsGkeIytgt9dEp8atoeKjIzCToYB+ONTpLifPlPHsfH/sxXZClYE0WO9ceNRzHWGu01FGCJQIko+SldULGfv57ROx9+x8QknShwhy+oDe7RYVR/6z/kJ7921XcBzLzKT0xBUh8iJKXZvaEpzG/LQCS2Z9xsXrK/kz2kBjPYLH+/OJ3LBVMFKgdFNy3e9Jwson4D5ibec68YZBtRDGmoCOUoc3e+KM2u8b1/Cf6iFpYFzNwIwHXvj2+VqD+IynjsgqsNg/2W+eD/+nkzFDRcmh5WO+CWT+yN1VnJDtQxnwIAzVgkKko8S9DdLhdZ88F8oafQfcjaGe4dk+l6zQzM0RyiiFEh/HsaALNKmuvAlg7zT1BKHJwaH1qTwaCa/YRLed66yPU4Ynjyn24vZBxpLlQOguHhbrJlulzl1qMkuOAGgUcgzoY2qn5LWK7EdodhEVrZ8KyIEWyqmsLNSskjKVWRZSCF7pOikXnzA119l3RTZ6OQE2MkF5xB7vn3PitOcX+NtCqfSZI1k+coiIh72P4=
 before_install:
 - openssl aes-256-cbc -K $encrypted_77e1b194c21d_key -iv $encrypted_77e1b194c21d_iv
   -in travis/datajegerne-private-key.enc -out travis/datajegerne-private-key.pem -d
