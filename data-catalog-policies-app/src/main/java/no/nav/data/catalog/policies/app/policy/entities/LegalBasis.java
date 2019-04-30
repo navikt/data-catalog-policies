@@ -19,10 +19,10 @@ public class LegalBasis {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_legalBasis")
     @GenericGenerator(name = "seq_legalBasis", strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
             parameters = {@Parameter(name = "sequence_name", value = "SEQ_LEGAL_BASIS")})
-    @Column(name="legal_basis_id",  nullable = false, updatable = false, unique = true)
+    @Column(name="LEGAL_BASIS_ID",  nullable = false, updatable = false, unique = true)
     private Long legalBasisId;
 
-    @Column(name="description", length = 500)
+    @Column(name="DESCRIPTION", length = 500)
     private String description;
 
 //    @OneToMany(mappedBy = "legalBasis")
