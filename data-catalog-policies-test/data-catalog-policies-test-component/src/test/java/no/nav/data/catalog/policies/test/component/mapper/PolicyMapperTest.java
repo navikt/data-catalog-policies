@@ -1,4 +1,4 @@
-package no.nav.data.catalog.policies.test.component.service.mapper;
+package no.nav.data.catalog.policies.test.component.mapper;
 
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.policy.PolicyRequest;
@@ -7,7 +7,7 @@ import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.entities.Purpose;
 import no.nav.data.catalog.policies.app.policy.repository.LegalBasisRepository;
 import no.nav.data.catalog.policies.app.policy.repository.PurposeRepository;
-import no.nav.data.catalog.policies.app.policy.service.mapper.PolicyMapper;
+import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
 import no.nav.data.catalog.policies.test.component.ComponentTestConfig;
 import org.junit.After;
 import org.junit.Before;
@@ -20,7 +20,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static no.nav.data.catalog.policies.test.component.service.PolicyServiceTest.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -34,6 +33,10 @@ public class PolicyMapperTest {
     private PurposeRepository purposeRepository;
     @Autowired
     private LegalBasisRepository legalBasisRepository;
+
+    public static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
+    public static final String PURPOSE_CODE1 = "PUR1";
+    public static final String PURPOSE_DESCRIPTION1 = "Purpose 1";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
