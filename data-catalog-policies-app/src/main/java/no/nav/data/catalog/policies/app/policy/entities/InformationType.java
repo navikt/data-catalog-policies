@@ -21,14 +21,14 @@ public class InformationType {
 
     @Id
     @ReadOnlyProperty
-    @Column(name = "information_type_id")
+    @Column(name = "INFORMATION_TYPE_ID")
     private Long informationTypeId;
 
     @ReadOnlyProperty
-    @Column(name = "information_type_name")
+    @Column(name = "NAME")
     private String informationTypeName;
 
     @ReadOnlyProperty
-    @Column(name = "description")
+    @Column(name = "DESCRIPTION")
     private String description;
 }

@@ -41,6 +41,7 @@ public class PolicyMapperTest {
     public static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
     public static final String PURPOSE_CODE1 = "PUR1";
     public static final String PURPOSE_DESCRIPTION1 = "Purpose 1";
+    public static final String INFORMATION_TYPE_DESCRIPTION1 = "InformationTypeDescription 1";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
