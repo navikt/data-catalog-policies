@@ -19,7 +19,7 @@ public class SwaggerConfig {
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("no.nav.data.catalog.policies.app.rest"))
+                .apis(RequestHandlerSelectors.basePackage("no.nav.data.catalog.policies.app.policy.rest"))
                 .paths(PathSelectors.any())
                 .build()
                 .apiInfo(apiInfo());

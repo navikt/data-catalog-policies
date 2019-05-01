@@ -1,13 +1,13 @@
-package no.nav.data.catalog.policies.test.component.service.mapper;
+package no.nav.data.catalog.policies.test.component.mapper;
 
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
-import no.nav.data.catalog.policies.app.model.common.PolicyRequest;
-import no.nav.data.catalog.policies.app.model.entities.LegalBasis;
-import no.nav.data.catalog.policies.app.model.entities.Policy;
-import no.nav.data.catalog.policies.app.model.entities.Purpose;
-import no.nav.data.catalog.policies.app.repository.LegalBasisRepository;
-import no.nav.data.catalog.policies.app.repository.PurposeRepository;
-import no.nav.data.catalog.policies.app.service.mapper.PolicyMapper;
+import no.nav.data.catalog.policies.app.policy.PolicyRequest;
+import no.nav.data.catalog.policies.app.policy.entities.LegalBasis;
+import no.nav.data.catalog.policies.app.policy.entities.Policy;
+import no.nav.data.catalog.policies.app.policy.entities.Purpose;
+import no.nav.data.catalog.policies.app.policy.repository.LegalBasisRepository;
+import no.nav.data.catalog.policies.app.policy.repository.PurposeRepository;
+import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
 import no.nav.data.catalog.policies.test.component.ComponentTestConfig;
 import org.junit.After;
 import org.junit.Before;
@@ -20,7 +20,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static no.nav.data.catalog.policies.test.component.service.PolicyServiceTest.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -34,6 +33,10 @@ public class PolicyMapperTest {
     private PurposeRepository purposeRepository;
     @Autowired
     private LegalBasisRepository legalBasisRepository;
+
+    public static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
+    public static final String PURPOSE_CODE1 = "PUR1";
+    public static final String PURPOSE_DESCRIPTION1 = "Purpose 1";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -57,9 +60,10 @@ public class PolicyMapperTest {
         LegalBasis legalBasis = legalBasisRepository.findAll().get(0);
         assertThat(purposeRepository.count(), is(1L));
         Purpose purpose = purposeRepository.findAll().get(0);
-        PolicyRequest request = new PolicyRequest(legalBasis.getLegalBasisId(), purpose.getPurposeId(), 1L);
+        PolicyRequest request = new PolicyRequest(legalBasis.getLegalBasisId(), LEGAL_BASIS_DESCRIPTION1, purpose.getPurposeId(), 1L);
         Policy policy = mapper.mapRequestToPolicy(request, null);
         assertThat(policy.getInformationTypeId(), is(request.getInformationTypeId()));
+        assertThat(policy.getLegalBasisDescription(), is(LEGAL_BASIS_DESCRIPTION1));
         assertThat(policy.getLegalBasis().getDescription(), is(LEGAL_BASIS_DESCRIPTION1));
         assertThat(policy.getPurpose().getDescription(), is(PURPOSE_DESCRIPTION1));
     }
@@ -71,7 +75,7 @@ public class PolicyMapperTest {
         assertThat(legalBasisRepository.count(), is(1L));
         assertThat(purposeRepository.count(), is(1L));
         Purpose purpose = purposeRepository.findAll().get(0);
-        PolicyRequest request = new PolicyRequest(666L, purpose.getPurposeId(), 1L);
+        PolicyRequest request = new PolicyRequest(666L, LEGAL_BASIS_DESCRIPTION1, purpose.getPurposeId(), 1L);
         mapper.mapRequestToPolicy(request, null);
     }
 
@@ -81,7 +85,7 @@ public class PolicyMapperTest {
         expectedException.expectMessage("Cannot find Purpose with id: 666");
         assertThat(legalBasisRepository.count(), is(1L));
         LegalBasis legalBasis = legalBasisRepository.findAll().get(0);
-        PolicyRequest request = new PolicyRequest(legalBasis.getLegalBasisId(), 666L, 1L);
+        PolicyRequest request = new PolicyRequest(legalBasis.getLegalBasisId(), LEGAL_BASIS_DESCRIPTION1, 666L, 1L);
         mapper.mapRequestToPolicy(request, null);
     }
 

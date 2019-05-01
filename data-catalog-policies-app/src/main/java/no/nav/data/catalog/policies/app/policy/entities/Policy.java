@@ -1,4 +1,4 @@
-package no.nav.data.catalog.policies.app.model.entities;
+package no.nav.data.catalog.policies.app.policy.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,20 +17,23 @@ public class Policy {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_policy")
     @GenericGenerator(name = "seq_policy", strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
             parameters = {@Parameter(name = "sequence_name", value = "SEQ_POLICY")})
-    @Column(name="policy_id", nullable = false, updatable = false, unique = true)
+    @Column(name="POLICY_ID", nullable = false, updatable = false, unique = true)
     private Long policyId;
 
     //TODO Relation to InformationType
-    @Column(name="information_type_id",  nullable = false)
+    @Column(name="INFORMATION_TYPE_ID",  nullable = false)
     private Long informationTypeId;
 
     @ManyToOne
-    @JoinColumn(name="purpose_id",  nullable = false)
+    @JoinColumn(name="PURPOSE_ID",  nullable = false)
     private Purpose purpose;
 
     @ManyToOne
-    @JoinColumn(name="legal_basis_id",  nullable = false)
+    @JoinColumn(name="LEGAL_BASIS_ID",  nullable = false)
     private LegalBasis legalBasis;
+
+    @Column(name="LEGAL_BASIS_DESCRIPTION")
+    private String legalBasisDescription;
 
     /**
      * Default constructor.
