@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @RestController
-@RequestMapping(("/internal/"))
+@RequestMapping(("policy//internal/"))
 public class NaisEndpoints {
 	private static AtomicInteger isReady = new AtomicInteger(1);
 
