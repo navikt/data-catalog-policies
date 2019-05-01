@@ -42,6 +42,7 @@ public class PolicyMapperTest {
     public static final String PURPOSE_CODE1 = "PUR1";
     public static final String PURPOSE_DESCRIPTION1 = "Purpose 1";
     public static final String INFORMATION_TYPE_DESCRIPTION1 = "InformationTypeDescription 1";
+    public static final String INFORMATION_TYPE_NAME1 = "InformationTypeNeme 1";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -51,7 +52,7 @@ public class PolicyMapperTest {
         purposeRepository.deleteAll();
         legalBasisRepository.deleteAll();
         informationTypeRepository.deleteAll();
-        createBasicTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, INFORMATION_TYPE_DESCRIPTION1);
+        createBasicTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
     }
 
     @After
@@ -116,12 +117,12 @@ public class PolicyMapperTest {
     }
 
 
-    private void createBasicTestdata(String legalBasisDescription, String purposeCode, String purposeDescription, String informationTypeDescription) {
+    private void createBasicTestdata(String legalBasisDescription, String purposeCode, String purposeDescription, String informationTypeDescription, String informationTypeName) {
         legalBasisRepository.save(LegalBasis.builder().description(legalBasisDescription).build());
         Purpose purpose = new Purpose();
         purpose.setPurposeCode(purposeCode);
         purpose.setDescription(purposeDescription);
         purposeRepository.save(purpose);
-        informationTypeRepository.save(InformationType.builder().informationTypeId(1L).description(informationTypeDescription).build());
+        informationTypeRepository.save(InformationType.builder().informationTypeId(1L).description(informationTypeDescription).name(informationTypeName).build());
     }
 }

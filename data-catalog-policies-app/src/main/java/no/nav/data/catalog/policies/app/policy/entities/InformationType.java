@@ -26,7 +26,7 @@ public class InformationType {
 
     @ReadOnlyProperty
     @Column(name = "NAME")
-    private String informationTypeName;
+    private String name;
 
     @ReadOnlyProperty
     @Column(name = "DESCRIPTION")

@@ -26,6 +26,8 @@
 		<flyway.version>5.2.4</flyway.version>
 		<h2.version>1.4.199</h2.version>
 		<springfox.version>2.9.2</springfox.version>
+		<spring.cloud.wiremock.version>2.1.1.RELEASE</spring.cloud.wiremock.version>
+		<testcontainer.version>1.11.2</testcontainer.version>
 	</properties>
 
 	<dependencies>

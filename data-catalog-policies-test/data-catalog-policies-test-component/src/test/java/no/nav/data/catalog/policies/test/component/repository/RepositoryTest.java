@@ -33,6 +33,7 @@ public class RepositoryTest {
     private static final String PURPOSE_CODE1 = "PUR1";
     private static final String PURPOSE_DESCRIPTION1 = "Purpose 1";
     private static final String INFORMATION_TYPE_DESCRIPTION1 = "InformationType 1";
+    private static final String INFORMATION_TYPE_NAME1 = "InformationTypeName1";
 
     @Autowired
     private PolicyRepository policyRepository;
@@ -66,7 +67,7 @@ public class RepositoryTest {
 
         @Test
     public void getOne() {
-        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, 1l, INFORMATION_TYPE_DESCRIPTION1);
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, 1l, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
         assertThat(purposeRepository.count(), is(1L));
         assertThat(legalBasisRepository.count(), is(1L));
         assertThat(policyRepository.count(), is(1L));
@@ -77,15 +78,15 @@ public class RepositoryTest {
 
     @Test
     public void getAll() {
-        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, 1L, INFORMATION_TYPE_DESCRIPTION1);
-        createTestdata("Legal basis 2", "PUR2", "Purpose2", 2L, INFORMATION_TYPE_DESCRIPTION1);
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, 1L, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
+        createTestdata("Legal basis 2", "PUR2", "Purpose2", 2L, INFORMATION_TYPE_DESCRIPTION1, "InformationTypeName2");
         assertThat(purposeRepository.count(), is(2L));
         assertThat(legalBasisRepository.count(), is(2L));
         assertThat(policyRepository.count(), is(2L));
         assertThat(informationTypeRepository.count(), is(2L));
     }
 
-    private void createTestdata(String legalBasisDescription, String purposeCode, String purposeDescription, Long informationTypeId, String informationTypeDescription) {
+    private void createTestdata(String legalBasisDescription, String purposeCode, String purposeDescription, Long informationTypeId, String informationTypeDescription, String informationTypeName) {
         if (TestTransaction.isActive()) {
             TestTransaction.end();
         }
@@ -99,7 +100,7 @@ public class RepositoryTest {
         TestTransaction.flagForCommit();
         TestTransaction.end();
 
-        InformationType informationType = informationTypeRepository.save(InformationType.builder().informationTypeId(informationTypeId).description(informationTypeDescription).build());
+        InformationType informationType = informationTypeRepository.save(InformationType.builder().informationTypeId(informationTypeId).description(informationTypeDescription).name(informationTypeName).build());
 
         Policy policy = new Policy();
         policy.setInformationType(informationType);
