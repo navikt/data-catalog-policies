@@ -1,4 +1,4 @@
-package no.nav.data.catalog.policies.app.policy.service.mapper;
+package no.nav.data.catalog.policies.app.policy.mapper;
 
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.policy.PolicyRequest;
