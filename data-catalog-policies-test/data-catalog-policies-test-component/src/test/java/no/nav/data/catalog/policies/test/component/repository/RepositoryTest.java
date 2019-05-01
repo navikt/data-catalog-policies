@@ -1,8 +1,11 @@
 package no.nav.data.catalog.policies.test.component.repository;
 
+import io.swagger.models.auth.In;
+import no.nav.data.catalog.policies.app.policy.entities.InformationType;
 import no.nav.data.catalog.policies.app.policy.entities.LegalBasis;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.entities.Purpose;
+import no.nav.data.catalog.policies.app.policy.repository.InformationTypeRepository;
 import no.nav.data.catalog.policies.app.policy.repository.LegalBasisRepository;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import no.nav.data.catalog.policies.app.policy.repository.PurposeRepository;
@@ -29,6 +32,7 @@ public class RepositoryTest {
     private static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
     private static final String PURPOSE_CODE1 = "PUR1";
     private static final String PURPOSE_DESCRIPTION1 = "Purpose 1";
+    private static final String INFORMATION_TYPE_DESCRIPTION1 = "InformationType 1";
 
     @Autowired
     private PolicyRepository policyRepository;
@@ -39,11 +43,15 @@ public class RepositoryTest {
     @Autowired
     private LegalBasisRepository legalBasisRepository;
 
+    @Autowired
+    private InformationTypeRepository informationTypeRepository;
+
     @Before
     public void setUp() {
         policyRepository.deleteAll();
         purposeRepository.deleteAll();
         legalBasisRepository.deleteAll();
+        informationTypeRepository.deleteAll();
         TestTransaction.flagForCommit();
     }
 
@@ -52,30 +60,32 @@ public class RepositoryTest {
         policyRepository.deleteAll();
         purposeRepository.deleteAll();
         legalBasisRepository.deleteAll();
+        informationTypeRepository.deleteAll();
     }
 
 
         @Test
     public void getOne() {
-        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, 1L);
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, 1l, INFORMATION_TYPE_DESCRIPTION1);
         assertThat(purposeRepository.count(), is(1L));
         assertThat(legalBasisRepository.count(), is(1L));
         assertThat(policyRepository.count(), is(1L));
         assertLegalBasis();
         assertPurpose();
-        assertPolicy();
+        assertInformationType();
     }
 
     @Test
     public void getAll() {
-        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, 1L);
-        createTestdata("Legal basis 2", "PUR2", "Purpose2", 2L);
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, 1L, INFORMATION_TYPE_DESCRIPTION1);
+        createTestdata("Legal basis 2", "PUR2", "Purpose2", 2L, INFORMATION_TYPE_DESCRIPTION1);
         assertThat(purposeRepository.count(), is(2L));
         assertThat(legalBasisRepository.count(), is(2L));
         assertThat(policyRepository.count(), is(2L));
+        assertThat(informationTypeRepository.count(), is(2L));
     }
 
-    private void createTestdata(String legalBasisDescription, String purposeCode, String purposeDescription, Long informationTypeId) {
+    private void createTestdata(String legalBasisDescription, String purposeCode, String purposeDescription, Long informationTypeId, String informationTypeDescription) {
         if (TestTransaction.isActive()) {
             TestTransaction.end();
         }
@@ -89,8 +99,10 @@ public class RepositoryTest {
         TestTransaction.flagForCommit();
         TestTransaction.end();
 
+        InformationType informationType = informationTypeRepository.save(InformationType.builder().informationTypeId(informationTypeId).description(informationTypeDescription).build());
+
         Policy policy = new Policy();
-        policy.setInformationTypeId(informationTypeId);
+        policy.setInformationType(informationType);
         policy.setLegalBasis(lb);
         policy.setPurpose(purpose);
         policyRepository.save(policy);
@@ -107,8 +119,9 @@ public class RepositoryTest {
         assertThat(purpose.getDescription(), is(PURPOSE_DESCRIPTION1));
     }
 
-    private void assertPolicy() {
-        Policy policy = policyRepository.findAll().get(0);
-        assertThat(policy.getLegalBasis().getDescription(), is(LEGAL_BASIS_DESCRIPTION1));
+    private void assertInformationType() {
+        InformationType informationType =informationTypeRepository.findAll().get(0);
+        assertThat(informationType.getDescription(), is(INFORMATION_TYPE_DESCRIPTION1));
     }
+
 }
