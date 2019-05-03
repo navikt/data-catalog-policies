@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ComponentTestConfig.class)
@@ -112,17 +113,29 @@ public class RepositoryTest {
     private void assertLegalBasis() {
         LegalBasis legalBasis = legalBasisRepository.findAll().get(0);
         assertThat(legalBasis.getDescription(), is(LEGAL_BASIS_DESCRIPTION1));
+        assertNotNull(legalBasis.getCreatedDate());
+        assertNotNull(legalBasis.getLastModifiedDate());
+        assertThat(legalBasis.getCreatedBy(), is("Datajeger"));
+        assertThat(legalBasis.getLastModifiedBy(), is("Datajeger"));
     }
 
     private void assertPurpose() {
         Purpose purpose = purposeRepository.findAll().get(0);
         assertThat(purpose.getPurposeCode(), is(PURPOSE_CODE1));
         assertThat(purpose.getDescription(), is(PURPOSE_DESCRIPTION1));
+        assertNotNull(purpose.getCreatedDate());
+        assertNotNull(purpose.getLastModifiedDate());
+        assertThat(purpose.getCreatedBy(), is("Datajeger"));
+        assertThat(purpose.getLastModifiedBy(), is("Datajeger"));
     }
 
     private void assertInformationType() {
         InformationType informationType =informationTypeRepository.findAll().get(0);
         assertThat(informationType.getDescription(), is(INFORMATION_TYPE_DESCRIPTION1));
+        assertNotNull(informationType.getCreatedDate());
+        assertNotNull(informationType.getLastModifiedDate());
+        assertThat(informationType.getCreatedBy(), is("Datajeger"));
+        assertThat(informationType.getLastModifiedBy(), is("Datajeger"));
     }
 
 }
