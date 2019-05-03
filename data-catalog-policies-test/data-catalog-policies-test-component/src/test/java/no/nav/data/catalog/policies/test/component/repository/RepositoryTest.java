@@ -1,6 +1,5 @@
 package no.nav.data.catalog.policies.test.component.repository;
 
-import io.swagger.models.auth.In;
 import no.nav.data.catalog.policies.app.policy.entities.InformationType;
 import no.nav.data.catalog.policies.app.policy.entities.LegalBasis;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
