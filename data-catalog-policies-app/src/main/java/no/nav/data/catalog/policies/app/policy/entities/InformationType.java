@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import no.nav.data.catalog.policies.app.common.auditing.Auditable;
 import org.springframework.data.annotation.ReadOnlyProperty;
 
 import javax.persistence.Column;
@@ -17,7 +18,7 @@ import javax.persistence.Table;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class InformationType {
+public class InformationType extends Auditable<String> {
 
     @Id
     @ReadOnlyProperty

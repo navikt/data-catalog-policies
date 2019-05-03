@@ -2,6 +2,7 @@ package no.nav.data.catalog.policies.app.policy.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import no.nav.data.catalog.policies.app.common.auditing.Auditable;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
@@ -11,7 +12,7 @@ import javax.persistence.*;
 @Table(name="POLICY")
 @Data
 @AllArgsConstructor
-public class Policy {
+public class Policy extends Auditable<String> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_policy")
