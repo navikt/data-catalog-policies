@@ -58,7 +58,8 @@ public class PolicyRestController {
     @ResponseStatus(HttpStatus.CREATED)
     public Policy createPolicy(@Valid @RequestBody PolicyRequest policyRequest) {
         Policy policy = mapper.mapRequestToPolicy(policyRequest, null);
-        return policyRepository.save(policy);    }
+        return policyRepository.save(policy);
+    }
 
     @ApiOperation(value = "Get Policy", tags = { "Policies" })
     @ApiResponses(value = {
@@ -74,7 +75,7 @@ public class PolicyRestController {
         return optionalPolicy.get();
     }
 
-    @ApiOperation(value = "Dekete Policy", tags = { "Policies" })
+    @ApiOperation(value = "Delete Policy", tags = { "Policies" })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Policy deleted"),
             @ApiResponse(code = 404, message = "Policy not found"),
