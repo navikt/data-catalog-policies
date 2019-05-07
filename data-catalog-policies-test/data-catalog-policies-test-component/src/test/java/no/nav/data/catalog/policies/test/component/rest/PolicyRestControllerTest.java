@@ -82,6 +82,13 @@ public class PolicyRestControllerTest {
     }
 
     @Test
+    public void getMissingPolicy() throws Exception {
+        given(policyRepository.findById(1L)).willReturn(Optional.ofNullable(null));
+        mvc.perform(get("/policy/policy/1").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     public void createPolicy() throws Exception {
         Policy policy1 = createPolicyTestdata();
         PolicyRequest request = new PolicyRequest();
