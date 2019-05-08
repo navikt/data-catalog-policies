@@ -105,7 +105,14 @@ public class PolicyRestController {
             @ApiResponse(code = 500, message = "Internal server error")})
     @PutMapping("/policy/{id}")
     public Policy updatePolicy(@PathVariable Long id, @Valid @RequestBody PolicyRequest policyRequest) {
+        Optional<Policy> optionalPolicy = policyRepository.findById(id);
+        if (!optionalPolicy.isPresent()) {
+            throw new DataCatalogPoliciesNotFoundException(String.format("Cannot find Policy with id: %s", id));
+        }
+        Policy storedPolicy = optionalPolicy.get();
         Policy policy = mapper.mapRequestToPolicy(policyRequest, id);
+        policy.setCreatedBy(storedPolicy.getCreatedBy());
+        policy.setCreatedDate(storedPolicy.getCreatedDate());
         return policyRepository.save(policy);
     }
 
