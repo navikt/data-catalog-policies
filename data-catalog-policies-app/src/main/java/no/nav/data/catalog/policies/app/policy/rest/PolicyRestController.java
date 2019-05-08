@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.policy.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.entities.LegalBasis;
@@ -13,7 +14,10 @@ import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
 import no.nav.data.catalog.policies.app.policy.repository.LegalBasisRepository;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import no.nav.data.catalog.policies.app.policy.repository.PurposeRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -27,7 +31,10 @@ import java.util.Optional;
 @CrossOrigin
 @Api(value = "Data Catalog Policies", description = "REST API for Policies", tags = { "Policies" })
 @RequestMapping("/policy")
+@Slf4j
 public class PolicyRestController {
+    private static final Logger logger = LoggerFactory.getLogger(PolicyRestController.class);
+
     @Autowired
     private PolicyMapper mapper;
 
@@ -70,6 +77,7 @@ public class PolicyRestController {
     public Policy getPolicy(@PathVariable Long id) {
         Optional<Policy> optionalPolicy = policyRepository.findById(id);
         if (!optionalPolicy.isPresent()) {
+            logger.error(String.format("getPolicy: Cannot find Policy with id: %s", id));
             throw new DataCatalogPoliciesNotFoundException(String.format("Cannot find Policy with id: %s", id));
         }
         return optionalPolicy.get();
@@ -82,7 +90,12 @@ public class PolicyRestController {
             @ApiResponse(code = 500, message = "Internal server error")})
     @DeleteMapping("/policy/{id}")
     public void deletePolicy(@PathVariable Long id) {
-        policyRepository.deleteById(id);
+        try {
+            policyRepository.deleteById(id);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error(String.format("deletePolicy: Finner ikke id: %s, som skal slettes", id), e);
+            throw new DataCatalogPoliciesNotFoundException(e.getMessage());
+        }
     }
 
     @ApiOperation(value = "Update Policy", tags = { "Policies" })

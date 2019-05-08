@@ -64,11 +64,12 @@
 			<version>${springfox.version}</version>
 		</dependency>
 
-		<dependency>
+<!--		<dependency>
 			<groupId>com.microsoft.azure</groupId>
 			<artifactId>azure-active-directory-spring-boot-starter</artifactId>
 			<version>${azuread.version}</version>
 		</dependency>
+-->
 	</dependencies>
 
 	<build>

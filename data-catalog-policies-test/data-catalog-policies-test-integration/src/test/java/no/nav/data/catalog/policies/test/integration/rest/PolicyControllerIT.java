@@ -128,7 +128,6 @@ public class PolicyControllerIT {
                 POLICY_REST_ENDPOINT + "policy", HttpMethod.POST, new HttpEntity<>(request), Policy.class);
         assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
 
-        request.setLegalBasisDescription("UPDATED");
         createEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT + "policy/" + createEntity.getBody().getPolicyId(), HttpMethod.PUT, new HttpEntity<>(request), Policy.class);
         assertThat(createEntity.getStatusCode(), is(HttpStatus.OK));
@@ -147,6 +146,14 @@ public class PolicyControllerIT {
         assertThat(deleteEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(policyRepository.count(), is(0L));
     }
+
+    @Test
+    public void deleteNotExistingPolicy() {
+        ResponseEntity<String> deleteEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy/-1", HttpMethod.DELETE, new HttpEntity<>(new HttpHeaders()), String.class);
+        assertThat(deleteEntity.getStatusCode(), is(HttpStatus.NOT_FOUND));
+    }
+
 
     @Test
     public void get20FirstPolicies() {
