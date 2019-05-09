@@ -119,7 +119,6 @@ public class PolicyRestController {
     @ApiOperation(value = "Get all Purposes", tags = { "Policies" })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "All purposes fetched", response = Purpose.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Purpose not found"),
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping("/purpose")
     public List<Purpose> getPurposes() {
@@ -129,7 +128,6 @@ public class PolicyRestController {
     @ApiOperation(value = "Get all Legal bases", tags = { "Policies" })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "All Legal bases fetched", response = LegalBasis.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Legal basis not found"),
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping("/legalbasis")
     public List<LegalBasis> getLegalBasis() {
