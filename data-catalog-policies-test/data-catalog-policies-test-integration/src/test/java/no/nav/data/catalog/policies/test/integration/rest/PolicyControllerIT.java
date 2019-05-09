@@ -122,16 +122,32 @@ public class PolicyControllerIT {
     }
 
     @Test
+    public void getNotExistingPolicy() {
+        ResponseEntity<Policy> createEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy/-1", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), Policy.class);
+        assertThat(createEntity.getStatusCode(), is(HttpStatus.NOT_FOUND));
+    }
+
+    @Test
     public void updatePolicy() {
         PolicyRequest request = createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME);
         ResponseEntity<Policy> createEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT + "policy", HttpMethod.POST, new HttpEntity<>(request), Policy.class);
         assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
 
+        request.setLegalBasisDescription("UPDATED");
         createEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT + "policy/" + createEntity.getBody().getPolicyId(), HttpMethod.PUT, new HttpEntity<>(request), Policy.class);
         assertThat(createEntity.getStatusCode(), is(HttpStatus.OK));
         assertPolicy(createEntity.getBody(), "UPDATED");
+    }
+
+    @Test
+    public void updateNotExistingPolicy() {
+        PolicyRequest request = createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME);
+        ResponseEntity<Policy> createEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy/-1", HttpMethod.PUT, new HttpEntity<>(request), Policy.class);
+        assertThat(createEntity.getStatusCode(), is(HttpStatus.NOT_FOUND));
     }
 
     @Test
