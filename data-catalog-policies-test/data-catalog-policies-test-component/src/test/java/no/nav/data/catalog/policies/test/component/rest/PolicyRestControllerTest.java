@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -33,6 +34,8 @@ import java.util.Optional;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -82,7 +85,7 @@ public class PolicyRestControllerTest {
     }
 
     @Test
-    public void getMissingPolicy() throws Exception {
+    public void getNotExistingPolicy() throws Exception {
         given(policyRepository.findById(1L)).willReturn(Optional.ofNullable(null));
         mvc.perform(get("/policy/policy/1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
@@ -104,11 +107,50 @@ public class PolicyRestControllerTest {
     }
 
     @Test
+    public void updatePolicy() throws Exception {
+        Policy policy1 = createPolicyTestdata();
+        PolicyRequest request = new PolicyRequest();
+
+        given(mapper.mapRequestToPolicy(request, 1L)).willReturn(policy1);
+        given(policyRepository.findById(1L)).willReturn(Optional.of(policy1));
+        given(policyRepository.save(policy1)).willReturn(policy1);
+
+        mvc.perform(put("/policy/policy/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.legalBasisDescription",is("Description")));
+    }
+
+    @Test
+    public void updateNotExistingPolicy() throws Exception {
+        Policy policy1 = createPolicyTestdata();
+        PolicyRequest request = new PolicyRequest();
+
+        given(mapper.mapRequestToPolicy(request, 1L)).willReturn(policy1);
+        given(policyRepository.findById(1L)).willReturn(Optional.ofNullable(null));
+
+        mvc.perform(put("/policy/policy/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(request)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     public void deletePolicy() throws Exception {
         mvc.perform(delete("/policy/policy/1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    public void deleteNotExistsingPolicy() throws Exception {
+        doThrow(new EmptyResultDataAccessException(1)).when(policyRepository).deleteById(1L);
+        mvc.perform(delete("/policy/policy/1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
 
     private Policy createPolicyTestdata() {
         Policy policy = new Policy();
