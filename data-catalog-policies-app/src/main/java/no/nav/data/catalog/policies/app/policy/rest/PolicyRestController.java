@@ -7,13 +7,9 @@ import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.policy.PolicyRequest;
-import no.nav.data.catalog.policies.app.policy.entities.LegalBasis;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
-import no.nav.data.catalog.policies.app.policy.entities.Purpose;
 import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
-import no.nav.data.catalog.policies.app.policy.repository.LegalBasisRepository;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
-import no.nav.data.catalog.policies.app.policy.repository.PurposeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +20,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -40,12 +35,6 @@ public class PolicyRestController {
 
     @Autowired
     private PolicyRepository policyRepository;
-
-    @Autowired
-    private LegalBasisRepository legalBasisRepository;
-
-    @Autowired
-    private PurposeRepository purposeRepository;
 
     @ApiOperation(value = "Get all Policies", tags = { "Policies" })
     @ApiResponses(value = {
@@ -114,23 +103,5 @@ public class PolicyRestController {
         policy.setCreatedBy(storedPolicy.getCreatedBy());
         policy.setCreatedDate(storedPolicy.getCreatedDate());
         return policyRepository.save(policy);
-    }
-
-    @ApiOperation(value = "Get all Purposes", tags = { "Policies" })
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "All purposes fetched", response = Purpose.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Internal server error")})
-    @GetMapping("/purpose")
-    public List<Purpose> getPurposes() {
-        return purposeRepository.findAll();
-    }
-
-    @ApiOperation(value = "Get all Legal bases", tags = { "Policies" })
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "All Legal bases fetched", response = LegalBasis.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Internal server error")})
-    @GetMapping("/legalbasis")
-    public List<LegalBasis> getLegalBasis() {
-        return legalBasisRepository.findAll();
     }
 }
