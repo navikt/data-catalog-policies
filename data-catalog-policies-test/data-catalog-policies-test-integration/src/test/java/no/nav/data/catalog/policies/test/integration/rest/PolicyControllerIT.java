@@ -122,6 +122,13 @@ public class PolicyControllerIT {
     }
 
     @Test
+    public void getNotExistingPolicy() {
+        ResponseEntity<Policy> createEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy/-1", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), Policy.class);
+        assertThat(createEntity.getStatusCode(), is(HttpStatus.NOT_FOUND));
+    }
+
+    @Test
     public void updatePolicy() {
         PolicyRequest request = createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME);
         ResponseEntity<Policy> createEntity = restTemplate.exchange(
@@ -136,6 +143,14 @@ public class PolicyControllerIT {
     }
 
     @Test
+    public void updateNotExistingPolicy() {
+        PolicyRequest request = createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME);
+        ResponseEntity<Policy> createEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy/-1", HttpMethod.PUT, new HttpEntity<>(request), Policy.class);
+        assertThat(createEntity.getStatusCode(), is(HttpStatus.NOT_FOUND));
+    }
+
+    @Test
     public void deletePolicy() {
         PolicyRequest request = createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, PURPOSE_DESCRIPTION1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME);
         ResponseEntity<Policy> createEntity = restTemplate.exchange(
@@ -147,6 +162,14 @@ public class PolicyControllerIT {
         assertThat(deleteEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(policyRepository.count(), is(0L));
     }
+
+    @Test
+    public void deleteNotExistingPolicy() {
+        ResponseEntity<String> deleteEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy/-1", HttpMethod.DELETE, new HttpEntity<>(new HttpHeaders()), String.class);
+        assertThat(deleteEntity.getStatusCode(), is(HttpStatus.NOT_FOUND));
+    }
+
 
     @Test
     public void get20FirstPolicies() {
