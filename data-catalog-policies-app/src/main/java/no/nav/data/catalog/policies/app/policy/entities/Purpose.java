@@ -2,6 +2,7 @@ package no.nav.data.catalog.policies.app.policy.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import no.nav.data.catalog.policies.app.common.auditing.Auditable;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
@@ -12,6 +13,7 @@ import javax.persistence.*;
 @Table(name="PURPOSE")
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class Purpose extends Auditable<String> {
 
     @Id
@@ -26,14 +28,4 @@ public class Purpose extends Auditable<String> {
 
     @Column(name="DESCRIPTION", length = 500)
     private String description;
-
-//    @OneToMany(mappedBy = "purpose")
-//    @JsonIgnore
-//    private Set<Policy> policyList = new HashSet<>();
-
-    /**
-     * Default constructor.
-     */
-    public Purpose() {
-    }
 }

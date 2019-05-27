@@ -28,6 +28,7 @@
 		<springfox.version>2.9.2</springfox.version>
 		<spring.cloud.wiremock.version>2.1.1.RELEASE</spring.cloud.wiremock.version>
 		<testcontainer.version>1.11.2</testcontainer.version>
+		<azuread.version>2.1.6</azuread.version>
 	</properties>
 
 	<dependencies>
@@ -37,25 +38,5 @@
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-enforcer-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>enforce</goal>
-						</goals>
-						<configuration>
-							<rules>
-								<dependencyConvergence/>
-							</rules>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
 
 </project>
