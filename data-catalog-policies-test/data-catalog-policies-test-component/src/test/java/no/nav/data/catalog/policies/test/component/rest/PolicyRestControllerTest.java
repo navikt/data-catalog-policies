@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.data.catalog.policies.app.AppStarter;
 import no.nav.data.catalog.policies.app.policy.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.entities.InformationType;
+import no.nav.data.catalog.policies.app.policy.entities.LegalBasis;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
+import no.nav.data.catalog.policies.app.policy.entities.Purpose;
 import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import no.nav.data.catalog.policies.app.policy.rest.PolicyRestController;
@@ -52,8 +54,8 @@ public class PolicyRestControllerTest {
 
     @Test
     public void getAllPolicies() throws Exception {
-        Policy policy1 = createPolicyTestdata();
-        Policy policy2 = createPolicyTestdata();
+        Policy policy1 = createPolicyTestdata(1L);
+        Policy policy2 = createPolicyTestdata(2L);
 
         List<Policy> policies = Arrays.asList(policy1, policy2);
         Page<Policy> policyPage = new PageImpl<>(policies);
@@ -65,7 +67,7 @@ public class PolicyRestControllerTest {
 
     @Test
     public void getOnePolicy() throws Exception {
-        Policy policy1 = createPolicyTestdata();
+        Policy policy1 = createPolicyTestdata(1L);
 
         given(policyRepository.findById(1L)).willReturn(Optional.of(policy1));
         mvc.perform(get("/policy/policy/1").contentType(MediaType.APPLICATION_JSON))
@@ -81,8 +83,22 @@ public class PolicyRestControllerTest {
     }
 
     @Test
+    public void getPoliciesForInformationType()throws Exception {
+        Policy policy1 = createPolicyTestdata(1L);
+        Policy policy2 = createPolicyTestdata(2L);
+
+        List<Policy> policies = Arrays.asList(policy1);
+        Page<Policy> policyPage = new PageImpl<>(policies);
+        given(policyRepository.findByInformationTypeInformationTypeId(PageRequest.of(0, 100), 1L)).willReturn(policyPage);
+        mvc.perform(get("/policy/policy?page=0&size=100&informationTypeId=1").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content",hasSize(1)));
+
+    }
+
+    @Test
     public void createPolicy() throws Exception {
-        Policy policy1 = createPolicyTestdata();
+        Policy policy1 = createPolicyTestdata(1L);
         PolicyRequest request = new PolicyRequest();
 
         given(mapper.mapRequestToPolicy(request, null)).willReturn(policy1);
@@ -97,7 +113,7 @@ public class PolicyRestControllerTest {
 
     @Test
     public void updatePolicy() throws Exception {
-        Policy policy1 = createPolicyTestdata();
+        Policy policy1 = createPolicyTestdata(1L);
         PolicyRequest request = new PolicyRequest();
 
         given(mapper.mapRequestToPolicy(request, 1L)).willReturn(policy1);
@@ -113,7 +129,7 @@ public class PolicyRestControllerTest {
 
     @Test
     public void updateNotExistingPolicy() throws Exception {
-        Policy policy1 = createPolicyTestdata();
+        Policy policy1 = createPolicyTestdata(1L);
         PolicyRequest request = new PolicyRequest();
 
         given(mapper.mapRequestToPolicy(request, 1L)).willReturn(policy1);
@@ -141,10 +157,11 @@ public class PolicyRestControllerTest {
     }
 
 
-    private Policy createPolicyTestdata() {
+    private Policy createPolicyTestdata(Long informationTypeId) {
         Policy policy = new Policy();
-        policy.setPurposeCode("PurposeCode");
-        policy.setInformationType(new InformationType());
+        InformationType informationType = new InformationType();
+        informationType.setInformationTypeId(informationTypeId);
+        policy.setInformationType(informationType);
         policy.setLegalBasisDescription("Description");
         return  policy;
     }

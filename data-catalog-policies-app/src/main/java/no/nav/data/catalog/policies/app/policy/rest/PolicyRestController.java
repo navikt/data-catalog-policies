@@ -40,9 +40,18 @@ public class PolicyRestController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "All policies fetched", response = Policy.class, responseContainer = "List"),
                 @ApiResponse(code = 500, message = "Internal server error")})
-    @GetMapping("/policy")
+    @GetMapping(path = "/policy")
     public Page<Policy> getPolicies(Pageable pageable) {
         return policyRepository.findAll(pageable);
+    }
+
+    @ApiOperation(value = "Get all Policies", tags = { "Policies" })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "All policies fetched", response = Policy.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Internal server error")})
+    @GetMapping(path = "/policy", params = {"informationTypeId"})
+    public Page<Policy> getPoliciesByInformationType(Pageable pageable, @RequestParam Long informationTypeId) {
+        return policyRepository.findByInformationTypeInformationTypeId(pageable, informationTypeId);
     }
 
     @ApiOperation(value = "Create Policy", tags = { "Policies" })

@@ -186,6 +186,16 @@ public class PolicyControllerIT {
         assertThat(responseEntity.getBody().getContent().size(), is(0));
     }
 
+    @Test
+    public void getPolicyForInformationType1() {
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1,INFORMATION_TYPE_NAME, 100);
+
+        ResponseEntity<PagedResources<Policy>> responseEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy?informationTypeId=1", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), new ParameterizedTypeReference<PagedResources<Policy>>() {});
+        assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
+        assertThat(responseEntity.getBody().getContent().size(), is(1));
+    }
+
     private void createTestdata(String legalBasisDescription, String purposeCode, String informationTypeDescription, String informationTypeName, int rows) {
         int i = 0;
         while (i < rows) {
