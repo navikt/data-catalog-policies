@@ -113,13 +113,13 @@ public class PolicyRestControllerTest {
 
     @Test
     public void createTwoPolicies() throws Exception {
-        Policy policy1 = createPolicyTestdata();
-        Policy policy2 = createPolicyTestdata();
-        List<PolicyRequest> request = Arrays.asList(new PolicyRequest(), new PolicyRequest());
+        Policy policy1 = createPolicyTestdata(1L);
+        Policy policy2 = createPolicyTestdata(2L);
+        List<PolicyRequest> request = Arrays.asList(new PolicyRequest("Desc1","Code1","Name1"), new PolicyRequest("Desc2","Code2","Name2"));
         List<Policy> policies = Arrays.asList(policy1, policy2);
 
         given(mapper.mapRequestToPolicy(request.get(0), null)).willReturn(policy1);
-        given(mapper.mapRequestToPolicy(request.get(1), null)).willReturn(policy1);
+        given(mapper.mapRequestToPolicy(request.get(1), null)).willReturn(policy2);
         given(policyRepository.saveAll(policies)).willReturn(policies);
 
         mvc.perform(post("/policy/policy")
