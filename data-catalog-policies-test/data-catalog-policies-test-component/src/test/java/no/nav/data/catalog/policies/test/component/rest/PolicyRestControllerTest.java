@@ -8,9 +8,7 @@ import no.nav.data.catalog.policies.app.policy.entities.LegalBasis;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.entities.Purpose;
 import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
-import no.nav.data.catalog.policies.app.policy.repository.LegalBasisRepository;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
-import no.nav.data.catalog.policies.app.policy.repository.PurposeRepository;
 import no.nav.data.catalog.policies.app.policy.rest.PolicyRestController;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,12 +51,6 @@ public class PolicyRestControllerTest {
 
     @MockBean
     private PolicyRepository policyRepository;
-
-    @MockBean
-    private LegalBasisRepository legalBasisRepository;
-
-    @MockBean
-    private PurposeRepository purposeRepository;
 
     @Test
     public void getAllPolicies() throws Exception {
@@ -167,8 +159,6 @@ public class PolicyRestControllerTest {
 
     private Policy createPolicyTestdata(Long informationTypeId) {
         Policy policy = new Policy();
-        policy.setPurpose(new Purpose());
-        policy.setLegalBasis(new LegalBasis());
         InformationType informationType = new InformationType();
         informationType.setInformationTypeId(informationTypeId);
         policy.setInformationType(informationType);
@@ -182,29 +172,5 @@ public class PolicyRestControllerTest {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Test
-    public void getAllLegalBasis() throws Exception {
-        LegalBasis lb1 = new LegalBasis();
-        LegalBasis lb2 = new LegalBasis();
-
-        List<LegalBasis> lbs = Arrays.asList(lb1, lb2);
-        given(legalBasisRepository.findAll()).willReturn(lbs);
-        mvc.perform(get("/policy/legalbasis").contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$",hasSize(2)));
-    }
-
-    @Test
-    public void getAllPurposes() throws Exception {
-        Purpose p1 = new Purpose();
-        Purpose p2 = new Purpose();
-
-        List<Purpose> purposes = Arrays.asList(p1, p2);
-        given(purposeRepository.findAll()).willReturn(purposes);
-        mvc.perform(get("/policy/purpose").contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$",hasSize(2)));
     }
 }

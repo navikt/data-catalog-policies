@@ -12,8 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PolicyRequest {
-    private Long legalBasisId;
     private String legalBasisDescription;
-    private Long purposeId;
-    private Long informationTypeId;
+    private String purposeCode;
+    private String informationTypeName;
 }

@@ -27,13 +27,8 @@ public class Policy extends Auditable<String> {
     @JoinColumn(name="INFORMATION_TYPE_ID",  nullable = false)
     private InformationType informationType;
 
-    @ManyToOne
-    @JoinColumn(name="PURPOSE_ID",  nullable = false)
-    private Purpose purpose;
-
-    @ManyToOne
-    @JoinColumn(name="LEGAL_BASIS_ID",  nullable = false)
-    private LegalBasis legalBasis;
+    @Column(name="PURPOSE_CODE",  nullable = false)
+    private String purposeCode;
 
     @Column(name="LEGAL_BASIS_DESCRIPTION", length = 500)
     private String legalBasisDescription;
