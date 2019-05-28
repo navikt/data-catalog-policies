@@ -34,6 +34,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -86,24 +88,24 @@ public class PolicyControllerIT {
 
     @Test
     public void createPolicy() {
-        PolicyRequest request = createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME);
-        ResponseEntity<Policy> responseEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT + "policy", HttpMethod.POST, new HttpEntity<>(request), Policy.class);
-        assertThat(responseEntity.getStatusCode(), is(HttpStatus.CREATED));
-        assertPolicy(responseEntity.getBody(), LEGAL_BASIS_DESCRIPTION1);
+        List<PolicyRequest> requestList = Arrays.asList(createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME, 1L));
+        ResponseEntity<List<Policy>> createEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy", HttpMethod.POST, new HttpEntity<>(requestList), new ParameterizedTypeReference<List<Policy>>(){});
+        assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
+        assertPolicy(createEntity.getBody().get(0), LEGAL_BASIS_DESCRIPTION1);
     }
 
     @Test
     public void getOnePolicy() {
-        PolicyRequest request = createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME);
-        ResponseEntity<Policy> createEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT + "policy", HttpMethod.POST, new HttpEntity<>(request), Policy.class);
+        List<PolicyRequest> requestList = Arrays.asList(createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME, 1L));
+        ResponseEntity<List<Policy>> createEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy", HttpMethod.POST, new HttpEntity<>(requestList), new ParameterizedTypeReference<List<Policy>>(){});
         assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
 
-        createEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT + "policy/" + createEntity.getBody().getPolicyId(), HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), Policy.class);
-        assertThat(createEntity.getStatusCode(), is(HttpStatus.OK));
-        assertPolicy(createEntity.getBody(), LEGAL_BASIS_DESCRIPTION1);
+        ResponseEntity<Policy> getEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy/" + createEntity.getBody().get(0).getPolicyId(), HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), Policy.class);
+        assertThat(getEntity.getStatusCode(), is(HttpStatus.OK));
+        assertPolicy(getEntity.getBody(), LEGAL_BASIS_DESCRIPTION1);
     }
 
     @Test
@@ -114,22 +116,43 @@ public class PolicyControllerIT {
     }
 
     @Test
-    public void updatePolicy() {
-        PolicyRequest request = createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME);
-        ResponseEntity<Policy> createEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT + "policy", HttpMethod.POST, new HttpEntity<>(request), Policy.class);
+    public void updateOnePolicy() {
+        List<PolicyRequest> requestList = Arrays.asList(createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME, 1L));
+        ResponseEntity<List<Policy>> createEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy", HttpMethod.POST, new HttpEntity<>(requestList), new ParameterizedTypeReference<List<Policy>>(){});
         assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
 
+        PolicyRequest request = requestList.get(0);
         request.setLegalBasisDescription("UPDATED");
-        createEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT + "policy/" + createEntity.getBody().getPolicyId(), HttpMethod.PUT, new HttpEntity<>(request), Policy.class);
-        assertThat(createEntity.getStatusCode(), is(HttpStatus.OK));
-        assertPolicy(createEntity.getBody(), "UPDATED");
+        ResponseEntity<Policy> updateEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy/" + createEntity.getBody().get(0).getPolicyId(), HttpMethod.PUT, new HttpEntity<>(request), Policy.class);
+        assertThat(updateEntity.getStatusCode(), is(HttpStatus.OK));
+        assertPolicy(updateEntity.getBody(), "UPDATED");
+    }
+
+    @Test
+    public void updateTwoPolices() {
+        List<PolicyRequest> requestList = Arrays.asList(createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME, 1L), createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1, "Postadresse",2L));
+        ResponseEntity<List<Policy>> createEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy", HttpMethod.POST, new HttpEntity<>(requestList), new ParameterizedTypeReference<List<Policy>>(){});
+        assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
+        assertThat(createEntity.getBody().size(), is(2));
+
+        requestList.forEach(request -> request.setLegalBasisDescription("UPDATED"));
+        requestList.get(0).setId(createEntity.getBody().get(0).getPolicyId());
+        requestList.get(1).setId(createEntity.getBody().get(1).getPolicyId());
+
+        ResponseEntity<List<Policy>>  updateEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy", HttpMethod.PUT, new HttpEntity<>(requestList), new ParameterizedTypeReference<List<Policy>>(){});
+        assertThat(updateEntity.getStatusCode(), is(HttpStatus.OK));
+        assertThat(updateEntity.getBody().size(), is(2));
+        assertPolicy(updateEntity.getBody().get(0), "UPDATED");
+        assertThat(updateEntity.getBody().get(1).getLegalBasisDescription(), is("UPDATED"));
     }
 
     @Test
     public void updateNotExistingPolicy() {
-        PolicyRequest request = createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME);
+        PolicyRequest request = createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME,1L);
         ResponseEntity<Policy> createEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT + "policy/-1", HttpMethod.PUT, new HttpEntity<>(request), Policy.class);
         assertThat(createEntity.getStatusCode(), is(HttpStatus.NOT_FOUND));
@@ -137,13 +160,13 @@ public class PolicyControllerIT {
 
     @Test
     public void deletePolicy() {
-        PolicyRequest request = createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME);
-        ResponseEntity<Policy> createEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT + "policy", HttpMethod.POST, new HttpEntity<>(request), Policy.class);
+        List<PolicyRequest> requestList = Arrays.asList(createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME,1L));
+        ResponseEntity<List<Policy>> createEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy", HttpMethod.POST, new HttpEntity<>(requestList), new ParameterizedTypeReference<List<Policy>>(){});
         assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
 
         ResponseEntity<String> deleteEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT + "policy/" + createEntity.getBody().getPolicyId(), HttpMethod.DELETE, new HttpEntity<>(new HttpHeaders()), String.class);
+                POLICY_REST_ENDPOINT + "policy/" + createEntity.getBody().get(0).getPolicyId(), HttpMethod.DELETE, new HttpEntity<>(new HttpHeaders()), String.class);
         assertThat(deleteEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(policyRepository.count(), is(0L));
     }
@@ -207,13 +230,13 @@ public class PolicyControllerIT {
         }
     }
 
-    private PolicyRequest createPolicyRequest(String legalBasisDescription, String purposeCode, String informationTypeDescription, String informationTypeName) {
+    private PolicyRequest createPolicyRequest(String legalBasisDescription, String purposeCode, String informationTypeDescription, String informationTypeName, Long informationTypeId) {
         if (TestTransaction.isActive()) {
             TestTransaction.end();
         }
         TestTransaction.start();
 
-        InformationType informationType = informationTypeRepository.save(InformationType.builder().informationTypeId(1L).name(informationTypeName).description(informationTypeDescription).build());
+        InformationType informationType = informationTypeRepository.save(InformationType.builder().informationTypeId(informationTypeId).name(informationTypeName).description(informationTypeDescription).build());
         TestTransaction.flagForCommit();
         TestTransaction.end();
         return PolicyRequest.builder().informationTypeName(informationType.getName()).legalBasisDescription(legalBasisDescription).purposeCode(purposeCode).build();
