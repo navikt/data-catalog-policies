@@ -48,7 +48,16 @@ public class PolicyRestController {
         return policyRepository.findAll(pageable);
     }
 
-    @ApiOperation(value = "Create Policy", tags = {"Policies"})
+    @ApiOperation(value = "Get all Policies", tags = { "Policies" })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "All policies fetched", response = Policy.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Internal server error")})
+    @GetMapping(path = "/policy", params = {"informationTypeId"})
+    public Page<Policy> getPoliciesByInformationType(Pageable pageable, @RequestParam Long informationTypeId) {
+        return policyRepository.findByInformationTypeInformationTypeId(pageable, informationTypeId);
+    }
+
+    @ApiOperation(value = "Create Policy", tags = { "Policies" })
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Policy successfully created", response = Policy.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Illegal arguments"),
