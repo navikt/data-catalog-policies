@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.data.catalog.policies.app.AppStarter;
 import no.nav.data.catalog.policies.app.policy.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.entities.InformationType;
-import no.nav.data.catalog.policies.app.policy.entities.LegalBasis;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
-import no.nav.data.catalog.policies.app.policy.entities.Purpose;
 import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import no.nav.data.catalog.policies.app.policy.rest.PolicyRestController;
@@ -60,7 +58,8 @@ public class PolicyRestControllerTest {
         List<Policy> policies = Arrays.asList(policy1, policy2);
         Page<Policy> policyPage = new PageImpl<>(policies);
         given(policyRepository.findAll(PageRequest.of(0, 100))).willReturn(policyPage);
-        mvc.perform(get("/policy/policy?page=0&size=100").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/policy/policy?page=0&size=100")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content",hasSize(2)));
     }
@@ -97,18 +96,37 @@ public class PolicyRestControllerTest {
     }
 
     @Test
-    public void createPolicy() throws Exception {
+    public void createOnePolicy() throws Exception {
         Policy policy1 = createPolicyTestdata(1L);
-        PolicyRequest request = new PolicyRequest();
+        List<PolicyRequest> request = Arrays.asList(new PolicyRequest());
+        List<Policy> policies = Arrays.asList(policy1);
 
-        given(mapper.mapRequestToPolicy(request, null)).willReturn(policy1);
-        given(policyRepository.save(policy1)).willReturn(policy1);
+        given(mapper.mapRequestToPolicy(request.get(0), null)).willReturn(policy1);
+        given(policyRepository.saveAll(policies)).willReturn(policies);
 
         mvc.perform(post("/policy/policy")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.legalBasisDescription",is("Description")));
+                .andExpect(jsonPath("$.*",hasSize(1)));
+    }
+
+    @Test
+    public void createTwoPolicies() throws Exception {
+        Policy policy1 = createPolicyTestdata(1L);
+        Policy policy2 = createPolicyTestdata(2L);
+        List<PolicyRequest> request = Arrays.asList(new PolicyRequest("Desc1","Code1","Name1"), new PolicyRequest("Desc2","Code2","Name2"));
+        List<Policy> policies = Arrays.asList(policy1, policy2);
+
+        given(mapper.mapRequestToPolicy(request.get(0), null)).willReturn(policy1);
+        given(mapper.mapRequestToPolicy(request.get(1), null)).willReturn(policy2);
+        given(policyRepository.saveAll(policies)).willReturn(policies);
+
+        mvc.perform(post("/policy/policy")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.*",hasSize(2)));
     }
 
     @Test

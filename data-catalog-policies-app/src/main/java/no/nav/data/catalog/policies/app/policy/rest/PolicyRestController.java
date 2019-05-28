@@ -20,11 +20,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin
-@Api(value = "Data Catalog Policies", description = "REST API for Policies", tags = { "Policies" })
+@Api(value = "Data Catalog Policies", description = "REST API for Policies", tags = {"Policies"})
 @RequestMapping("/policy")
 @Slf4j
 public class PolicyRestController {
@@ -36,11 +39,11 @@ public class PolicyRestController {
     @Autowired
     private PolicyRepository policyRepository;
 
-    @ApiOperation(value = "Get all Policies", tags = { "Policies" })
+    @ApiOperation(value = "Get all Policies", tags = {"Policies"})
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "All policies fetched", response = Policy.class, responseContainer = "List"),
-                @ApiResponse(code = 500, message = "Internal server error")})
-    @GetMapping(path = "/policy")
+            @ApiResponse(code = 500, message = "Internal server error")})
+    @GetMapping("/policy")
     public Page<Policy> getPolicies(Pageable pageable) {
         return policyRepository.findAll(pageable);
     }
@@ -56,17 +59,17 @@ public class PolicyRestController {
 
     @ApiOperation(value = "Create Policy", tags = { "Policies" })
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Policy successfully created", response = Policy.class),
+            @ApiResponse(code = 201, message = "Policy successfully created", response = Policy.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Illegal arguments"),
             @ApiResponse(code = 500, message = "Internal server error")})
     @PostMapping("/policy")
     @ResponseStatus(HttpStatus.CREATED)
-    public Policy createPolicy(@Valid @RequestBody PolicyRequest policyRequest) {
-        Policy policy = mapper.mapRequestToPolicy(policyRequest, null);
-        return policyRepository.save(policy);
+    public List<Policy> createPolicy(@Valid @RequestBody List<PolicyRequest> policyRequests) {
+        List<Policy> policies = policyRequests.stream().map(policy -> mapper.mapRequestToPolicy(policy, null)).collect(Collectors.toList());
+        return policyRepository.saveAll(policies);
     }
 
-    @ApiOperation(value = "Get Policy", tags = { "Policies" })
+    @ApiOperation(value = "Get Policy", tags = {"Policies"})
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Fetched policy", response = Policy.class),
             @ApiResponse(code = 404, message = "Policy not found"),
@@ -81,7 +84,7 @@ public class PolicyRestController {
         return optionalPolicy.get();
     }
 
-    @ApiOperation(value = "Delete Policy", tags = { "Policies" })
+    @ApiOperation(value = "Delete Policy", tags = {"Policies"})
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Policy deleted"),
             @ApiResponse(code = 404, message = "Policy not found"),
@@ -96,7 +99,7 @@ public class PolicyRestController {
         }
     }
 
-    @ApiOperation(value = "Update Policy", tags = { "Policies" })
+    @ApiOperation(value = "Update Policy", tags = {"Policies"})
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Policy updated"),
             @ApiResponse(code = 404, message = "Policy not found"),
@@ -112,5 +115,28 @@ public class PolicyRestController {
         policy.setCreatedBy(storedPolicy.getCreatedBy());
         policy.setCreatedDate(storedPolicy.getCreatedDate());
         return policyRepository.save(policy);
+    }
+
+    @ApiOperation(value = "Update Policies", tags = {"Policies"})
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Polices updated", response = Policy.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Policy not found"),
+            @ApiResponse(code = 500, message = "Internal server error")})
+    @PutMapping("/policy")
+    public List<Policy> updatePolicies(@Valid @RequestBody List<PolicyRequest> policyRequests) {
+        List<Policy> policies = new ArrayList<>();
+        policyRequests.forEach(policyRequest -> {
+                    Optional<Policy> optionalPolicy = policyRepository.findById(policyRequest.getId());
+                    if (!optionalPolicy.isPresent()) {
+                        throw new DataCatalogPoliciesNotFoundException(String.format("Cannot find Policy with id: %s", policyRequest.getId()));
+                    }
+                    Policy storedPolicy = optionalPolicy.get();
+                    Policy policy = mapper.mapRequestToPolicy(policyRequest, policyRequest.getId());
+                    policy.setCreatedBy(storedPolicy.getCreatedBy());
+                    policy.setCreatedDate(storedPolicy.getCreatedDate());
+                    policies.add(policy);
+                }
+        );
+        return policyRepository.saveAll(policies);
     }
 }
