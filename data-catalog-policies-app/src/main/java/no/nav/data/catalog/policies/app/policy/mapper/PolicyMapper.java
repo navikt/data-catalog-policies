@@ -2,7 +2,9 @@ package no.nav.data.catalog.policies.app.policy.mapper;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
+import no.nav.data.catalog.policies.app.consumer.CodelistConsumer;
 import no.nav.data.catalog.policies.app.policy.PolicyRequest;
+import no.nav.data.catalog.policies.app.policy.PolicyResponse;
 import no.nav.data.catalog.policies.app.policy.entities.InformationType;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.repository.InformationTypeRepository;
@@ -11,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -20,6 +23,9 @@ public class PolicyMapper {
 
     @Autowired
     private InformationTypeRepository informationTypeRepository;
+
+    @Autowired
+    private CodelistConsumer consumer;
 
     public Policy mapRequestToPolicy(PolicyRequest policyRequest, Long id) {
         Optional<InformationType> optionalInformationType = informationTypeRepository.findByName(policyRequest.getInformationTypeName());
@@ -37,5 +43,14 @@ public class PolicyMapper {
             policy.setPolicyId(id);
         }
         return policy;
+    }
+
+    public PolicyResponse mapPolicyToRequest(Policy policy) {
+        PolicyResponse response = new PolicyResponse();
+        response.setPolicyId(policy.getPolicyId());
+        response.setLegalBasisDescription(policy.getLegalBasisDescription());
+        response.setInformationType(policy.getInformationType());
+        response.setPurpose(Map.of("code", policy.getPurposeCode(), "description", consumer.getPurposeCodelistDescription(policy.getPurposeCode())));
+        return response;
     }
 }

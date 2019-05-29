@@ -3,6 +3,7 @@ package no.nav.data.catalog.policies.test.component.rest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.data.catalog.policies.app.AppStarter;
 import no.nav.data.catalog.policies.app.policy.PolicyRequest;
+import no.nav.data.catalog.policies.app.policy.PolicyResponse;
 import no.nav.data.catalog.policies.app.policy.entities.InformationType;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
@@ -22,6 +23,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.Arrays;
 import java.util.List;
@@ -67,9 +69,11 @@ public class PolicyRestControllerTest {
     @Test
     public void getOnePolicy() throws Exception {
         Policy policy1 = createPolicyTestdata(1L);
+        PolicyResponse response = new PolicyResponse(1L, new InformationType(), "Description", null);
 
         given(policyRepository.findById(1L)).willReturn(Optional.of(policy1));
-        mvc.perform(get("/policy/policy/1").contentType(MediaType.APPLICATION_JSON))
+        given(mapper.mapPolicyToRequest(policy1)).willReturn(response);
+        ResultActions result = mvc.perform(get("/policy/policy/1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.legalBasisDescription",is("Description")));
     }
@@ -84,7 +88,6 @@ public class PolicyRestControllerTest {
     @Test
     public void getPoliciesForInformationType()throws Exception {
         Policy policy1 = createPolicyTestdata(1L);
-        Policy policy2 = createPolicyTestdata(2L);
 
         List<Policy> policies = Arrays.asList(policy1);
         Page<Policy> policyPage = new PageImpl<>(policies);
@@ -133,10 +136,12 @@ public class PolicyRestControllerTest {
     public void updatePolicy() throws Exception {
         Policy policy1 = createPolicyTestdata(1L);
         PolicyRequest request = new PolicyRequest();
+        PolicyResponse response = new PolicyResponse(1L, new InformationType(), "Description", null);
 
         given(mapper.mapRequestToPolicy(request, 1L)).willReturn(policy1);
         given(policyRepository.findById(1L)).willReturn(Optional.of(policy1));
         given(policyRepository.save(policy1)).willReturn(policy1);
+        given(mapper.mapPolicyToRequest(policy1)).willReturn(response);
 
         mvc.perform(put("/policy/policy/1")
                 .contentType(MediaType.APPLICATION_JSON)

@@ -32,4 +32,5 @@ public class Policy extends Auditable<String> {
 
     @Column(name="LEGAL_BASIS_DESCRIPTION", length = 500)
     private String legalBasisDescription;
+
 }
