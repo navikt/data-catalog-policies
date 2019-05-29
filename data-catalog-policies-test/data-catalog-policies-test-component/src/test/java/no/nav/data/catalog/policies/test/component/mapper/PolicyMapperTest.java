@@ -1,58 +1,56 @@
 package no.nav.data.catalog.policies.test.component.mapper;
 
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
+import no.nav.data.catalog.policies.app.consumer.CodelistConsumer;
 import no.nav.data.catalog.policies.app.policy.PolicyRequest;
+import no.nav.data.catalog.policies.app.policy.PolicyResponse;
 import no.nav.data.catalog.policies.app.policy.entities.InformationType;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
 import no.nav.data.catalog.policies.app.policy.repository.InformationTypeRepository;
 import no.nav.data.catalog.policies.test.component.ComponentTestConfig;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Optional;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ComponentTestConfig.class)
 @ActiveProfiles("test")
 public class PolicyMapperTest {
-    @Autowired
-    private PolicyMapper mapper;
-    @Autowired
+    @Mock
+    private CodelistConsumer consumer;
+    @Mock
     private InformationTypeRepository informationTypeRepository;
+    @InjectMocks
+    private PolicyMapper mapper;
 
     public static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
     public static final String PURPOSE_CODE1 = "PUR1";
+    public static final String PURPOSE_DESCRIPTION1 = "PurposeDescription 1";
     public static final String INFORMATION_TYPE_DESCRIPTION1 = "InformationTypeDescription 1";
     public static final String INFORMATION_TYPE_NAME1 = "InformationTypeNeme 1";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    @Before
-    public void setUp() {
-        informationTypeRepository.deleteAll();
-        createBasicTestdata(INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
-    }
-
-    @After
-    public void cleanUp() {
-        informationTypeRepository.deleteAll();
-    }
-
     @Test
-    public void shouldMap() {
-        assertThat(informationTypeRepository.count(), is(1L));
-        InformationType informationType = informationTypeRepository.findAll().get(0);
+    public void shouldMapToPolicy() {
+        InformationType informationType = createBasicTestdata(INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
+        when(informationTypeRepository.findByName(anyString())).thenReturn(Optional.of(informationType));
         PolicyRequest request = new PolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, informationType.getName());
         Policy policy = mapper.mapRequestToPolicy(request, null);
         assertThat(policy.getInformationType().getName(), is(request.getInformationTypeName()));
@@ -63,13 +61,26 @@ public class PolicyMapperTest {
 
     @Test
     public void shouldThrowExceptionWhenInformationTypeNotFound() {
+        when(informationTypeRepository.findByName(anyString())).thenReturn(Optional.ofNullable(null));
         expectedException.expect(DataCatalogPoliciesNotFoundException.class);
         expectedException.expectMessage("Cannot find InformationType with name: NOTFOUND");
         PolicyRequest request = new PolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1,"NOTFOUND");
         mapper.mapRequestToPolicy(request, null);
     }
 
-    private void createBasicTestdata(String informationTypeDescription, String informationTypeName) {
-        informationTypeRepository.save(InformationType.builder().informationTypeId(1L).description(informationTypeDescription).name(informationTypeName).build());
+    @Test
+    public void shouldMapToPolicyResonse() {
+        when(consumer.getPurposeCodelistDescription(anyString())).thenReturn(PURPOSE_DESCRIPTION1);
+        InformationType informationType = createBasicTestdata(INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
+        Policy policy = new Policy(1L, informationType, PURPOSE_CODE1, LEGAL_BASIS_DESCRIPTION1);
+        PolicyResponse policyResponse = mapper.mapPolicyToRequest(policy);
+        assertThat(policyResponse.getInformationType(), is(policy.getInformationType()));
+        assertThat(policyResponse.getLegalBasisDescription(), is(LEGAL_BASIS_DESCRIPTION1));
+        assertThat(policyResponse.getPurpose().get("code"), is(PURPOSE_CODE1));
+        assertThat(policyResponse.getPurpose().get("description"), is(PURPOSE_DESCRIPTION1));
+    }
+
+    private InformationType createBasicTestdata(String informationTypeDescription, String informationTypeName) {
+         return InformationType.builder().informationTypeId(1L).description(informationTypeDescription).name(informationTypeName).build();
     }
 }
