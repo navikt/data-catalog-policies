@@ -41,6 +41,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertFalse;
 
 
 @RunWith(SpringRunner.class)
@@ -106,6 +107,22 @@ public class PolicyControllerIT {
         assertThat(createEntity.getBody(), containsString("purposeCode=purposeCode cannot be null"));
         assertThat(createEntity.getBody(), containsString("informationTypeName=informationTypeName cannot be null"));
         assertThat(createEntity.getBody(), containsString("egalBasisDescription=legalBasisDescription cannot be null"));
+        assertThat(policyRepository.count(), is(0L));
+    }
+
+    @Test
+    public void createPolicyThrowAlreadyExistsValidationException() {
+        List<PolicyRequest> requestList = Arrays.asList(createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME, 1L));
+        ResponseEntity<String> createEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy", HttpMethod.POST, new HttpEntity<>(requestList), String.class);
+        assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
+
+        createEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy", HttpMethod.POST, new HttpEntity<>(requestList), String.class);
+
+        assertThat(createEntity.getStatusCode(), is(HttpStatus.BAD_REQUEST));
+        assertThat(createEntity.getBody(), containsString("A policy combining InformationType " + INFORMATION_TYPE_NAME + " and Purpose " + PURPOSE_CODE1 + " already exists"));
+        assertThat(policyRepository.count(), is(1L));
     }
 
     @Test
@@ -117,6 +134,7 @@ public class PolicyControllerIT {
         assertThat(createEntity.getStatusCode(), is(HttpStatus.BAD_REQUEST));
         assertThat(createEntity.getBody(), containsString("The purposeCode NOTFOUND was not found in the PURPOSE codelist"));
         assertThat(createEntity.getBody(), containsString("informationTypeName=An informationType with name NOTFOUND does not exist"));
+        assertThat(policyRepository.count(), is(0L));
     }
 
     @Test
@@ -167,7 +185,8 @@ public class PolicyControllerIT {
         ResponseEntity<String> updateEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT + "policy/" + createEntity.getBody().get(0).getPolicyId(), HttpMethod.PUT, new HttpEntity<>(request), String.class);
         assertThat(updateEntity.getStatusCode(), is(HttpStatus.BAD_REQUEST));
-        assertThat(updateEntity.getBody().toString(), containsString("legalBasisDescription=legalBasisDescription cannot be null"));
+        assertThat(updateEntity.getBody(), containsString("legalBasisDescription=legalBasisDescription cannot be null"));
+        assertThat(policyRepository.count(), is(1L));
     }
 
     @Test
@@ -191,23 +210,30 @@ public class PolicyControllerIT {
     }
 
     @Test
-    public void updateTwoPolicesThrowException() {
-        List<PolicyRequest> requestList = Arrays.asList(createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME, 1L), createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1, "Postadresse",2L));
+    public void updateThreePolicesThrowTwoExceptions() {
+        List<PolicyRequest> requestList = Arrays.asList(
+                createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME, 1L),
+                createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1, "Postadresse",2L),
+        createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1, "Sivilstand",3L));
         ResponseEntity<List<PolicyResponse>> createEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT + "policy", HttpMethod.POST, new HttpEntity<>(requestList), new ParameterizedTypeReference<List<PolicyResponse>>(){});
         assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
-        assertThat(createEntity.getBody().size(), is(2));
+        assertThat(createEntity.getBody().size(), is(3));
 
-        requestList.forEach(request -> request.setLegalBasisDescription(null));
+        requestList.get(0).setLegalBasisDescription(null);
+        requestList.get(1).setLegalBasisDescription(null);
         requestList.get(0).setId(createEntity.getBody().get(0).getPolicyId());
         requestList.get(1).setId(createEntity.getBody().get(1).getPolicyId());
+        requestList.get(2).setId(createEntity.getBody().get(2).getPolicyId());
 
         ResponseEntity<String>  updateEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT + "policy", HttpMethod.PUT, new HttpEntity<>(requestList), String.class);
         assertThat(updateEntity.getStatusCode(), is(HttpStatus.BAD_REQUEST));
-//        assertThat(updateEntity.getBody().size(), is(2));
+        assertThat(updateEntity.getBody(), containsString("InformationTypeName/AAP={legalBasisDescription=legalBasisDescription cannot be null}"));
+        assertThat(updateEntity.getBody(), containsString("Postadresse/AAP={legalBasisDescription=legalBasisDescription cannot be null}"));
+        // No error reported regarding Sivilstand/AAP
+        assertFalse(updateEntity.getBody().contains("Sivilstand/AAP"));
     }
-
 
     @Test
     public void updateNotExistingPolicy() {
