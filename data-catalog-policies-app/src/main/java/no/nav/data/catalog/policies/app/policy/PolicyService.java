@@ -40,11 +40,12 @@ public class PolicyService {
         }
         if (request.getPurposeCode() == null) {
             validationErrors.put("purposeCode", "purposeCode cannot be null");
-        }
-        try {
-            consumer.getPurposeCodelistDescription(request.getPurposeCode());
-        } catch (DataCatalogPoliciesNotFoundException e) {
-            validationErrors.put("purposeCode", "The purposeCode was not found in the PURPOSE codelist.");
+        } else {
+            try {
+                consumer.getPurposeCodelistDescription(request.getPurposeCode());
+            } catch (DataCatalogPoliciesNotFoundException e) {
+                validationErrors.put("purposeCode", String.format("The purposeCode %s was not found in the PURPOSE codelist.", request.getPurposeCode()));
+            }
         }
         // Combination of InformationType and purpose must be unique
         InformationType informationType = null;

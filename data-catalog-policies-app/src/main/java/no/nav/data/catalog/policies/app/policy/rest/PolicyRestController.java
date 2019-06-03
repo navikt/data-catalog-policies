@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.policy.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.PolicyResponse;
+import no.nav.data.catalog.policies.app.policy.PolicyService;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
@@ -36,6 +37,9 @@ import static java.util.stream.Collectors.toList;
 @Slf4j
 public class PolicyRestController {
     private static final Logger logger = LoggerFactory.getLogger(PolicyRestController.class);
+
+    @Autowired
+    private PolicyService service;
 
     @Autowired
     private PolicyMapper mapper;
@@ -80,6 +84,7 @@ public class PolicyRestController {
     @PostMapping("/policy")
     @ResponseStatus(HttpStatus.CREATED)
     public List<PolicyResponse> createPolicy(@Valid @RequestBody List<PolicyRequest> policyRequests) {
+        policyRequests.forEach(request -> service.validateRequest(request, false));
         List<Policy> policies = policyRequests.stream().map(policy -> mapper.mapRequestToPolicy(policy, null)).collect(toList());
         return policyRepository.saveAll(policies).stream().map(policy -> mapper.mapPolicyToRequest(policy)).collect(Collectors.toList());
     }
@@ -121,6 +126,7 @@ public class PolicyRestController {
             @ApiResponse(code = 500, message = "Internal server error")})
     @PutMapping("/policy/{id}")
     public PolicyResponse updatePolicy(@PathVariable Long id, @Valid @RequestBody PolicyRequest policyRequest) {
+        service.validateRequest(policyRequest, true);
         Optional<Policy> optionalPolicy = policyRepository.findById(id);
         if (!optionalPolicy.isPresent()) {
             throw new DataCatalogPoliciesNotFoundException(String.format("Cannot find Policy with id: %s", id));
@@ -139,6 +145,7 @@ public class PolicyRestController {
             @ApiResponse(code = 500, message = "Internal server error")})
     @PutMapping("/policy")
     public List<PolicyResponse> updatePolicies(@Valid @RequestBody List<PolicyRequest> policyRequests) {
+        policyRequests.forEach(request -> service.validateRequest(request, true));
         List<Policy> policies = new ArrayList<>();
         policyRequests.forEach(policyRequest -> {
                     Optional<Policy> optionalPolicy = policyRepository.findById(policyRequest.getId());

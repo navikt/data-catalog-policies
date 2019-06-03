@@ -90,7 +90,7 @@ public class PolicyServiceTest {
             service.validateRequest(request, false);
         } catch (ValidationException e) {
             assertThat(e.get().size(), is(2));
-            assertThat(e.get().get("purposeCode"), is("The purposeCode was not found in the PURPOSE codelist."));
+            assertThat(e.get().get("purposeCode"), is("The purposeCode AAP was not found in the PURPOSE codelist."));
             assertThat(e.get().get("informationTypeName"), is("An informationType with name " + INFORMATIONTYPENAME + " does not exist"));
         }
     }
@@ -146,7 +146,7 @@ public class PolicyServiceTest {
             service.validateRequest(request, true);
         } catch (ValidationException e) {
             assertThat(e.get().size(), is(2));
-            assertThat(e.get().get("purposeCode"), is("The purposeCode was not found in the PURPOSE codelist."));
+            assertThat(e.get().get("purposeCode"), is("The purposeCode AAP was not found in the PURPOSE codelist."));
             assertThat(e.get().get("informationTypeName"), is("An informationType with name " + INFORMATIONTYPENAME + " does not exist"));
         }
     }

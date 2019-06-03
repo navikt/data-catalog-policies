@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.data.catalog.policies.app.AppStarter;
 import no.nav.data.catalog.policies.app.policy.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.PolicyResponse;
+import no.nav.data.catalog.policies.app.policy.PolicyService;
 import no.nav.data.catalog.policies.app.policy.entities.InformationType;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
@@ -48,6 +49,9 @@ public class PolicyRestControllerTest {
 
     @MockBean
     private PolicyMapper mapper;
+
+    @MockBean
+    private PolicyService service;
 
     @MockBean
     private PolicyRepository policyRepository;

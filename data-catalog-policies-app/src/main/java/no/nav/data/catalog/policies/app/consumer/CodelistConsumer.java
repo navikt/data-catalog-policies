@@ -1,5 +1,6 @@
 package no.nav.data.catalog.policies.app.consumer;
 
+import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesTechnicalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,8 +26,7 @@ public class CodelistConsumer {
         } catch (
                 HttpClientErrorException e) {
             if (HttpStatus.NOT_FOUND.equals(e.getStatusCode())) {
-                return "UKJENT TEMA";
-//                throw new DataCatalogPoliciesNotFoundException(String.format("Codelist (PURPOSE) with ID=%s does not exist", purposeCode));
+                throw new DataCatalogPoliciesNotFoundException(String.format("Codelist (PURPOSE) with ID=%s does not exist", purposeCode));
             } else {
                 throw new DataCatalogPoliciesTechnicalException(String.format("Getting Codelist (PURPOSE: %s) description failed with status=%s message=%s", purposeCode, e.getStatusCode(), e.getResponseBodyAsString()), e, e.getStatusCode());
             }
