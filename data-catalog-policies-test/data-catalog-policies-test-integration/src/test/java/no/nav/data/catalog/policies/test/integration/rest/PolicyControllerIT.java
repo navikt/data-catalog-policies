@@ -147,6 +147,7 @@ public class PolicyControllerIT {
         assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
 
         PolicyRequest request = requestList.get(0);
+        request.setId(createEntity.getBody().get(0).getPolicyId());
         request.setLegalBasisDescription("UPDATED");
         ResponseEntity<PolicyResponse> updateEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT + "policy/" + createEntity.getBody().get(0).getPolicyId(), HttpMethod.PUT, new HttpEntity<>(request), PolicyResponse.class);
@@ -188,6 +189,25 @@ public class PolicyControllerIT {
         assertPolicy(updateEntity.getBody().get(0), "UPDATED");
         assertThat(updateEntity.getBody().get(1).getLegalBasisDescription(), is("UPDATED"));
     }
+
+    @Test
+    public void updateTwoPolicesThrowException() {
+        List<PolicyRequest> requestList = Arrays.asList(createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME, 1L), createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1, "Postadresse",2L));
+        ResponseEntity<List<PolicyResponse>> createEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy", HttpMethod.POST, new HttpEntity<>(requestList), new ParameterizedTypeReference<List<PolicyResponse>>(){});
+        assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
+        assertThat(createEntity.getBody().size(), is(2));
+
+        requestList.forEach(request -> request.setLegalBasisDescription(null));
+        requestList.get(0).setId(createEntity.getBody().get(0).getPolicyId());
+        requestList.get(1).setId(createEntity.getBody().get(1).getPolicyId());
+
+        ResponseEntity<String>  updateEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy", HttpMethod.PUT, new HttpEntity<>(requestList), String.class);
+        assertThat(updateEntity.getStatusCode(), is(HttpStatus.BAD_REQUEST));
+//        assertThat(updateEntity.getBody().size(), is(2));
+    }
+
 
     @Test
     public void updateNotExistingPolicy() {

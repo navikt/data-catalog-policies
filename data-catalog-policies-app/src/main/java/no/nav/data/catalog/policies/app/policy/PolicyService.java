@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -30,7 +31,22 @@ public class PolicyService {
     @Autowired
     private InformationTypeRepository informationTypeRepository;
 
-    public void validateRequest(PolicyRequest request, boolean isUpdate) throws ValidationException {
+    public void validateRequests(List<PolicyRequest> requests) {
+        HashMap<String, HashMap> validationMap = new HashMap<>();
+        for (PolicyRequest request:requests) {
+            HashMap<String, String> requestMap = validateRequest(request, request.getId()!=null);
+            if (!requestMap.isEmpty()) {
+                validationMap.put(request.getInformationTypeName()+"/"+request.getPurposeCode(), requestMap);
+            }
+        }
+        if (!validationMap.isEmpty()) {
+            logger.error("Validation errors occurred when validating InformationTypeRequest: {}", validationMap);
+            throw new ValidationException(validationMap, "Validation errors occurred when validating InformationTypeRequest.");
+        }
+    }
+
+
+    private HashMap validateRequest(PolicyRequest request, boolean isUpdate) throws ValidationException {
         HashMap<String, String> validationErrors = new HashMap<>();
         if (request.getInformationTypeName() == null) {
             validationErrors.put("informationTypeName", "informationTypeName cannot be null");
@@ -64,7 +80,7 @@ public class PolicyService {
 
         if(!validationErrors.isEmpty()) {
             logger.error("Validation errors occurred when validating InformationTypeRequest: {}", validationErrors);
-            throw new ValidationException(validationErrors, "Validation errors occurred when validating InformationTypeRequest.");
         }
+        return validationErrors;
     }
 }

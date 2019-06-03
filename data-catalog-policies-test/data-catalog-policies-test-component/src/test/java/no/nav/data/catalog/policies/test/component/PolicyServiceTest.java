@@ -16,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -54,7 +55,7 @@ public class PolicyServiceTest {
                 .build();
         when(informationTypeRepository.findByName(request.getInformationTypeName())).thenReturn(Optional.of(InformationType.builder().informationTypeId(1L).build()));
         when(policyRepository.existsByInformationTypeInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(false);
-        service.validateRequest(request, false);
+        service.validateRequests(List.of(request));
     }
 
     @Test
@@ -67,12 +68,12 @@ public class PolicyServiceTest {
         when(informationTypeRepository.findByName(request.getInformationTypeName())).thenReturn(Optional.of(InformationType.builder().informationTypeId(1L).build()));
         when(policyRepository.existsByInformationTypeInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(false);
         try {
-            service.validateRequest(request, false);
+            service.validateRequests(List.of(request));
         } catch (ValidationException e) {
-            assertThat(e.get().size(), is(3));
-            assertThat(e.get().get("informationTypeName"), is("informationTypeName cannot be null"));
-            assertThat(e.get().get("purposeCode"), is("purposeCode cannot be null"));
-            assertThat(e.get().get("legalBasisDescription"), is("legalBasisDescription cannot be null"));
+            assertThat(e.get().get(INFORMATIONTYPENAME+"/"+PURPOSECODE).size(), is(3));
+            assertThat(e.get().get(INFORMATIONTYPENAME+"/"+PURPOSECODE).get("informationTypeName"), is("informationTypeName cannot be null"));
+            assertThat(e.get().get(INFORMATIONTYPENAME+"/"+PURPOSECODE).get("purposeCode"), is("purposeCode cannot be null"));
+            assertThat(e.get().get(INFORMATIONTYPENAME+"/"+PURPOSECODE).get("legalBasisDescription"), is("legalBasisDescription cannot be null"));
         }
     }
 
@@ -87,11 +88,11 @@ public class PolicyServiceTest {
         when(policyRepository.existsByInformationTypeInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(false);
         when(consumer.getPurposeCodelistDescription(anyString())).thenThrow(new DataCatalogPoliciesNotFoundException(""));
         try {
-            service.validateRequest(request, false);
+            service.validateRequests(List.of(request));
         } catch (ValidationException e) {
-            assertThat(e.get().size(), is(2));
-            assertThat(e.get().get("purposeCode"), is("The purposeCode AAP was not found in the PURPOSE codelist."));
-            assertThat(e.get().get("informationTypeName"), is("An informationType with name " + INFORMATIONTYPENAME + " does not exist"));
+            assertThat(e.get().get(INFORMATIONTYPENAME+"/"+PURPOSECODE).size(), is(2));
+            assertThat(e.get().get(INFORMATIONTYPENAME+"/"+PURPOSECODE).get("purposeCode"), is("The purposeCode AAP was not found in the PURPOSE codelist."));
+            assertThat(e.get().get(INFORMATIONTYPENAME+"/"+PURPOSECODE).get("informationTypeName"), is("An informationType with name " + INFORMATIONTYPENAME + " does not exist"));
         }
     }
 
@@ -106,10 +107,10 @@ public class PolicyServiceTest {
         when(policyRepository.existsByInformationTypeInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(true);
         when(consumer.getPurposeCodelistDescription(anyString())).thenReturn("purpose");
         try {
-            service.validateRequest(request, false);
+            service.validateRequests(List.of(request));
         } catch (ValidationException e) {
-            assertThat(e.get().size(), is(1));
-            assertThat(e.get().get("InformationTypeAndPurpose"), is("A policy combining InformationType Personalia and Purpose AAP already exists"));
+            assertThat(e.get().get(INFORMATIONTYPENAME+"/"+PURPOSECODE).size(), is(1));
+            assertThat(e.get().get(INFORMATIONTYPENAME+"/"+PURPOSECODE).get("InformationTypeAndPurpose"), is("A policy combining InformationType Personalia and Purpose AAP already exists"));
         }
     }
 
@@ -123,12 +124,12 @@ public class PolicyServiceTest {
         when(informationTypeRepository.findByName(request.getInformationTypeName())).thenReturn(Optional.of(InformationType.builder().informationTypeId(1L).build()));
         when(policyRepository.existsByInformationTypeInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(false);
         try {
-            service.validateRequest(request, true);
+            service.validateRequests(List.of(request));
         } catch (ValidationException e) {
-            assertThat(e.get().size(), is(3));
-            assertThat(e.get().get("informationTypeName"), is("informationTypeName cannot be null"));
-            assertThat(e.get().get("purposeCode"), is("purposeCode cannot be null"));
-            assertThat(e.get().get("legalBasisDescription"), is("legalBasisDescription cannot be null"));
+            assertThat(e.get().get(INFORMATIONTYPENAME+"/"+PURPOSECODE).size(), is(3));
+            assertThat(e.get().get(INFORMATIONTYPENAME+"/"+PURPOSECODE).get("informationTypeName"), is("informationTypeName cannot be null"));
+            assertThat(e.get().get(INFORMATIONTYPENAME+"/"+PURPOSECODE).get("purposeCode"), is("purposeCode cannot be null"));
+            assertThat(e.get().get(INFORMATIONTYPENAME+"/"+PURPOSECODE).get("legalBasisDescription"), is("legalBasisDescription cannot be null"));
         }
     }
 
@@ -143,11 +144,11 @@ public class PolicyServiceTest {
         when(policyRepository.existsByInformationTypeInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(false);
         when(consumer.getPurposeCodelistDescription(anyString())).thenThrow(new DataCatalogPoliciesNotFoundException(""));
         try {
-            service.validateRequest(request, true);
+            service.validateRequests(List.of(request));
         } catch (ValidationException e) {
-            assertThat(e.get().size(), is(2));
-            assertThat(e.get().get("purposeCode"), is("The purposeCode AAP was not found in the PURPOSE codelist."));
-            assertThat(e.get().get("informationTypeName"), is("An informationType with name " + INFORMATIONTYPENAME + " does not exist"));
+            assertThat(e.get().get(INFORMATIONTYPENAME+"/"+PURPOSECODE).size(), is(2));
+            assertThat(e.get().get(INFORMATIONTYPENAME+"/"+PURPOSECODE).get("purposeCode"), is("The purposeCode AAP was not found in the PURPOSE codelist."));
+            assertThat(e.get().get(INFORMATIONTYPENAME+"/"+PURPOSECODE).get("informationTypeName"), is("An informationType with name " + INFORMATIONTYPENAME + " does not exist"));
         }
     }
 
@@ -157,10 +158,11 @@ public class PolicyServiceTest {
                 .informationTypeName(INFORMATIONTYPENAME)
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
                 .purposeCode(PURPOSECODE)
+                .id(1L)
                 .build();
         when(informationTypeRepository.findByName(request.getInformationTypeName())).thenReturn(Optional.of(InformationType.builder().informationTypeId(1L).build()));
         when(policyRepository.existsByInformationTypeInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(true);
         when(consumer.getPurposeCodelistDescription(anyString())).thenReturn("purpose");
-        service.validateRequest(request, true);
+        service.validateRequests(List.of(request));
     }
 }
