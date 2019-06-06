@@ -15,16 +15,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -63,12 +64,18 @@ public class PolicyRestController {
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping(path = "/policy", params = {"informationTypeId"})
     public Page<PolicyResponse> getPoliciesByInformationType(Pageable pageable, @RequestParam Long informationTypeId) {
-        return policyRepository.findByInformationTypeInformationTypeId(pageable, informationTypeId).map(new Function<Policy, PolicyResponse>() {
-            @Override
-            public PolicyResponse apply(Policy policy) {
-                return mapper.mapPolicyToRequest(policy);
+        if (pageable.getSort().getOrderFor("purpose.description") != null) {
+            List<PolicyResponse> pageResponse = policyRepository.findByInformationTypeInformationTypeId(null, informationTypeId).stream().map(policy -> mapper.mapPolicyToRequest(policy)).collect(Collectors.toList());
+            Comparator<PolicyResponse> compareByDescription = Comparator.comparing((PolicyResponse o) -> o.getPurpose().get("description"));
+            if (pageable.getSort().getOrderFor("purpose.description").isAscending()) {
+                pageResponse.sort(compareByDescription);
+            } else {
+                pageResponse.sort(compareByDescription.reversed());
             }
-        });
+            return new PageImpl(pageResponse, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.unsorted()), pageResponse.size());
+        } else {
+            return policyRepository.findByInformationTypeInformationTypeId(pageable, informationTypeId).map(policy -> mapper.mapPolicyToRequest(policy));
+        }
     }
 
 
