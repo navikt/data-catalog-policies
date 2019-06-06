@@ -25,7 +25,6 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -53,12 +52,7 @@ public class PolicyRestController {
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping("/policy")
     public Page<PolicyResponse> getPolicies(Pageable pageable) {
-        return policyRepository.findAll(pageable).map(new Function<Policy, PolicyResponse>() {
-            @Override
-            public PolicyResponse apply(Policy policy) {
-                return mapper.mapPolicyToRequest(policy);
-            }
-        });
+        return policyRepository.findAll(pageable).map(policy -> mapper.mapPolicyToRequest(policy));
     }
 
     @ApiOperation(value = "Get all Policies", tags = { "Policies" })
@@ -67,12 +61,7 @@ public class PolicyRestController {
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping(path = "/policy", params = {"informationTypeId"})
     public Page<PolicyResponse> getPoliciesByInformationType(Pageable pageable, @RequestParam Long informationTypeId) {
-        return policyRepository.findByInformationTypeInformationTypeId(pageable, informationTypeId).map(new Function<Policy, PolicyResponse>() {
-            @Override
-            public PolicyResponse apply(Policy policy) {
-                return mapper.mapPolicyToRequest(policy);
-            }
-        });
+        return policyRepository.findByInformationTypeInformationTypeId(pageable, informationTypeId).map(policy -> mapper.mapPolicyToRequest(policy));
     }
 
 
