@@ -3,10 +3,10 @@ package no.nav.data.catalog.policies.test.component;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.common.exceptions.ValidationException;
 import no.nav.data.catalog.policies.app.consumer.CodelistConsumer;
-import no.nav.data.catalog.policies.app.policy.PolicyRequest;
+import no.nav.data.catalog.policies.app.consumer.InformationTypeConsumer;
+import no.nav.data.catalog.policies.app.policy.domain.InformationType;
+import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.PolicyService;
-import no.nav.data.catalog.policies.app.policy.entities.InformationType;
-import no.nav.data.catalog.policies.app.policy.repository.InformationTypeRepository;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,10 +35,11 @@ public class PolicyServiceTest {
     private static final String PURPOSECODE = "AAP";
 
     @Mock
-    private CodelistConsumer consumer;
+    private CodelistConsumer codelistConsumer;
 
     @Mock
-    private InformationTypeRepository informationTypeRepository;
+    private InformationTypeConsumer informationTypeConsumer;
+
 
     @Mock
     private PolicyRepository policyRepository;
@@ -53,8 +54,8 @@ public class PolicyServiceTest {
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
                 .purposeCode(PURPOSECODE)
                 .build();
-        when(informationTypeRepository.findByName(request.getInformationTypeName())).thenReturn(Optional.of(InformationType.builder().informationTypeId(1L).build()));
-        when(policyRepository.existsByInformationTypeInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(false);
+        when(informationTypeConsumer.getInformationTypeByName(request.getInformationTypeName())).thenReturn(InformationType.builder().id(1L).build());
+        when(policyRepository.existsByInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(false);
         service.validateRequests(List.of(request));
     }
 
@@ -65,8 +66,8 @@ public class PolicyServiceTest {
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
                 .purposeCode(PURPOSECODE)
                 .build();
-        when(informationTypeRepository.findByName(request.getInformationTypeName())).thenReturn(Optional.of(InformationType.builder().informationTypeId(1L).build()));
-        when(policyRepository.existsByInformationTypeInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(false);
+        when(informationTypeConsumer.getInformationTypeByName(request.getInformationTypeName())).thenReturn(InformationType.builder().id(1L).build());
+        when(policyRepository.existsByInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(false);
         try {
             service.validateRequests(List.of(request));
         } catch (ValidationException e) {
@@ -84,9 +85,9 @@ public class PolicyServiceTest {
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
                 .purposeCode(PURPOSECODE)
                 .build();
-        when(informationTypeRepository.findByName(request.getInformationTypeName())).thenReturn(Optional.ofNullable(null));
-        when(policyRepository.existsByInformationTypeInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(false);
-        when(consumer.getPurposeCodelistDescription(anyString())).thenThrow(new DataCatalogPoliciesNotFoundException(""));
+        when(informationTypeConsumer.getInformationTypeByName(request.getInformationTypeName())).thenReturn(null);
+        when(policyRepository.existsByInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(false);
+        when(codelistConsumer.getPurposeCodelistDescription(anyString())).thenThrow(new DataCatalogPoliciesNotFoundException(""));
         try {
             service.validateRequests(List.of(request));
         } catch (ValidationException e) {
@@ -103,9 +104,9 @@ public class PolicyServiceTest {
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
                 .purposeCode(PURPOSECODE)
                 .build();
-        when(informationTypeRepository.findByName(request.getInformationTypeName())).thenReturn(Optional.of(InformationType.builder().informationTypeId(1L).build()));
-        when(policyRepository.existsByInformationTypeInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(true);
-        when(consumer.getPurposeCodelistDescription(anyString())).thenReturn("purpose");
+        when(informationTypeConsumer.getInformationTypeByName(request.getInformationTypeName())).thenReturn(InformationType.builder().id(1L).build());
+        when(policyRepository.existsByInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(true);
+        when(codelistConsumer.getPurposeCodelistDescription(anyString())).thenReturn("purpose");
         try {
             service.validateRequests(List.of(request));
         } catch (ValidationException e) {
@@ -121,8 +122,8 @@ public class PolicyServiceTest {
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
                 .purposeCode(PURPOSECODE)
                 .build();
-        when(informationTypeRepository.findByName(request.getInformationTypeName())).thenReturn(Optional.of(InformationType.builder().informationTypeId(1L).build()));
-        when(policyRepository.existsByInformationTypeInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(false);
+        when(informationTypeConsumer.getInformationTypeByName(request.getInformationTypeName())).thenReturn(InformationType.builder().id(1L).build());
+        when(policyRepository.existsByInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(false);
         try {
             service.validateRequests(List.of(request));
         } catch (ValidationException e) {
@@ -140,9 +141,9 @@ public class PolicyServiceTest {
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
                 .purposeCode(PURPOSECODE)
                 .build();
-        when(informationTypeRepository.findByName(request.getInformationTypeName())).thenReturn(Optional.ofNullable(null));
-        when(policyRepository.existsByInformationTypeInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(false);
-        when(consumer.getPurposeCodelistDescription(anyString())).thenThrow(new DataCatalogPoliciesNotFoundException(""));
+        when(informationTypeConsumer.getInformationTypeByName(request.getInformationTypeName())).thenReturn(null);
+        when(policyRepository.existsByInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(false);
+        when(codelistConsumer.getPurposeCodelistDescription(anyString())).thenThrow(new DataCatalogPoliciesNotFoundException(""));
         try {
             service.validateRequests(List.of(request));
         } catch (ValidationException e) {
@@ -160,9 +161,9 @@ public class PolicyServiceTest {
                 .purposeCode(PURPOSECODE)
                 .id(1L)
                 .build();
-        when(informationTypeRepository.findByName(request.getInformationTypeName())).thenReturn(Optional.of(InformationType.builder().informationTypeId(1L).build()));
-        when(policyRepository.existsByInformationTypeInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(true);
-        when(consumer.getPurposeCodelistDescription(anyString())).thenReturn("purpose");
+        when(informationTypeConsumer.getInformationTypeByName(request.getInformationTypeName())).thenReturn(InformationType.builder().id(1L).build());
+        when(policyRepository.existsByInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(true);
+        when(codelistConsumer.getPurposeCodelistDescription(anyString())).thenReturn("purpose");
         service.validateRequests(List.of(request));
     }
 }

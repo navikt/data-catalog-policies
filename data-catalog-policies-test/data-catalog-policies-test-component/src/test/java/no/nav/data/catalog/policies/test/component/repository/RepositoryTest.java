@@ -1,8 +1,8 @@
 package no.nav.data.catalog.policies.test.component.repository;
 
-import no.nav.data.catalog.policies.app.policy.entities.InformationType;
+import lombok.AllArgsConstructor;
+import no.nav.data.catalog.policies.app.policy.domain.InformationType;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
-import no.nav.data.catalog.policies.app.policy.repository.InformationTypeRepository;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import no.nav.data.catalog.policies.test.component.ComponentTestConfig;
 import org.junit.After;
@@ -35,19 +35,16 @@ public class RepositoryTest {
     private PolicyRepository policyRepository;
 
     @Autowired
-    private InformationTypeRepository informationTypeRepository;
 
     @Before
     public void setUp() {
         policyRepository.deleteAll();
-        informationTypeRepository.deleteAll();
-        TestTransaction.flagForCommit();
+//        TestTransaction.flagForCommit();
     }
 
     @After
     public void cleanUp() {
         policyRepository.deleteAll();
-        informationTypeRepository.deleteAll();
     }
 
 
@@ -55,7 +52,6 @@ public class RepositoryTest {
     public void getOne() {
         createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 1l, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
         assertThat(policyRepository.count(), is(1L));
-        assertInformationType();
     }
 
     @Test
@@ -63,7 +59,6 @@ public class RepositoryTest {
         createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 1L, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
         createTestdata("Legal basis 2", "PUR2", 2L, INFORMATION_TYPE_DESCRIPTION1, "InformationTypeName2");
         assertThat(policyRepository.count(), is(2L));
-        assertThat(informationTypeRepository.count(), is(2L));
     }
 
     private void createTestdata(String legalBasisDescription, String purposeCode, Long informationTypeId, String informationTypeDescription, String informationTypeName) {
@@ -71,22 +66,13 @@ public class RepositoryTest {
             TestTransaction.end();
         }
 
-        InformationType informationType = informationTypeRepository.save(InformationType.builder().informationTypeId(informationTypeId).description(informationTypeDescription).name(informationTypeName).build());
+        InformationType informationType = InformationType.builder().id(informationTypeId).description(informationTypeDescription).name(informationTypeName).build();
 
         Policy policy = new Policy();
-        policy.setInformationType(informationType);
+        policy.setInformationTypeId(informationType.getId());
         policy.setPurposeCode(purposeCode);
         policy.setLegalBasisDescription(legalBasisDescription);
         policyRepository.save(policy);
-    }
-
-    private void assertInformationType() {
-        InformationType informationType =informationTypeRepository.findAll().get(0);
-        assertThat(informationType.getDescription(), is(INFORMATION_TYPE_DESCRIPTION1));
-        assertNotNull(informationType.getCreatedDate());
-        assertNotNull(informationType.getLastModifiedDate());
-        assertThat(informationType.getCreatedBy(), is("Datajeger"));
-        assertThat(informationType.getLastModifiedBy(), is("Datajeger"));
     }
 
 }

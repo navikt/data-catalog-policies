@@ -2,10 +2,10 @@ package no.nav.data.catalog.policies.test.component.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.data.catalog.policies.app.AppStarter;
-import no.nav.data.catalog.policies.app.policy.PolicyRequest;
-import no.nav.data.catalog.policies.app.policy.PolicyResponse;
+import no.nav.data.catalog.policies.app.policy.domain.InformationType;
+import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
+import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
 import no.nav.data.catalog.policies.app.policy.PolicyService;
-import no.nav.data.catalog.policies.app.policy.entities.InformationType;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
@@ -95,7 +95,7 @@ public class PolicyRestControllerTest {
 
         List<Policy> policies = Arrays.asList(policy1);
         Page<Policy> policyPage = new PageImpl<>(policies);
-        given(policyRepository.findByInformationTypeInformationTypeId(PageRequest.of(0, 100), 1L)).willReturn(policyPage);
+        given(policyRepository.findByInformationTypeId(PageRequest.of(0, 100), 1L)).willReturn(policyPage);
         mvc.perform(get("/policy/policy?page=0&size=100&informationTypeId=1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content",hasSize(1)));
@@ -170,6 +170,7 @@ public class PolicyRestControllerTest {
 
     @Test
     public void deletePolicy() throws Exception {
+        Policy policy1 = createPolicyTestdata(1L);
         mvc.perform(delete("/policy/policy/1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -187,8 +188,8 @@ public class PolicyRestControllerTest {
     private Policy createPolicyTestdata(Long informationTypeId) {
         Policy policy = new Policy();
         InformationType informationType = new InformationType();
-        informationType.setInformationTypeId(informationTypeId);
-        policy.setInformationType(informationType);
+        informationType.setId(informationTypeId);
+        policy.setInformationTypeId(informationType.getId());
         policy.setLegalBasisDescription("Description");
         return  policy;
     }

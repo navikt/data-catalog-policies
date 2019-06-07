@@ -4,8 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.common.exceptions.ValidationException;
 import no.nav.data.catalog.policies.app.consumer.CodelistConsumer;
-import no.nav.data.catalog.policies.app.policy.entities.InformationType;
-import no.nav.data.catalog.policies.app.policy.repository.InformationTypeRepository;
+import no.nav.data.catalog.policies.app.consumer.InformationTypeConsumer;
+import no.nav.data.catalog.policies.app.policy.domain.InformationType;
+import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,13 +24,14 @@ public class PolicyService {
     private static final Logger logger = LoggerFactory.getLogger(PolicyService.class);
 
     @Autowired
-    private CodelistConsumer consumer;
+    private CodelistConsumer codelistConsumer;
+
+    @Autowired
+    private InformationTypeConsumer informationTypeConsumer;
 
     @Autowired
     private PolicyRepository policyRepository;
 
-    @Autowired
-    private InformationTypeRepository informationTypeRepository;
 
     public void validateRequests(List<PolicyRequest> requests) {
         HashMap<String, HashMap> validationMap = new HashMap<>();
@@ -61,7 +63,7 @@ public class PolicyService {
             validationErrors.put("purposeCode", "purposeCode cannot be null");
         } else {
             try {
-                consumer.getPurposeCodelistDescription(request.getPurposeCode());
+                codelistConsumer.getPurposeCodelistDescription(request.getPurposeCode());
             } catch (DataCatalogPoliciesNotFoundException e) {
                 validationErrors.put("purposeCode", String.format("The purposeCode %s was not found in the PURPOSE codelist.", request.getPurposeCode()));
             }
@@ -69,15 +71,13 @@ public class PolicyService {
         // Combination of InformationType and purpose must be unique
         InformationType informationType = null;
         if (request.getInformationTypeName() != null) {
-            Optional<InformationType> optionalInformationType = informationTypeRepository.findByName(request.getInformationTypeName());
-            if (!optionalInformationType.isPresent()) {
+            informationType = informationTypeConsumer.getInformationTypeByName(request.getInformationTypeName());
+            if (informationType == null) {
                 validationErrors.put("informationTypeName", String.format("An informationType with name %s does not exist", request.getInformationTypeName()));
-            } else {
-                informationType = optionalInformationType.get();
             }
         }
 
-        if (!isUpdate && informationType != null && policyRepository.existsByInformationTypeInformationTypeIdAndPurposeCode(informationType.getInformationTypeId(), request.getPurposeCode())) {
+        if (!isUpdate && informationType != null && policyRepository.existsByInformationTypeIdAndPurposeCode(informationType.getId(), request.getPurposeCode())) {
             validationErrors.put("InformationTypeAndPurpose", String.format("A policy combining InformationType %s and Purpose %s already exists", request.getInformationTypeName(), request.getPurposeCode()));
         }
 
