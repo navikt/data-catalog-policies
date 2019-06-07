@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -49,15 +48,10 @@ public class PolicyRestController {
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping("/policy")
     public Page<PolicyResponse> getPolicies(Pageable pageable) {
-        return policyRepository.findAll(pageable).map(new Function<Policy, PolicyResponse>() {
-            @Override
-            public PolicyResponse apply(Policy policy) {
-                return mapper.mapPolicyToRequest(policy);
-            }
-        });
+        return policyRepository.findAll(pageable).map(policy -> mapper.mapPolicyToRequest(policy));
     }
 
-    @ApiOperation(value = "Get all Policies", tags = { "Policies" })
+    @ApiOperation(value = "Get all Policies", tags = {"Policies"})
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "All policies fetched", response = Policy.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Internal server error")})
@@ -77,7 +71,7 @@ public class PolicyRestController {
         }
     }
 
-    @ApiOperation(value = "Create Policy", tags = { "Policies" })
+    @ApiOperation(value = "Create Policy", tags = {"Policies"})
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Policy successfully created", response = Policy.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Illegal arguments"),
