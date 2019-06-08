@@ -69,15 +69,16 @@ public class PolicyService {
         // Combination of InformationType and purpose must be unique
         InformationType informationType = null;
         if (request.getInformationTypeName() != null) {
-            Optional<InformationType> optionalInformationType = informationTypeRepository.findByName(request.getInformationTypeName());
+            Optional<InformationType> optionalInformationType = informationTypeRepository.findByName(request.getInformationTypeName().trim());
             if (!optionalInformationType.isPresent()) {
-                validationErrors.put("informationTypeName", String.format("An informationType with name %s does not exist", request.getInformationTypeName()));
+                validationErrors.put("informationTypeName", String.format("An informationType with name %s does not exist", request.getInformationTypeName().trim()));
             } else {
                 informationType = optionalInformationType.get();
             }
         }
 
-        if (!isUpdate && informationType != null && policyRepository.existsByInformationTypeInformationTypeIdAndPurposeCode(informationType.getInformationTypeId(), request.getPurposeCode())) {
+        if (!isUpdate && informationType != null
+                && policyRepository.existsByInformationTypeInformationTypeIdAndPurposeCode(informationType.getInformationTypeId(), request.getPurposeCode())) {
             validationErrors.put("InformationTypeAndPurpose", String.format("A policy combining InformationType %s and Purpose %s already exists", request.getInformationTypeName(), request.getPurposeCode()));
         }
 
