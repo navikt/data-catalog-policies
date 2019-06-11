@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.consumer.CodelistConsumer;
 import no.nav.data.catalog.policies.app.consumer.InformationTypeConsumer;
+import no.nav.data.catalog.policies.app.policy.domain.ListName;
 import no.nav.data.catalog.policies.app.policy.domain.InformationType;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
@@ -14,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
-import java.util.Optional;
 
 @Component
 @Slf4j
@@ -54,7 +54,7 @@ public class PolicyMapper {
             throw new DataCatalogPoliciesNotFoundException(String.format("Cannot find InformationType with id: %s", policy.getInformationTypeId()));
         }
         response.setInformationType(informationType);
-        response.setPurpose(Map.of("code", policy.getPurposeCode(), "description", codelistConsumer.getPurposeCodelistDescription(policy.getPurposeCode())));
+        response.setPurpose(Map.of("code", policy.getPurposeCode(), "description", codelistConsumer.getCodelistDescription(ListName.PURPOSE, policy.getPurposeCode())));
         return response;
     }
 }

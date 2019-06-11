@@ -13,6 +13,10 @@ public class InformationType {
     private Long id;
     private String name;
     private String description;
+    private String categoryCode;
+    private String producerCode;
+    private String systemCode;
+    private Boolean personalData;
 
     public InformationType convertToInformationType(InformationTypeResponse response) {
         this.id = response.getInformationTypeId();
@@ -24,11 +28,11 @@ public class InformationType {
     public InformationTypeRequest convertToInformationTypeRequest() {
         InformationTypeRequest request = new InformationTypeRequest();
         request.setName(this.name);
-        request.setPersonalData(true);
+        request.setPersonalData(this.personalData);
         request.setDescription(this.description);
-        request.setCategoryCode("");
-        request.setProducerCode("");
-        request.setSystemCode("");
+        request.setCategoryCode(this.categoryCode);
+        request.setProducerCode(this.producerCode);
+        request.setSystemCode(this.systemCode);
         return request;
     }
 

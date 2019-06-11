@@ -5,6 +5,7 @@ import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNot
 import no.nav.data.catalog.policies.app.common.exceptions.ValidationException;
 import no.nav.data.catalog.policies.app.consumer.CodelistConsumer;
 import no.nav.data.catalog.policies.app.consumer.InformationTypeConsumer;
+import no.nav.data.catalog.policies.app.policy.domain.ListName;
 import no.nav.data.catalog.policies.app.policy.domain.InformationType;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -63,7 +63,7 @@ public class PolicyService {
             validationErrors.put("purposeCode", "purposeCode cannot be null");
         } else {
             try {
-                codelistConsumer.getPurposeCodelistDescription(request.getPurposeCode());
+                codelistConsumer.getCodelistDescription(ListName.PURPOSE, request.getPurposeCode());
             } catch (DataCatalogPoliciesNotFoundException e) {
                 validationErrors.put("purposeCode", String.format("The purposeCode %s was not found in the PURPOSE codelist.", request.getPurposeCode()));
             }

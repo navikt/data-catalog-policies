@@ -3,6 +3,7 @@ package no.nav.data.catalog.policies.test.component.mapper;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.consumer.CodelistConsumer;
 import no.nav.data.catalog.policies.app.consumer.InformationTypeConsumer;
+import no.nav.data.catalog.policies.app.policy.domain.ListName;
 import no.nav.data.catalog.policies.app.policy.domain.InformationType;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
@@ -19,12 +20,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Optional;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 
@@ -70,7 +68,7 @@ public class PolicyMapperTest {
     @Test
     public void shouldMapToPolicyResponse() {
         InformationType informationType = createBasicTestdata(INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
-        when(codelistConsumer.getPurposeCodelistDescription(anyString())).thenReturn(PURPOSE_DESCRIPTION1);
+        when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenReturn(PURPOSE_DESCRIPTION1);
         when(informationTypeConsumer.getInformationTypeById(anyLong())).thenReturn(informationType);
         Policy policy = new Policy(1L, informationType.getId(), PURPOSE_CODE1, LEGAL_BASIS_DESCRIPTION1);
         PolicyResponse policyResponse = mapper.mapPolicyToRequest(policy);
