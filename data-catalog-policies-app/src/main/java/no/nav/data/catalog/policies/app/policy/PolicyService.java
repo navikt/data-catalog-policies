@@ -5,8 +5,8 @@ import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNot
 import no.nav.data.catalog.policies.app.common.exceptions.ValidationException;
 import no.nav.data.catalog.policies.app.consumer.CodelistConsumer;
 import no.nav.data.catalog.policies.app.consumer.InformationTypeConsumer;
-import no.nav.data.catalog.policies.app.policy.domain.ListName;
 import no.nav.data.catalog.policies.app.policy.domain.InformationType;
+import no.nav.data.catalog.policies.app.policy.domain.ListName;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ public class PolicyService {
 
     public void validateRequests(List<PolicyRequest> requests) {
         HashMap<String, HashMap> validationMap = new HashMap<>();
-        for (PolicyRequest request:requests) {
+        for (PolicyRequest request : requests) {
             HashMap<String, String> requestMap = validateRequest(request, isUpdate(request.getId()));
             if (!requestMap.isEmpty()) {
                 validationMap.put(request.getInformationTypeName() + "/" + request.getPurposeCode(), requestMap);
@@ -69,19 +69,23 @@ public class PolicyService {
             }
         }
         // Combination of InformationType and purpose must be unique
-        InformationType informationType = null;
-        if (request.getInformationTypeName() != null) {
-            informationType = informationTypeConsumer.getInformationTypeByName(request.getInformationTypeName());
-            if (informationType == null) {
+        if (request.getInformationTypeName() != null && request.getPurposeCode() != null) {
+            InformationType informationType = null;
+            try {
+                informationType = informationTypeConsumer.getInformationTypeByName(request.getInformationTypeName());
+            } catch (DataCatalogPoliciesNotFoundException e) {
                 validationErrors.put("informationTypeName", String.format("An informationType with name %s does not exist", request.getInformationTypeName()));
+            }
+            if (informationType != null) {
+                request.setInformationTypeId(informationType.getId());
+            }
+
+            if (!isUpdate && informationType != null && policyRepository.existsByInformationTypeIdAndPurposeCode(informationType.getId(), request.getPurposeCode())) {
+                validationErrors.put("InformationTypeAndPurpose", String.format("A policy combining InformationType %s and Purpose %s already exists", request.getInformationTypeName(), request.getPurposeCode()));
             }
         }
 
-        if (!isUpdate && informationType != null && policyRepository.existsByInformationTypeIdAndPurposeCode(informationType.getId(), request.getPurposeCode())) {
-            validationErrors.put("InformationTypeAndPurpose", String.format("A policy combining InformationType %s and Purpose %s already exists", request.getInformationTypeName(), request.getPurposeCode()));
-        }
-
-        if(!validationErrors.isEmpty()) {
+        if (!validationErrors.isEmpty()) {
             logger.error("Validation errors occurred when validating InformationTypeRequest: {}", validationErrors);
         }
         return validationErrors;

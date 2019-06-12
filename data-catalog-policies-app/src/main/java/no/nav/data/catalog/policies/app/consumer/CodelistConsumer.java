@@ -39,23 +39,4 @@ public class CodelistConsumer {
             throw new DataCatalogPoliciesTechnicalException(String.format("Getting Codelist (" + listName.name() + ": %s) description  failed with status=%s message=%s", code.trim().toUpperCase(), e.getStatusCode(), e.getResponseBodyAsString()), e, e.getStatusCode());
         }
     }
-
-    public Codelist createCodelist(ListName listName, String code, String description) {
-        CodelistRequest request = new CodelistRequest(listName, code.trim().toUpperCase(), description);
-        try {
-            ResponseEntity<Codelist> responseEntity = restTemplate.exchange(codelistUrl, HttpMethod.POST, new HttpEntity<>(request), Codelist.class);
-            return responseEntity.getBody();
-        } catch (HttpClientErrorException | HttpServerErrorException e) {
-            throw new DataCatalogPoliciesTechnicalException(String.format("creating codelist (" + listName.name() + ": %s) failed with status=%s message=%s", code.trim().toUpperCase(), e.getStatusCode(), e.getResponseBodyAsString()), e, e.getStatusCode());
-        }
-    }
-
-    public void deleteCodelist(ListName listName, String code) {
-        try {
-            restTemplate.exchange(codelistUrl + "/" + listName.name() + "/" + code.trim().toUpperCase(), HttpMethod.DELETE, HttpEntity.EMPTY, String.class);
-        } catch (HttpClientErrorException | HttpServerErrorException e) {
-            throw new DataCatalogPoliciesTechnicalException(String.format("Deleting codelist (" + listName.name() + ": %s) failed with status=%s message=%s", code.trim().toUpperCase(), e.getStatusCode(), e.getResponseBodyAsString()), e, e.getStatusCode());
-        }
-    }
-
 }

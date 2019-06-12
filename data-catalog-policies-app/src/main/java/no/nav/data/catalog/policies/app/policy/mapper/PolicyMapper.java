@@ -28,14 +28,8 @@ public class PolicyMapper {
     private InformationTypeConsumer informationTypeConsumer;
 
     public Policy mapRequestToPolicy(PolicyRequest policyRequest, Long id) {
-        InformationType informationType = informationTypeConsumer.getInformationTypeByName(policyRequest.getInformationTypeName());
-        if (informationType == null) {
-            logger.error(String.format("Cannot find InformationType with name: %s", policyRequest.getInformationTypeName()));
-            throw new DataCatalogPoliciesNotFoundException(String.format("Cannot find InformationType with name: %s", policyRequest.getInformationTypeName()));
-        }
-
         Policy policy = new Policy();
-        policy.setInformationTypeId(informationType.getId());
+        policy.setInformationTypeId(policyRequest.getInformationTypeId());
         policy.setPurposeCode(policyRequest.getPurposeCode());
         policy.setLegalBasisDescription(policyRequest.getLegalBasisDescription());
         if (id != null) {
@@ -44,7 +38,7 @@ public class PolicyMapper {
         return policy;
     }
 
-    public PolicyResponse mapPolicyToRequest(Policy policy) {
+    public PolicyResponse mapPolicyToResponse(Policy policy) {
         PolicyResponse response = new PolicyResponse();
         response.setPolicyId(policy.getPolicyId());
         response.setLegalBasisDescription(policy.getLegalBasisDescription());

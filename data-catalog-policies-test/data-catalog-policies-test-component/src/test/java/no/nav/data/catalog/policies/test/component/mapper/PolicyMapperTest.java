@@ -57,21 +57,12 @@ public class PolicyMapperTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenInformationTypeNotFound() {
-        when(informationTypeConsumer.getInformationTypeByName(anyString())).thenReturn(null);
-        expectedException.expect(DataCatalogPoliciesNotFoundException.class);
-        expectedException.expectMessage("Cannot find InformationType with name: NOTFOUND");
-        PolicyRequest request = new PolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1,"NOTFOUND");
-        mapper.mapRequestToPolicy(request, null);
-    }
-
-    @Test
     public void shouldMapToPolicyResponse() {
         InformationType informationType = createBasicTestdata(INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenReturn(PURPOSE_DESCRIPTION1);
         when(informationTypeConsumer.getInformationTypeById(anyLong())).thenReturn(informationType);
         Policy policy = new Policy(1L, informationType.getId(), PURPOSE_CODE1, LEGAL_BASIS_DESCRIPTION1);
-        PolicyResponse policyResponse = mapper.mapPolicyToRequest(policy);
+        PolicyResponse policyResponse = mapper.mapPolicyToResponse(policy);
         assertThat(policyResponse.getInformationType().getId(), is(policy.getInformationTypeId()));
         assertThat(policyResponse.getLegalBasisDescription(), is(LEGAL_BASIS_DESCRIPTION1));
         assertThat(policyResponse.getPurpose().get("code"), is(PURPOSE_CODE1));

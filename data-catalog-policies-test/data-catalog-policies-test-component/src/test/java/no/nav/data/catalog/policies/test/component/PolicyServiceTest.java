@@ -39,7 +39,6 @@ public class PolicyServiceTest {
     @Mock
     private InformationTypeConsumer informationTypeConsumer;
 
-
     @Mock
     private PolicyRepository policyRepository;
 
@@ -84,7 +83,7 @@ public class PolicyServiceTest {
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
                 .purposeCode(PURPOSECODE)
                 .build();
-        when(informationTypeConsumer.getInformationTypeByName(request.getInformationTypeName())).thenReturn(null);
+        when(informationTypeConsumer.getInformationTypeByName(request.getInformationTypeName())).thenThrow(new DataCatalogPoliciesNotFoundException(""));
         when(policyRepository.existsByInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(false);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenThrow(new DataCatalogPoliciesNotFoundException(""));
         try {
@@ -140,7 +139,7 @@ public class PolicyServiceTest {
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
                 .purposeCode(PURPOSECODE)
                 .build();
-        when(informationTypeConsumer.getInformationTypeByName(request.getInformationTypeName())).thenReturn(null);
+        when(informationTypeConsumer.getInformationTypeByName(request.getInformationTypeName())).thenThrow(new DataCatalogPoliciesNotFoundException(""));
         when(policyRepository.existsByInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(false);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenThrow(new DataCatalogPoliciesNotFoundException(""));
         try {

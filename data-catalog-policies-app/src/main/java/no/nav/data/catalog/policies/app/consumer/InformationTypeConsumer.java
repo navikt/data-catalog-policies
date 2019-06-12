@@ -3,12 +3,9 @@ package no.nav.data.catalog.policies.app.consumer;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesTechnicalException;
 import no.nav.data.catalog.policies.app.policy.domain.InformationType;
-import no.nav.data.catalog.policies.app.policy.domain.InformationTypeRequest;
 import no.nav.data.catalog.policies.app.policy.domain.InformationTypeResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -48,8 +45,7 @@ public class InformationTypeConsumer {
         try {
             ResponseEntity<InformationTypeResponse> responseEntity = restTemplate.getForEntity(InformationTypeEndpointUrl + "/" + informationTypeId
                     , InformationTypeResponse.class);
-            InformationTypeResponse response = responseEntity.getBody();
-            return new InformationType().convertToInformationType(response);
+            return new InformationType().convertToInformationType(responseEntity.getBody());
         } catch (
                 HttpClientErrorException e) {
             if (HttpStatus.NOT_FOUND.equals(e.getStatusCode())) {
@@ -61,19 +57,6 @@ public class InformationTypeConsumer {
         } catch (HttpServerErrorException e) {
             throw new DataCatalogPoliciesTechnicalException(String.format("Getting InformationType with id %s failed with status=%s message=%s"
                     , informationTypeId, e.getStatusCode(), e.getResponseBodyAsString()), e, e.getStatusCode());
-        }
-    }
-
-
-    public InformationTypeResponse createInformationType(InformationType informationType) {
-        InformationTypeRequest request = informationType.convertToInformationTypeRequest();
-        try {
-            ResponseEntity<InformationTypeResponse> responseEntity = restTemplate.exchange(
-                    InformationTypeEndpointUrl, HttpMethod.POST, new HttpEntity<>(request), InformationTypeResponse.class);
-            return responseEntity.getBody();
-        } catch ( HttpClientErrorException | HttpServerErrorException e) {
-            throw new DataCatalogPoliciesTechnicalException(String.format("Creating InformationType with name=%s failed with status=%s message=%s"
-                    , informationType.getName(), e.getStatusCode(), e.getResponseBodyAsString()), e, e.getStatusCode());
         }
     }
 }

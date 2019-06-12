@@ -1,14 +1,15 @@
 package no.nav.data.catalog.policies.test.integration.rest;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import no.nav.data.catalog.policies.app.AppStarter;
 import no.nav.data.catalog.policies.app.consumer.CodelistConsumer;
 import no.nav.data.catalog.policies.app.consumer.InformationTypeConsumer;
-import no.nav.data.catalog.policies.app.policy.domain.*;
+import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
+import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import no.nav.data.catalog.policies.test.integration.IntegrationTestConfig;
+import no.nav.data.catalog.policies.test.integration.util.WiremockResponseTransformer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -18,9 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.http.HttpEntity;
@@ -30,8 +31,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.transaction.TestTransaction;
-import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.time.Duration;
@@ -47,22 +46,14 @@ import static org.junit.Assert.assertFalse;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = {IntegrationTestConfig.class, AppStarter.class})
+@Import(WiremockResponseTransformer.class)
 @ActiveProfiles("itest, wiremock")
-@AutoConfigureWireMock(port = 0)
-@Transactional
 @ContextConfiguration(initializers = {PolicyControllerIT.Initializer.class})
 public class PolicyControllerIT {
     public static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
     public static final String PURPOSE_CODE1 = "TEST1";
-    public static final String PURPOSE_DESCRIPTION1 = "Purpose description 1";
-    public static final String SYSTEM_CODE1 = "SYS1";
-    public static final String SYSTEM_DESCRIPTION1 = "System description 1";
-    public static final String CATEGORY_CODE1 = "CAT1";
-    public static final String CATEGORY_DESCRIPTION1 = "category description 1";
-    public static final String PRODUCER_CODE1 = "PROD";
-    public static final String PRODUCER_DESCRIPTION1 = "Producer description 1";
-    public static final String INFORMATION_TYPE_DESCRIPTION1 = "InformationType 1";
-    public static final String INFORMATION_TYPE_NAME = "InformationTypeName";
+    public static final String INFORMATION_TYPE_DESCRIPTION1 = "Sivilstand beskrivelse";
+    public static final String INFORMATION_TYPE_NAME = "Sivilstand";
 
     public static final String POLICY_REST_ENDPOINT = "/policy/";
 
@@ -86,27 +77,14 @@ public class PolicyControllerIT {
                     .withPassword("samplepwd")
                     .withStartupTimeout(Duration.ofSeconds(600));
 
-
     @Before
     public void setUp() {
-        WireMock.resetToDefault();
-        WireMock.resetAllRequests();
-        codelistConsumer.createCodelist(ListName.PURPOSE, PURPOSE_CODE1, PURPOSE_DESCRIPTION1);
-        codelistConsumer.createCodelist(ListName.SYSTEM, SYSTEM_CODE1, SYSTEM_DESCRIPTION1);
-        codelistConsumer.createCodelist(ListName.PRODUCER, PRODUCER_CODE1, PRODUCER_DESCRIPTION1);
-        codelistConsumer.createCodelist(ListName.CATEGORY, CATEGORY_CODE1, CATEGORY_DESCRIPTION1);
         policyRepository.deleteAll();
     }
 
     @After
     public void cleanUp() {
-        codelistConsumer.deleteCodelist(ListName.PURPOSE, PURPOSE_CODE1);
-        codelistConsumer.deleteCodelist(ListName.SYSTEM, SYSTEM_CODE1);
-        codelistConsumer.deleteCodelist(ListName.PRODUCER, PRODUCER_CODE1);
-        codelistConsumer.deleteCodelist(ListName.CATEGORY, CATEGORY_CODE1);
         policyRepository.deleteAll();
-        WireMock.resetAllRequests();
-        WireMock.reset();
     }
 
     @Test
@@ -115,10 +93,8 @@ public class PolicyControllerIT {
         ResponseEntity<List<PolicyResponse>> createEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT + "policy", HttpMethod.POST, new HttpEntity<>(requestList), new ParameterizedTypeReference<List<PolicyResponse>>() {
                 });
-//        ResponseEntity<String> createEntity = restTemplate.exchange(
-//                POLICY_REST_ENDPOINT + "policy", HttpMethod.POST, new HttpEntity<>(requestList), String.class);
         assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
-//        assertPolicy(createEntity.getBody().get(0), LEGAL_BASIS_DESCRIPTION1);
+        assertPolicy(createEntity.getBody().get(0), LEGAL_BASIS_DESCRIPTION1);
     }
 
     @Test
@@ -242,7 +218,7 @@ public class PolicyControllerIT {
         List<PolicyRequest> requestList = Arrays.asList(
                 createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME, 1L),
                 createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1, "Postadresse", 2L),
-                createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1, "Sivilstand", 3L)
+                createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_DESCRIPTION1, "Arbeidsforhold", 3L)
         );
         ResponseEntity<List<PolicyResponse>> createEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT + "policy", HttpMethod.POST, new HttpEntity<>(requestList), new ParameterizedTypeReference<List<PolicyResponse>>() {
@@ -252,6 +228,7 @@ public class PolicyControllerIT {
 
         requestList.get(0).setLegalBasisDescription(null);
         requestList.get(1).setLegalBasisDescription(null);
+        requestList.get(2).setLegalBasisDescription("UPDATED");
         requestList.get(0).setId(createEntity.getBody().get(0).getPolicyId());
         requestList.get(1).setId(createEntity.getBody().get(1).getPolicyId());
         requestList.get(2).setId(createEntity.getBody().get(2).getPolicyId());
@@ -259,10 +236,10 @@ public class PolicyControllerIT {
         ResponseEntity<String> updateEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT + "policy", HttpMethod.PUT, new HttpEntity<>(requestList), String.class);
         assertThat(updateEntity.getStatusCode(), is(HttpStatus.BAD_REQUEST));
-        assertThat(updateEntity.getBody(), containsString("InformationTypeName/AAP={legalBasisDescription=legalBasisDescription cannot be null}"));
-        assertThat(updateEntity.getBody(), containsString("Postadresse/AAP={legalBasisDescription=legalBasisDescription cannot be null}"));
-        // No error reported regarding Sivilstand/AAP
-        assertFalse(updateEntity.getBody().contains("Sivilstand/AAP"));
+        assertThat(updateEntity.getBody(), containsString("Sivilstand/TEST1={legalBasisDescription=legalBasisDescription cannot be null}"));
+        assertThat(updateEntity.getBody(), containsString("Postadresse/TEST1={legalBasisDescription=legalBasisDescription cannot be null}"));
+        // No error reported regarding Arbeidsforhold/TEST1
+        assertFalse(updateEntity.getBody().contains("Arbeidsforhold/TEST1"));
     }
 
     @Test
@@ -342,13 +319,8 @@ public class PolicyControllerIT {
     private void createTestdata(String legalBasisDescription, String purposeCode, String informationTypeDescription, String informationTypeName, int rows) {
         int i = 0;
         while (i < rows) {
-            if (TestTransaction.isActive()) {
-                TestTransaction.end();
-            }
-            TestTransaction.start();
-
             Policy policy = new Policy();
-            policy.setInformationTypeId(1L);
+            policy.setInformationTypeId(Long.valueOf(i));
             policy.setLegalBasisDescription(legalBasisDescription);
             policy.setPurposeCode(purposeCode);
             policyRepository.save(policy);
@@ -357,24 +329,7 @@ public class PolicyControllerIT {
     }
 
     private PolicyRequest createPolicyRequest(String legalBasisDescription, String purposeCode, String informationTypeDescription, String informationTypeName, Long informationTypeId) {
-        if (TestTransaction.isActive()) {
-            TestTransaction.end();
-        }
-        TestTransaction.start();
-
-        InformationType informationType = InformationType.builder()
-                .id(informationTypeId)
-                .name(informationTypeName)
-                .description(informationTypeDescription)
-                .categoryCode(CATEGORY_CODE1)
-                .producerCode(PRODUCER_CODE1)
-                .systemCode(SYSTEM_CODE1)
-                .personalData(true)
-                .build();
-        InformationTypeResponse response = informationTypeConsumer.createInformationType(informationType);
-        TestTransaction.flagForCommit();
-        TestTransaction.end();
-        return PolicyRequest.builder().informationTypeName(informationType.getName()).legalBasisDescription(legalBasisDescription).purposeCode(purposeCode).build();
+        return PolicyRequest.builder().informationTypeName(informationTypeName).legalBasisDescription(legalBasisDescription).purposeCode(purposeCode).build();
     }
 
     static class Initializer

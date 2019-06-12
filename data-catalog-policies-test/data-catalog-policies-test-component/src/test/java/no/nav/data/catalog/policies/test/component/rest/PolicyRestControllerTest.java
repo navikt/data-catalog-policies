@@ -76,7 +76,7 @@ public class PolicyRestControllerTest {
         PolicyResponse response = new PolicyResponse(1L, new InformationType(), "Description", null);
 
         given(policyRepository.findById(1L)).willReturn(Optional.of(policy1));
-        given(mapper.mapPolicyToRequest(policy1)).willReturn(response);
+        given(mapper.mapPolicyToResponse(policy1)).willReturn(response);
         ResultActions result = mvc.perform(get("/policy/policy/1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.legalBasisDescription",is("Description")));
@@ -145,7 +145,7 @@ public class PolicyRestControllerTest {
         given(mapper.mapRequestToPolicy(request, 1L)).willReturn(policy1);
         given(policyRepository.findById(1L)).willReturn(Optional.of(policy1));
         given(policyRepository.save(policy1)).willReturn(policy1);
-        given(mapper.mapPolicyToRequest(policy1)).willReturn(response);
+        given(mapper.mapPolicyToResponse(policy1)).willReturn(response);
 
         mvc.perform(put("/policy/policy/1")
                 .contentType(MediaType.APPLICATION_JSON)
