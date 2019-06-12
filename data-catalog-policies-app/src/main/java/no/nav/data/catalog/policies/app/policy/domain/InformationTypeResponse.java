@@ -1,10 +1,12 @@
 package no.nav.data.catalog.policies.app.policy.domain;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.Map;
 
 @Data
+@Builder
 public class InformationTypeResponse {
     private String elasticsearchId;
     private Long informationTypeId;

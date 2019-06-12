@@ -22,19 +22,10 @@ public class InformationType {
         this.id = response.getInformationTypeId();
         this.name = response.getName();
         this.description = response.getDescription();
+        this.personalData = response.getPersonalData();
+        this.categoryCode = response.getCategory().get("code").toString();
+        this.producerCode = response.getProducer().get("code").toString();
+        this.systemCode = response.getSystem().get("code").toString();
         return this;
     }
-
-    public InformationTypeRequest convertToInformationTypeRequest() {
-        InformationTypeRequest request = new InformationTypeRequest();
-        request.setName(this.name);
-        request.setPersonalData(this.personalData);
-        request.setDescription(this.description);
-        request.setCategoryCode(this.categoryCode);
-        request.setProducerCode(this.producerCode);
-        request.setSystemCode(this.systemCode);
-        return request;
-    }
-
-
 }

@@ -26,8 +26,8 @@ public class CodelistConsumer {
 
     public String getCodelistDescription(ListName listName, String code) {
         try {
-            ResponseEntity responseEntity = restTemplate.getForEntity(codelistUrl + "/" + listName.name() + "/" + code.trim().toUpperCase(), String.class);
-            return responseEntity.getBody().toString();
+            ResponseEntity<String> responseEntity = restTemplate.getForEntity(codelistUrl + "/" + listName.name() + "/" + code.trim().toUpperCase(), String.class);
+            return responseEntity.getBody();
         } catch (
                 HttpClientErrorException e) {
             if (HttpStatus.NOT_FOUND.equals(e.getStatusCode())) {
