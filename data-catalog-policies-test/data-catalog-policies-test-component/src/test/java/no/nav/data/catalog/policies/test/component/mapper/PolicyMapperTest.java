@@ -1,5 +1,6 @@
 package no.nav.data.catalog.policies.test.component.mapper;
 
+import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.consumer.CodelistConsumer;
 import no.nav.data.catalog.policies.app.consumer.InformationTypeConsumer;
 import no.nav.data.catalog.policies.app.policy.domain.InformationType;
@@ -50,9 +51,11 @@ public class PolicyMapperTest {
         InformationType informationType = createBasicTestdata(INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
         when(informationTypeConsumer.getInformationTypeByName(anyString())).thenReturn(informationType);
         PolicyRequest request = new PolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, informationType.getName());
+        request.setInformationTypeId(1L);
         Policy policy = mapper.mapRequestToPolicy(request, null);
         assertThat(policy.getLegalBasisDescription(), is(LEGAL_BASIS_DESCRIPTION1));
         assertThat(policy.getPurposeCode(), is(PURPOSE_CODE1));
+        assertThat(policy.getInformationTypeId(), is(informationType.getId()));
     }
 
     @Test
@@ -68,7 +71,20 @@ public class PolicyMapperTest {
         assertThat(policyResponse.getPurpose().get("description"), is(PURPOSE_DESCRIPTION1));
     }
 
+    @Test
+    public void shouldThrowPurposeNotFoundExceptionResponse() {
+        expectedException.expect(DataCatalogPoliciesNotFoundException.class);
+        InformationType informationType = createBasicTestdata(INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
+        when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenThrow(new DataCatalogPoliciesNotFoundException("codelist not found"));
+        Policy policy = new Policy(1L, informationType.getId(), PURPOSE_CODE1, LEGAL_BASIS_DESCRIPTION1);
+        PolicyResponse policyResponse = mapper.mapPolicyToResponse(policy);
+    }
+
     private InformationType createBasicTestdata(String informationTypeDescription, String informationTypeName) {
-         return InformationType.builder().id(1L).description(informationTypeDescription).name(informationTypeName).build();
+         return InformationType.builder()
+                 .id(1L)
+                 .description(informationTypeDescription)
+                 .name(informationTypeName)
+                 .build();
     }
 }

@@ -81,7 +81,8 @@ public class PolicyService {
             }
 
             if (!isUpdate && informationType != null && policyRepository.existsByInformationTypeIdAndPurposeCode(informationType.getId(), request.getPurposeCode())) {
-                validationErrors.put("InformationTypeAndPurpose", String.format("A policy combining InformationType %s and Purpose %s already exists", request.getInformationTypeName(), request.getPurposeCode()));
+                validationErrors.put("InformationTypeAndPurpose", String.format("A policy combining InformationType %s and Purpose %s already exists"
+                        , request.getInformationTypeName(), request.getPurposeCode()));
             }
         }
 

@@ -155,6 +155,26 @@ public class PolicyRestControllerTest {
     }
 
     @Test
+    public void updateTwoPolicies() throws Exception {
+        Policy policy1 = createPolicyTestdata(1L);
+        Policy policy2 = createPolicyTestdata(2L);
+        List<PolicyRequest> request = Arrays.asList(new PolicyRequest("Desc1","Code1","Name1"), new PolicyRequest("Desc2","Code2","Name2"));
+        List<Policy> policies = Arrays.asList(policy1, policy2);
+
+        given(mapper.mapRequestToPolicy(request.get(0), request.get(0).getId())).willReturn(policy1);
+        given(mapper.mapRequestToPolicy(request.get(1), request.get(1).getId())).willReturn(policy2);
+        given(policyRepository.findById(request.get(0).getId())).willReturn(Optional.of(policy1));
+        given(policyRepository.findById(request.get(1).getId())).willReturn(Optional.of(policy2));
+        given(policyRepository.saveAll(policies)).willReturn(policies);
+
+        mvc.perform(put("/policy/policy")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*",hasSize(2)));
+    }
+
+    @Test
     public void updateNotExistingPolicy() throws Exception {
         Policy policy1 = createPolicyTestdata(1L);
         PolicyRequest request = new PolicyRequest();
