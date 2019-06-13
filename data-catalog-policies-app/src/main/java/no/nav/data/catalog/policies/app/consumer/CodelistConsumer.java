@@ -2,13 +2,9 @@ package no.nav.data.catalog.policies.app.consumer;
 
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesTechnicalException;
-import no.nav.data.catalog.policies.app.policy.domain.Codelist;
-import no.nav.data.catalog.policies.app.policy.domain.CodelistRequest;
 import no.nav.data.catalog.policies.app.policy.domain.ListName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -25,6 +21,7 @@ public class CodelistConsumer {
     private String codelistUrl;
 
     public String getCodelistDescription(ListName listName, String code) {
+        if (code == null || listName == null) return null;
         try {
             ResponseEntity<String> responseEntity = restTemplate.getForEntity(codelistUrl + "/" + listName.name() + "/" + code.trim().toUpperCase(), String.class);
             return responseEntity.getBody();
