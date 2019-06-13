@@ -16,13 +16,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -55,17 +55,27 @@ public class PolicyRestController {
         return policyRepository.findAll(pageable).map(policy -> mapper.mapPolicyToResponse(policy));
     }
 
-    @ApiOperation(value = "Get all Policies", tags = { "Policies" })
+    @ApiOperation(value = "Get all Policies", tags = {"Policies"})
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "All policies fetched", response = Policy.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping(path = "/policy", params = {"informationTypeId"})
     public Page<PolicyResponse> getPoliciesByInformationType(Pageable pageable, @RequestParam Long informationTypeId) {
-        return policyRepository.findByInformationTypeId(pageable, informationTypeId).map(policy -> mapper.mapPolicyToResponse(policy));
+        if (pageable.getSort().getOrderFor("purpose.description") != null) {
+            List<PolicyResponse> pageResponse = policyRepository.findByInformationTypeId(null, informationTypeId).stream().map(policy -> mapper.mapPolicyToRequest(policy)).collect(Collectors.toList());
+            Comparator<PolicyResponse> compareByDescription = Comparator.comparing((PolicyResponse o) -> o.getPurpose().get("description"));
+            if (pageable.getSort().getOrderFor("purpose.description").isAscending()) {
+                pageResponse.sort(compareByDescription);
+            } else {
+                pageResponse.sort(compareByDescription.reversed());
+            }
+            return new PageImpl(pageResponse, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.unsorted()), pageResponse.size());
+        } else {
+            return policyRepository.findByInformationTypeId(pageable, informationTypeId).map(policy -> mapper.mapPolicyToRequest(policy));
+        }
     }
 
-
-    @ApiOperation(value = "Create Policy", tags = { "Policies" })
+    @ApiOperation(value = "Create Policy", tags = {"Policies"})
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Policy successfully created", response = Policy.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Illegal arguments"),
