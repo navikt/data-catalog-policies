@@ -66,7 +66,7 @@ public class RepositoryTest {
             TestTransaction.end();
         }
 
-        InformationType informationType = InformationType.builder().id(informationTypeId).description(informationTypeDescription).name(informationTypeName).build();
+        InformationType informationType = InformationType.builder().id(informationTypeId).name(informationTypeName).build();
 
         Policy policy = new Policy();
         policy.setInformationTypeId(informationType.getId());

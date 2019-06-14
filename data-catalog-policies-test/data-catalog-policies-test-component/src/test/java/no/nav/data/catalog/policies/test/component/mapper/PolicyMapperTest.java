@@ -48,7 +48,7 @@ public class PolicyMapperTest {
 
     @Test
     public void shouldMapToPolicy() {
-        InformationType informationType = createBasicTestdata(INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
+        InformationType informationType = createBasicTestdata(INFORMATION_TYPE_NAME1);
         when(informationTypeConsumer.getInformationTypeByName(anyString())).thenReturn(informationType);
         PolicyRequest request = new PolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, informationType.getName());
         request.setInformationTypeId(1L);
@@ -60,7 +60,7 @@ public class PolicyMapperTest {
 
     @Test
     public void shouldMapToPolicyResponse() {
-        InformationType informationType = createBasicTestdata(INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
+        InformationType informationType = createBasicTestdata(INFORMATION_TYPE_NAME1);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenReturn(PURPOSE_DESCRIPTION1);
         when(informationTypeConsumer.getInformationTypeById(anyLong())).thenReturn(informationType);
         Policy policy = new Policy(1L, informationType.getId(), PURPOSE_CODE1, LEGAL_BASIS_DESCRIPTION1);
@@ -74,16 +74,15 @@ public class PolicyMapperTest {
     @Test
     public void shouldThrowPurposeNotFoundExceptionResponse() {
         expectedException.expect(DataCatalogPoliciesNotFoundException.class);
-        InformationType informationType = createBasicTestdata(INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
+        InformationType informationType = createBasicTestdata(INFORMATION_TYPE_NAME1);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenThrow(new DataCatalogPoliciesNotFoundException("codelist not found"));
         Policy policy = new Policy(1L, informationType.getId(), PURPOSE_CODE1, LEGAL_BASIS_DESCRIPTION1);
         PolicyResponse policyResponse = mapper.mapPolicyToResponse(policy);
     }
 
-    private InformationType createBasicTestdata(String informationTypeDescription, String informationTypeName) {
+    private InformationType createBasicTestdata(String informationTypeName) {
          return InformationType.builder()
                  .id(1L)
-                 .description(informationTypeDescription)
                  .name(informationTypeName)
                  .build();
     }

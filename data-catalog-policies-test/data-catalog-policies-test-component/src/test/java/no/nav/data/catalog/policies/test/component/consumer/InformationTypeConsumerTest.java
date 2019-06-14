@@ -109,10 +109,5 @@ public class InformationTypeConsumerTest {
 
     private void assertInformationType(InformationType informationType) {
         assertThat(informationType.getName(), is(NAME));
-        assertThat(informationType.getDescription(), is(DESCRIPTION));
-        assertThat(informationType.getPersonalData(), is(PERSONAL_DATA));
-        assertThat(informationType.getCategoryCode(), is(CATEGORY.get("code")));
-        assertThat(informationType.getProducerCode(), is(PRODUCER.get("code")));
-        assertThat(informationType.getSystemCode(), is(SYSTEM.get("code")));
     }
 }
