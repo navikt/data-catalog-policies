@@ -50,12 +50,7 @@ public class InformationTypeConsumerTest {
     @Test
     public void getInformationTypeById() {
         InformationTypeResponse response = InformationTypeResponse.builder()
-                .name(NAME)
-                .description(DESCRIPTION)
-                .category(CATEGORY)
-                .producer(PRODUCER)
-                .system(SYSTEM)
-                .personalData(PERSONAL_DATA).build();
+                .name(NAME).build();
         when(restTemplate.getForEntity(anyString(), eq(InformationTypeResponse.class))).thenReturn(new ResponseEntity<>(response, HttpStatus.OK));
         InformationType informationType =  consumer.getInformationTypeById(1L);
         assertInformationType(informationType);
@@ -80,12 +75,7 @@ public class InformationTypeConsumerTest {
     @Test
     public void getInformationTypeByName() {
         InformationTypeResponse response = InformationTypeResponse.builder()
-                .name(NAME)
-                .description(DESCRIPTION)
-                .category(CATEGORY)
-                .producer(PRODUCER)
-                .system(SYSTEM)
-                .personalData(PERSONAL_DATA).build();
+                .name(NAME).build();
         when(restTemplate.getForEntity(anyString(), eq(InformationTypeResponse.class))).thenReturn(new ResponseEntity<>(response, HttpStatus.OK));
         InformationType informationType =  consumer.getInformationTypeByName(NAME);
         assertInformationType(informationType);
