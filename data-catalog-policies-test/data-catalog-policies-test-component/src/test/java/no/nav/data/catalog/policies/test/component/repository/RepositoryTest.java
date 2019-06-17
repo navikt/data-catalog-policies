@@ -11,6 +11,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.transaction.TestTransaction;
@@ -63,6 +66,24 @@ public class RepositoryTest {
         createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 1L, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
         createTestdata("Legal basis 2", "PUR2", 2L, INFORMATION_TYPE_DESCRIPTION1, "InformationTypeName2");
         assertThat(policyRepository.count(), is(2L));
+        assertThat(informationTypeRepository.count(), is(2L));
+    }
+
+    @Test
+    public void getByInformationType() {
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 1L, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
+        createTestdata("Legal basis 2", "PUR2", 2L, INFORMATION_TYPE_DESCRIPTION1, "InformationTypeName2");
+        assertThat(policyRepository.findByInformationTypeInformationTypeId(PageRequest.of(0, 10), 1L).getTotalElements(), is(1L));
+        assertThat(policyRepository.findByInformationTypeInformationTypeId(PageRequest.of(0, 10), 2L).getTotalElements(), is(1L));
+        assertThat(informationTypeRepository.count(), is(2L));
+    }
+
+    @Test
+    public void countByInformationType() {
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 1L, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
+        createTestdata("Legal basis 2", "PUR2", 2L, INFORMATION_TYPE_DESCRIPTION1, "InformationTypeName2");
+        assertThat(policyRepository.countByInformationTypeInformationTypeId(1L), is(1L));
+        assertThat(policyRepository.countByInformationTypeInformationTypeId(2L), is(1L));
         assertThat(informationTypeRepository.count(), is(2L));
     }
 

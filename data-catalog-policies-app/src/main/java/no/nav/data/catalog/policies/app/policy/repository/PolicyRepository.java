@@ -10,5 +10,7 @@ import org.springframework.stereotype.Repository;
 public interface PolicyRepository extends JpaRepository<Policy, Long> {
     Page<Policy> findByInformationTypeInformationTypeId(Pageable  pageable, Long informationTypeId);
 
+    long countByInformationTypeInformationTypeId(Long informationTypeId);
+
     boolean existsByInformationTypeInformationTypeIdAndPurposeCode(Long informtionTypeId, String purposeCode);
 }

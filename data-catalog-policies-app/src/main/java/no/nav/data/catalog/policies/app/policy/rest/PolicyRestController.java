@@ -55,6 +55,15 @@ public class PolicyRestController {
         return policyRepository.findAll(pageable).map(policy -> mapper.mapPolicyToRequest(policy));
     }
 
+    @ApiOperation(value = "Count all Policies", tags = {"Policies"})
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Count policies fetched", response =  Long.class),
+            @ApiResponse(code = 500, message = "Internal server error")})
+    @GetMapping("/policy/count")
+    public Long countPolicies() {
+        return policyRepository.count();
+    }
+
     @ApiOperation(value = "Get all Policies", tags = {"Policies"})
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "All policies fetched", response = Policy.class, responseContainer = "List"),
@@ -73,6 +82,15 @@ public class PolicyRestController {
         } else {
             return policyRepository.findByInformationTypeInformationTypeId(pageable, informationTypeId).map(policy -> mapper.mapPolicyToRequest(policy));
         }
+    }
+
+    @ApiOperation(value = "Count Policies by InformationType", tags = {"Policies"})
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Count fetched", response = Long.class),
+            @ApiResponse(code = 500, message = "Internal server error")})
+    @GetMapping(path = "/policy/count", params = {"informationTypeId"})
+    public Long countPoliciesByInformationType(@RequestParam Long informationTypeId) {
+            return policyRepository.countByInformationTypeInformationTypeId(informationTypeId);
     }
 
     @ApiOperation(value = "Create Policy", tags = {"Policies"})
