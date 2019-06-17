@@ -44,9 +44,9 @@ public class PolicyService {
                 validationMap.put(request.getInformationTypeName() + "/" + request.getPurposeCode(), requestMap);
             }
             if (namesUsedInRequest.containsKey(request.getInformationTypeName()+request.getPurposeCode())) {
-                requestMap.put("nameNotUniqueInThisRequest", String.format("The request %s (informationType purposeCode) is not unique because " + "" +
+                requestMap.put("combinationNotUniqueInThisRequest", String.format("A request combining InformationType: %s and Purpose: %s is not unique because " + "" +
                                 "it is already used in this request (see request nr:%s)",
-                        request.getInformationTypeName() + " " + request.getPurposeCode(), namesUsedInRequest.get(request.getInformationTypeName()+request.getPurposeCode())));
+                        request.getInformationTypeName(), request.getPurposeCode(), namesUsedInRequest.get(request.getInformationTypeName()+request.getPurposeCode())));
             } else if (request.getInformationTypeName() != null && request.getPurposeCode() != null) {
                 namesUsedInRequest.put(request.getInformationTypeName()+request.getPurposeCode(), i.intValue());
             }
