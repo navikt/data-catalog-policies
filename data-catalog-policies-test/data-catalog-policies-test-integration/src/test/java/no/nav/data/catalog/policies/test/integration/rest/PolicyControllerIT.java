@@ -296,6 +296,16 @@ public class PolicyControllerIT {
     }
 
     @Test
+    public void countPolicies() {
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
+
+        ResponseEntity<Long> responseEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy/count", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), Long.class);
+        assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
+        assertThat(responseEntity.getBody(), is(100L));
+    }
+
+    @Test
     public void getPoliciesPageBeyondMax() {
         createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
 
@@ -317,6 +327,16 @@ public class PolicyControllerIT {
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(responseEntity.getBody().getContent().size(), is(1));
         assertThat(policyRepository.count(), is(100L));
+    }
+
+    @Test
+    public void countPolicyForInformationType1() {
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
+
+        ResponseEntity<Long> responseEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy/count?informationTypeId=1", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), Long.class);
+        assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
+        assertThat(responseEntity.getBody(), is(1L));
     }
 
     private void createTestdata(String legalBasisDescription, String purposeCode, int rows) {
