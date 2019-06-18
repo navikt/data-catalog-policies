@@ -3,18 +3,18 @@ package no.nav.data.catalog.policies.app.policy.mapper;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.consumer.CodelistConsumer;
-import no.nav.data.catalog.policies.app.policy.PolicyRequest;
-import no.nav.data.catalog.policies.app.policy.PolicyResponse;
-import no.nav.data.catalog.policies.app.policy.entities.InformationType;
+import no.nav.data.catalog.policies.app.consumer.InformationTypeConsumer;
+import no.nav.data.catalog.policies.app.policy.domain.ListName;
+import no.nav.data.catalog.policies.app.policy.domain.InformationType;
+import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
+import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
-import no.nav.data.catalog.policies.app.policy.repository.InformationTypeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
-import java.util.Optional;
 
 @Component
 @Slf4j
@@ -22,21 +22,14 @@ public class PolicyMapper {
     private static final Logger logger = LoggerFactory.getLogger(PolicyMapper.class);
 
     @Autowired
-    private InformationTypeRepository informationTypeRepository;
+    private CodelistConsumer codelistConsumer;
 
     @Autowired
-    private CodelistConsumer consumer;
+    private InformationTypeConsumer informationTypeConsumer;
 
     public Policy mapRequestToPolicy(PolicyRequest policyRequest, Long id) {
-        Optional<InformationType> optionalInformationType = informationTypeRepository.findByName(policyRequest.getInformationTypeName());
-        if (!optionalInformationType.isPresent()) {
-            logger.error(String.format("Cannot find InformationType with name: %s", policyRequest.getInformationTypeName()));
-            throw new DataCatalogPoliciesNotFoundException(String.format("Cannot find InformationType with name: %s", policyRequest.getInformationTypeName()));
-        }
-        InformationType informationType = optionalInformationType.get();
-
         Policy policy = new Policy();
-        policy.setInformationType(informationType);
+        policy.setInformationTypeId(policyRequest.getInformationTypeId());
         policy.setPurposeCode(policyRequest.getPurposeCode());
         policy.setLegalBasisDescription(policyRequest.getLegalBasisDescription());
         if (id != null) {
@@ -45,12 +38,17 @@ public class PolicyMapper {
         return policy;
     }
 
-    public PolicyResponse mapPolicyToRequest(Policy policy) {
+    public PolicyResponse mapPolicyToResponse(Policy policy) {
         PolicyResponse response = new PolicyResponse();
         response.setPolicyId(policy.getPolicyId());
         response.setLegalBasisDescription(policy.getLegalBasisDescription());
-        response.setInformationType(policy.getInformationType());
-        response.setPurpose(Map.of("code", policy.getPurposeCode(), "description", consumer.getPurposeCodelistDescription(policy.getPurposeCode())));
+        InformationType informationType = informationTypeConsumer.getInformationTypeById(policy.getInformationTypeId());
+        if (informationType == null) {
+            logger.error(String.format("Cannot find InformationType with id: %s", policy.getInformationTypeId()));
+            throw new DataCatalogPoliciesNotFoundException(String.format("Cannot find InformationType with id: %s", policy.getInformationTypeId()));
+        }
+        response.setInformationType(informationType);
+        response.setPurpose(Map.of("code", policy.getPurposeCode(), "description", codelistConsumer.getCodelistDescription(ListName.PURPOSE, policy.getPurposeCode())));
         return response;
     }
 }

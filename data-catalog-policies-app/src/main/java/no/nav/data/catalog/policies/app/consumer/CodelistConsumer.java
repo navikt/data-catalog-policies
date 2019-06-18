@@ -2,6 +2,7 @@ package no.nav.data.catalog.policies.app.consumer;
 
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesTechnicalException;
+import no.nav.data.catalog.policies.app.policy.domain.ListName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -16,23 +17,23 @@ public class CodelistConsumer {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Value("${datacatalog.codelist.purpose.url}")
-    private String purposeCodelistUrl;
+    @Value("${datacatalog.codelist.url}")
+    private String codelistUrl;
 
-    public String getPurposeCodelistDescription(String purposeCode) {
-        if (purposeCode == null) return null;
+    public String getCodelistDescription(ListName listName, String code) {
+        if (code == null || listName == null) return null;
         try {
-            ResponseEntity responseEntity = restTemplate.getForEntity(purposeCodelistUrl + "/" + purposeCode.trim().toUpperCase(), String.class);
-            return responseEntity.getBody().toString();
+            ResponseEntity<String> responseEntity = restTemplate.getForEntity(codelistUrl + "/" + listName.name() + "/" + code.trim().toUpperCase(), String.class);
+            return responseEntity.getBody();
         } catch (
                 HttpClientErrorException e) {
             if (HttpStatus.NOT_FOUND.equals(e.getStatusCode())) {
-                throw new DataCatalogPoliciesNotFoundException(String.format("Codelist (PURPOSE) with ID=%s does not exist", purposeCode.trim().toUpperCase()));
+                throw new DataCatalogPoliciesNotFoundException(String.format("Codelist (" + listName.name() + ") with ID=%s does not exist", code.trim().toUpperCase()));
             } else {
-                throw new DataCatalogPoliciesTechnicalException(String.format("Getting Codelist (PURPOSE: %s) description failed with status=%s message=%s", purposeCode.trim().toUpperCase(), e.getStatusCode(), e.getResponseBodyAsString()), e, e.getStatusCode());
+                throw new DataCatalogPoliciesTechnicalException(String.format("Getting Codelist (" + listName.name() + ": %s) description failed with status=%s message=%s", code.trim().toUpperCase(), e.getStatusCode(), e.getResponseBodyAsString()), e, e.getStatusCode());
             }
         } catch (HttpServerErrorException e) {
-            throw new DataCatalogPoliciesTechnicalException(String.format("Getting Codelist (PURPOSE: %s) description  failed with status=%s message=%s", purposeCode.trim().toUpperCase(), e.getStatusCode(), e.getResponseBodyAsString()), e, e.getStatusCode());
+            throw new DataCatalogPoliciesTechnicalException(String.format("Getting Codelist (" + listName.name() + ": %s) description  failed with status=%s message=%s", code.trim().toUpperCase(), e.getStatusCode(), e.getResponseBodyAsString()), e, e.getStatusCode());
         }
     }
 }

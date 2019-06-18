@@ -8,9 +8,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PolicyRepository extends JpaRepository<Policy, Long> {
-    Page<Policy> findByInformationTypeInformationTypeId(Pageable  pageable, Long informationTypeId);
+    Page<Policy> findByInformationTypeId(Pageable  pageable, Long informationTypeId);
 
-    long countByInformationTypeInformationTypeId(Long informationTypeId);
+    long countByInformationTypeId(Long informationTypeId);
 
-    boolean existsByInformationTypeInformationTypeIdAndPurposeCode(Long informtionTypeId, String purposeCode);
+    boolean existsByInformationTypeIdAndPurposeCode(Long informtionTypeId, String purposeCode);
 }

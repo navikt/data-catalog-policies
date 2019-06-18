@@ -23,9 +23,8 @@ public class Policy extends Auditable<String> {
     @Column(name="POLICY_ID", nullable = false, updatable = false, unique = true)
     private Long policyId;
 
-    @ManyToOne
-    @JoinColumn(name="INFORMATION_TYPE_ID",  nullable = false)
-    private InformationType informationType;
+    @Column(name="INFORMATION_TYPE_ID",  nullable = false)
+    private Long informationTypeId;
 
     @Column(name="PURPOSE_CODE",  nullable = false)
     private String purposeCode;

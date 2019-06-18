@@ -2,10 +2,10 @@ package no.nav.data.catalog.policies.test.component.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.data.catalog.policies.app.AppStarter;
-import no.nav.data.catalog.policies.app.policy.PolicyRequest;
-import no.nav.data.catalog.policies.app.policy.PolicyResponse;
+import no.nav.data.catalog.policies.app.policy.domain.InformationType;
+import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
+import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
 import no.nav.data.catalog.policies.app.policy.PolicyService;
-import no.nav.data.catalog.policies.app.policy.entities.InformationType;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
@@ -75,7 +75,7 @@ public class PolicyRestControllerTest {
         PolicyResponse response = new PolicyResponse(1L, new InformationType(), "Description", null);
 
         given(policyRepository.findById(1L)).willReturn(Optional.of(policy1));
-        given(mapper.mapPolicyToRequest(policy1)).willReturn(response);
+        given(mapper.mapPolicyToResponse(policy1)).willReturn(response);
         ResultActions result = mvc.perform(get("/policy/policy/1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.legalBasisDescription",is("Description")));
@@ -94,7 +94,7 @@ public class PolicyRestControllerTest {
 
         List<Policy> policies = Arrays.asList(policy1);
         Page<Policy> policyPage = new PageImpl<>(policies);
-        given(policyRepository.findByInformationTypeInformationTypeId(PageRequest.of(0, 100), 1L)).willReturn(policyPage);
+        given(policyRepository.findByInformationTypeId(PageRequest.of(0, 100), 1L)).willReturn(policyPage);
         mvc.perform(get("/policy/policy?page=0&size=100&informationTypeId=1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content",hasSize(1)));
@@ -107,7 +107,7 @@ public class PolicyRestControllerTest {
 
         List<Policy> policies = Arrays.asList(policy1);
         Page<Policy> policyPage = new PageImpl<>(policies);
-        given(policyRepository.countByInformationTypeInformationTypeId(1L)).willReturn(1L);
+        given(policyRepository.countByInformationTypeId(1L)).willReturn(1L);
         mvc.perform(get("/policy/policy/count?informationTypeId=1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("1")) ;
@@ -169,13 +169,33 @@ public class PolicyRestControllerTest {
         given(mapper.mapRequestToPolicy(request, 1L)).willReturn(policy1);
         given(policyRepository.findById(1L)).willReturn(Optional.of(policy1));
         given(policyRepository.save(policy1)).willReturn(policy1);
-        given(mapper.mapPolicyToRequest(policy1)).willReturn(response);
+        given(mapper.mapPolicyToResponse(policy1)).willReturn(response);
 
         mvc.perform(put("/policy/policy/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.legalBasisDescription",is("Description")));
+    }
+
+    @Test
+    public void updateTwoPolicies() throws Exception {
+        Policy policy1 = createPolicyTestdata(1L);
+        Policy policy2 = createPolicyTestdata(2L);
+        List<PolicyRequest> request = Arrays.asList(new PolicyRequest("Desc1","Code1","Name1"), new PolicyRequest("Desc2","Code2","Name2"));
+        List<Policy> policies = Arrays.asList(policy1, policy2);
+
+        given(mapper.mapRequestToPolicy(request.get(0), request.get(0).getId())).willReturn(policy1);
+        given(mapper.mapRequestToPolicy(request.get(1), request.get(1).getId())).willReturn(policy2);
+        given(policyRepository.findById(request.get(0).getId())).willReturn(Optional.of(policy1));
+        given(policyRepository.findById(request.get(1).getId())).willReturn(Optional.of(policy2));
+        given(policyRepository.saveAll(policies)).willReturn(policies);
+
+        mvc.perform(put("/policy/policy")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*",hasSize(2)));
     }
 
     @Test
@@ -194,6 +214,7 @@ public class PolicyRestControllerTest {
 
     @Test
     public void deletePolicy() throws Exception {
+        Policy policy1 = createPolicyTestdata(1L);
         mvc.perform(delete("/policy/policy/1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -212,7 +233,7 @@ public class PolicyRestControllerTest {
         Policy policy = new Policy();
         InformationType informationType = new InformationType();
         informationType.setInformationTypeId(informationTypeId);
-        policy.setInformationType(informationType);
+        policy.setInformationTypeId(informationType.getInformationTypeId());
         policy.setLegalBasisDescription("Description");
         return  policy;
     }

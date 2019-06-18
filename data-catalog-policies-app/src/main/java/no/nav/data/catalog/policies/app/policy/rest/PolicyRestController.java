@@ -6,9 +6,9 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
-import no.nav.data.catalog.policies.app.policy.PolicyRequest;
-import no.nav.data.catalog.policies.app.policy.PolicyResponse;
 import no.nav.data.catalog.policies.app.policy.PolicyService;
+import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
+import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
@@ -52,7 +52,7 @@ public class PolicyRestController {
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping("/policy")
     public Page<PolicyResponse> getPolicies(Pageable pageable) {
-        return policyRepository.findAll(pageable).map(policy -> mapper.mapPolicyToRequest(policy));
+        return policyRepository.findAll(pageable).map(policy -> mapper.mapPolicyToResponse(policy));
     }
 
     @ApiOperation(value = "Count all Policies", tags = {"Policies"})
@@ -71,7 +71,7 @@ public class PolicyRestController {
     @GetMapping(path = "/policy", params = {"informationTypeId"})
     public Page<PolicyResponse> getPoliciesByInformationType(Pageable pageable, @RequestParam Long informationTypeId) {
         if (pageable.getSort().getOrderFor("purpose.description") != null) {
-            List<PolicyResponse> pageResponse = policyRepository.findByInformationTypeInformationTypeId(null, informationTypeId).stream().map(policy -> mapper.mapPolicyToRequest(policy)).collect(Collectors.toList());
+            List<PolicyResponse> pageResponse = policyRepository.findByInformationTypeId(null, informationTypeId).stream().map(policy -> mapper.mapPolicyToResponse(policy)).collect(Collectors.toList());
             Comparator<PolicyResponse> compareByDescription = Comparator.comparing((PolicyResponse o) -> o.getPurpose().get("description"));
             if (pageable.getSort().getOrderFor("purpose.description").isAscending()) {
                 pageResponse.sort(compareByDescription);
@@ -80,7 +80,7 @@ public class PolicyRestController {
             }
             return new PageImpl(pageResponse, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.unsorted()), pageResponse.size());
         } else {
-            return policyRepository.findByInformationTypeInformationTypeId(pageable, informationTypeId).map(policy -> mapper.mapPolicyToRequest(policy));
+            return policyRepository.findByInformationTypeId(pageable, informationTypeId).map(policy -> mapper.mapPolicyToResponse(policy));
         }
     }
 
@@ -90,7 +90,7 @@ public class PolicyRestController {
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping(path = "/policy/count", params = {"informationTypeId"})
     public Long countPoliciesByInformationType(@RequestParam Long informationTypeId) {
-            return policyRepository.countByInformationTypeInformationTypeId(informationTypeId);
+            return policyRepository.countByInformationTypeId(informationTypeId);
     }
 
     @ApiOperation(value = "Create Policy", tags = {"Policies"})
@@ -103,7 +103,7 @@ public class PolicyRestController {
     public List<PolicyResponse> createPolicy(@Valid @RequestBody List<PolicyRequest> policyRequests) {
         service.validateRequests(policyRequests);
         List<Policy> policies = policyRequests.stream().map(policy -> mapper.mapRequestToPolicy(policy, null)).collect(toList());
-        return policyRepository.saveAll(policies).stream().map(policy -> mapper.mapPolicyToRequest(policy)).collect(Collectors.toList());
+        return policyRepository.saveAll(policies).stream().map(policy -> mapper.mapPolicyToResponse(policy)).collect(Collectors.toList());
     }
 
     @ApiOperation(value = "Get Policy", tags = {"Policies"})
@@ -118,7 +118,7 @@ public class PolicyRestController {
             logger.error(String.format("getPolicy: Cannot find Policy with id: %s", id));
             throw new DataCatalogPoliciesNotFoundException(String.format("Cannot find Policy with id: %s", id));
         }
-        return mapper.mapPolicyToRequest(optionalPolicy.get());
+        return mapper.mapPolicyToResponse(optionalPolicy.get());
     }
 
     @ApiOperation(value = "Delete Policy", tags = {"Policies"})
@@ -152,7 +152,7 @@ public class PolicyRestController {
         Policy policy = mapper.mapRequestToPolicy(policyRequest, id);
         policy.setCreatedBy(storedPolicy.getCreatedBy());
         policy.setCreatedDate(storedPolicy.getCreatedDate());
-        return mapper.mapPolicyToRequest(policyRepository.save(policy));
+        return mapper.mapPolicyToResponse(policyRepository.save(policy));
     }
 
     @ApiOperation(value = "Update Policies", tags = {"Policies"})
@@ -176,6 +176,6 @@ public class PolicyRestController {
                     policies.add(policy);
                 }
         );
-        return policyRepository.saveAll(policies).stream().map(policy -> mapper.mapPolicyToRequest(policy)).collect(Collectors.toList());
+        return policyRepository.saveAll(policies).stream().map(policy -> mapper.mapPolicyToResponse(policy)).collect(Collectors.toList());
     }
 }

@@ -1,5 +1,6 @@
-package no.nav.data.catalog.policies.app.policy;
+package no.nav.data.catalog.policies.app.policy.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +17,8 @@ public class PolicyRequest {
     private String legalBasisDescription;
     private String purposeCode;
     private String informationTypeName;
+    @JsonIgnore
+    private Long informationTypeId;
 
     public PolicyRequest(String legalBasisDescription, String purposeCode, String informationTypeName) {
         this.legalBasisDescription = legalBasisDescription;
