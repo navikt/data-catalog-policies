@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Service
@@ -35,11 +36,25 @@ public class PolicyService {
 
     public void validateRequests(List<PolicyRequest> requests) {
         HashMap<String, HashMap> validationMap = new HashMap<>();
+        HashMap<String, Integer> namesUsedInRequest = new HashMap<>();
+        final AtomicInteger i = new AtomicInteger(1);
         for (PolicyRequest request : requests) {
             HashMap<String, String> requestMap = validateRequest(request, isUpdate(request.getId()));
             if (!requestMap.isEmpty()) {
                 validationMap.put(request.getInformationTypeName() + "/" + request.getPurposeCode(), requestMap);
             }
+            if (namesUsedInRequest.containsKey(request.getInformationTypeName()+request.getPurposeCode())) {
+                requestMap.put("combinationNotUniqueInThisRequest", String.format("A request combining InformationType: %s and Purpose: %s is not unique because " + "" +
+                                "it is already used in this request (see request nr:%s)",
+                        request.getInformationTypeName(), request.getPurposeCode(), namesUsedInRequest.get(request.getInformationTypeName()+request.getPurposeCode())));
+            } else if (request.getInformationTypeName() != null && request.getPurposeCode() != null) {
+                namesUsedInRequest.put(request.getInformationTypeName()+request.getPurposeCode(), i.intValue());
+            }
+
+            if (!requestMap.isEmpty()) {
+                validationMap.put(String.format("Request nr:%s", i.intValue()), requestMap);
+            }
+            i.getAndIncrement();
         }
         if (!validationMap.isEmpty()) {
             logger.error("Validation errors occurred when validating InformationTypeRequest: {}", validationMap);
@@ -91,4 +106,5 @@ public class PolicyService {
         }
         return validationErrors;
     }
+
 }

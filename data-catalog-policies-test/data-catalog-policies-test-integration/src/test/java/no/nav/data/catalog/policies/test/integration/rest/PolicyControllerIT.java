@@ -50,7 +50,6 @@ import static org.junit.Assert.assertFalse;
 public class PolicyControllerIT {
     public static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
     public static final String PURPOSE_CODE1 = "TEST1";
-    public static final String INFORMATION_TYPE_DESCRIPTION1 = "Sivilstand beskrivelse";
     public static final String INFORMATION_TYPE_NAME = "Sivilstand";
 
     public static final String POLICY_REST_ENDPOINT = "/policy/";
@@ -116,6 +115,15 @@ public class PolicyControllerIT {
         assertThat(createEntity.getStatusCode(), is(HttpStatus.BAD_REQUEST));
         assertThat(createEntity.getBody(), containsString("A policy combining InformationType " + INFORMATION_TYPE_NAME + " and Purpose " + PURPOSE_CODE1 + " already exists"));
         assertThat(policyRepository.count(), is(1L));
+    }
+
+    @Test
+    public void createPolicyThrowDuplcateValidationException() {
+        List<PolicyRequest> requestList = Arrays.asList(createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_NAME), createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, INFORMATION_TYPE_NAME));
+        ResponseEntity<String> createEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy", HttpMethod.POST, new HttpEntity<>(requestList), String.class);
+        assertThat(createEntity.getStatusCode(), is(HttpStatus.BAD_REQUEST));
+        assertThat(createEntity.getBody(), containsString("A request combining InformationType: " + INFORMATION_TYPE_NAME + " and Purpose: " + PURPOSE_CODE1 + " is not unique because it is already used in this request"));
     }
 
     @Test
