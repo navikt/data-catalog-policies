@@ -77,10 +77,10 @@ public class PolicyService {
                 validationErrors.put("informationTypeName", String.format("An informationType with name %s does not exist", request.getInformationTypeName()));
             }
             if (informationType != null) {
-                request.setInformationTypeId(informationType.getId());
+                request.setInformationTypeId(informationType.getInformationTypeId());
             }
 
-            if (!isUpdate && informationType != null && policyRepository.existsByInformationTypeIdAndPurposeCode(informationType.getId(), request.getPurposeCode())) {
+            if (!isUpdate && informationType != null && policyRepository.existsByInformationTypeIdAndPurposeCode(informationType.getInformationTypeId(), request.getPurposeCode())) {
                 validationErrors.put("InformationTypeAndPurpose", String.format("A policy combining InformationType %s and Purpose %s already exists"
                         , request.getInformationTypeName(), request.getPurposeCode()));
             }

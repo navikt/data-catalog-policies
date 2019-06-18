@@ -208,8 +208,8 @@ public class PolicyRestControllerTest {
     private Policy createPolicyTestdata(Long informationTypeId) {
         Policy policy = new Policy();
         InformationType informationType = new InformationType();
-        informationType.setId(informationTypeId);
-        policy.setInformationTypeId(informationType.getId());
+        informationType.setInformationTypeId(informationTypeId);
+        policy.setInformationTypeId(informationType.getInformationTypeId());
         policy.setLegalBasisDescription("Description");
         return  policy;
     }

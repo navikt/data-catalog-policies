@@ -55,7 +55,7 @@ public class PolicyMapperTest {
         Policy policy = mapper.mapRequestToPolicy(request, null);
         assertThat(policy.getLegalBasisDescription(), is(LEGAL_BASIS_DESCRIPTION1));
         assertThat(policy.getPurposeCode(), is(PURPOSE_CODE1));
-        assertThat(policy.getInformationTypeId(), is(informationType.getId()));
+        assertThat(policy.getInformationTypeId(), is(informationType.getInformationTypeId()));
     }
 
     @Test
@@ -63,9 +63,9 @@ public class PolicyMapperTest {
         InformationType informationType = createBasicTestdata(INFORMATION_TYPE_NAME1);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenReturn(PURPOSE_DESCRIPTION1);
         when(informationTypeConsumer.getInformationTypeById(anyLong())).thenReturn(informationType);
-        Policy policy = new Policy(1L, informationType.getId(), PURPOSE_CODE1, LEGAL_BASIS_DESCRIPTION1);
+        Policy policy = new Policy(1L, informationType.getInformationTypeId(), PURPOSE_CODE1, LEGAL_BASIS_DESCRIPTION1);
         PolicyResponse policyResponse = mapper.mapPolicyToResponse(policy);
-        assertThat(policyResponse.getInformationType().getId(), is(policy.getInformationTypeId()));
+        assertThat(policyResponse.getInformationType().getInformationTypeId(), is(policy.getInformationTypeId()));
         assertThat(policyResponse.getLegalBasisDescription(), is(LEGAL_BASIS_DESCRIPTION1));
         assertThat(policyResponse.getPurpose().get("code"), is(PURPOSE_CODE1));
         assertThat(policyResponse.getPurpose().get("description"), is(PURPOSE_DESCRIPTION1));
@@ -76,13 +76,13 @@ public class PolicyMapperTest {
         expectedException.expect(DataCatalogPoliciesNotFoundException.class);
         InformationType informationType = createBasicTestdata(INFORMATION_TYPE_NAME1);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenThrow(new DataCatalogPoliciesNotFoundException("codelist not found"));
-        Policy policy = new Policy(1L, informationType.getId(), PURPOSE_CODE1, LEGAL_BASIS_DESCRIPTION1);
+        Policy policy = new Policy(1L, informationType.getInformationTypeId(), PURPOSE_CODE1, LEGAL_BASIS_DESCRIPTION1);
         PolicyResponse policyResponse = mapper.mapPolicyToResponse(policy);
     }
 
     private InformationType createBasicTestdata(String informationTypeName) {
          return InformationType.builder()
-                 .id(1L)
+                 .informationTypeId(1L)
                  .name(informationTypeName)
                  .build();
     }

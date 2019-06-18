@@ -1,6 +1,5 @@
 package no.nav.data.catalog.policies.test.component.repository;
 
-import lombok.AllArgsConstructor;
 import no.nav.data.catalog.policies.app.policy.domain.InformationType;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
@@ -18,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ComponentTestConfig.class)
@@ -66,10 +64,10 @@ public class RepositoryTest {
             TestTransaction.end();
         }
 
-        InformationType informationType = InformationType.builder().id(informationTypeId).name(informationTypeName).build();
+        InformationType informationType = InformationType.builder().informationTypeId(informationTypeId).name(informationTypeName).build();
 
         Policy policy = new Policy();
-        policy.setInformationTypeId(informationType.getId());
+        policy.setInformationTypeId(informationType.getInformationTypeId());
         policy.setPurposeCode(purposeCode);
         policy.setLegalBasisDescription(legalBasisDescription);
         policyRepository.save(policy);

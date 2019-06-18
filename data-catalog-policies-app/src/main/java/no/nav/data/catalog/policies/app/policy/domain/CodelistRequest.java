@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class CodelistRequest {
-    private ListName list;
+    private ListName listName;
     private String code;
     private String description;
 }
