@@ -10,11 +10,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 public class InformationType {
-    private Long id;
+    private Long informationTypeId;
     private String name;
 
     public InformationType convertToInformationType(InformationTypeResponse response) {
-        this.id = response.getInformationTypeId();
+        this.informationTypeId = response.getInformationTypeId();
         this.name = response.getName();
         return this;
     }

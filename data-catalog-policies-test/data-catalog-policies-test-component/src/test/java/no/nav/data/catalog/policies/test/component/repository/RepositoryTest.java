@@ -1,6 +1,5 @@
 package no.nav.data.catalog.policies.test.component.repository;
 
-import lombok.AllArgsConstructor;
 import no.nav.data.catalog.policies.app.policy.domain.InformationType;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
@@ -11,6 +10,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.transaction.TestTransaction;
@@ -18,16 +20,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ComponentTestConfig.class)
 @ActiveProfiles("test")
-@Transactional
 public class RepositoryTest {
     private static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
     private static final String PURPOSE_CODE1 = "PUR1";
-    private static final String PURPOSE_DESCRIPTION1 = "Purpose 1";
     private static final String INFORMATION_TYPE_DESCRIPTION1 = "InformationType 1";
     private static final String INFORMATION_TYPE_NAME1 = "InformationTypeName1";
 
@@ -39,7 +38,6 @@ public class RepositoryTest {
     @Before
     public void setUp() {
         policyRepository.deleteAll();
-//        TestTransaction.flagForCommit();
     }
 
     @After
@@ -61,15 +59,27 @@ public class RepositoryTest {
         assertThat(policyRepository.count(), is(2L));
     }
 
-    private void createTestdata(String legalBasisDescription, String purposeCode, Long informationTypeId, String informationTypeDescription, String informationTypeName) {
-        if (TestTransaction.isActive()) {
-            TestTransaction.end();
-        }
+    @Test
+    public void getByInformationType() {
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 1L, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
+        createTestdata("Legal basis 2", "PUR2", 2L, INFORMATION_TYPE_DESCRIPTION1, "InformationTypeName2");
+        assertThat(policyRepository.findByInformationTypeId(PageRequest.of(0, 10), 1L).getTotalElements(), is(1L));
+        assertThat(policyRepository.findByInformationTypeId(PageRequest.of(0, 10), 2L).getTotalElements(), is(1L));
+    }
 
-        InformationType informationType = InformationType.builder().id(informationTypeId).name(informationTypeName).build();
+    @Test
+    public void countByInformationType() {
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 1L, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
+        createTestdata("Legal basis 2", "PUR2", 2L, INFORMATION_TYPE_DESCRIPTION1, "InformationTypeName2");
+        assertThat(policyRepository.countByInformationTypeId(1L), is(1L));
+        assertThat(policyRepository.countByInformationTypeId(2L), is(1L));
+    }
+
+    private void createTestdata(String legalBasisDescription, String purposeCode, Long informationTypeId, String informationTypeDescription, String informationTypeName) {
+        InformationType informationType = InformationType.builder().informationTypeId(informationTypeId).name(informationTypeName).build();
 
         Policy policy = new Policy();
-        policy.setInformationTypeId(informationType.getId());
+        policy.setInformationTypeId(informationType.getInformationTypeId());
         policy.setPurposeCode(purposeCode);
         policy.setLegalBasisDescription(legalBasisDescription);
         policyRepository.save(policy);

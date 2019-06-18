@@ -35,8 +35,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(PolicyRestController.class)
@@ -101,6 +100,31 @@ public class PolicyRestControllerTest {
                 .andExpect(jsonPath("$.content",hasSize(1)));
 
     }
+
+    @Test
+    public void countPoliciesForInformationType()throws Exception {
+        Policy policy1 = createPolicyTestdata(1L);
+
+        List<Policy> policies = Arrays.asList(policy1);
+        Page<Policy> policyPage = new PageImpl<>(policies);
+        given(policyRepository.countByInformationTypeId(1L)).willReturn(1L);
+        mvc.perform(get("/policy/policy/count?informationTypeId=1").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("1")) ;
+    }
+
+    @Test
+    public void countPolicies()throws Exception {
+        Policy policy1 = createPolicyTestdata(1L);
+
+        List<Policy> policies = Arrays.asList(policy1);
+        Page<Policy> policyPage = new PageImpl<>(policies);
+        given(policyRepository.count()).willReturn(1L);
+        mvc.perform(get("/policy/policy/count").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("1")) ;
+    }
+
 
     @Test
     public void createOnePolicy() throws Exception {
@@ -208,8 +232,8 @@ public class PolicyRestControllerTest {
     private Policy createPolicyTestdata(Long informationTypeId) {
         Policy policy = new Policy();
         InformationType informationType = new InformationType();
-        informationType.setId(informationTypeId);
-        policy.setInformationTypeId(informationType.getId());
+        informationType.setInformationTypeId(informationTypeId);
+        policy.setInformationTypeId(informationType.getInformationTypeId());
         policy.setLegalBasisDescription("Description");
         return  policy;
     }

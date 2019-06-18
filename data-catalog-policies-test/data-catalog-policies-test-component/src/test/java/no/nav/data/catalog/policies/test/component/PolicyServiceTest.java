@@ -52,7 +52,7 @@ public class PolicyServiceTest {
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
                 .purposeCode(PURPOSECODE)
                 .build();
-        when(informationTypeConsumer.getInformationTypeByName(request.getInformationTypeName())).thenReturn(InformationType.builder().id(1L).build());
+        when(informationTypeConsumer.getInformationTypeByName(request.getInformationTypeName())).thenReturn(InformationType.builder().informationTypeId(1L).build());
         when(policyRepository.existsByInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(false);
         service.validateRequests(List.of(request));
     }
@@ -64,7 +64,7 @@ public class PolicyServiceTest {
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
                 .purposeCode(PURPOSECODE)
                 .build();
-        when(informationTypeConsumer.getInformationTypeByName(request.getInformationTypeName())).thenReturn(InformationType.builder().id(1L).build());
+        when(informationTypeConsumer.getInformationTypeByName(request.getInformationTypeName())).thenReturn(InformationType.builder().informationTypeId(1L).build());
         when(policyRepository.existsByInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(false);
         try {
             service.validateRequests(List.of(request));
@@ -102,7 +102,7 @@ public class PolicyServiceTest {
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
                 .purposeCode(PURPOSECODE)
                 .build();
-        when(informationTypeConsumer.getInformationTypeByName(request.getInformationTypeName())).thenReturn(InformationType.builder().id(1L).build());
+        when(informationTypeConsumer.getInformationTypeByName(request.getInformationTypeName())).thenReturn(InformationType.builder().informationTypeId(1L).build());
         when(policyRepository.existsByInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(true);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenReturn("purpose");
         try {
@@ -120,7 +120,7 @@ public class PolicyServiceTest {
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
                 .purposeCode(PURPOSECODE)
                 .build();
-        when(informationTypeConsumer.getInformationTypeByName(request.getInformationTypeName())).thenReturn(InformationType.builder().id(1L).build());
+        when(informationTypeConsumer.getInformationTypeByName(request.getInformationTypeName())).thenReturn(InformationType.builder().informationTypeId(1L).build());
         when(policyRepository.existsByInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(false);
         try {
             service.validateRequests(List.of(request));
@@ -159,7 +159,7 @@ public class PolicyServiceTest {
                 .purposeCode(PURPOSECODE)
                 .id(1L)
                 .build();
-        when(informationTypeConsumer.getInformationTypeByName(request.getInformationTypeName())).thenReturn(InformationType.builder().id(1L).build());
+        when(informationTypeConsumer.getInformationTypeByName(request.getInformationTypeName())).thenReturn(InformationType.builder().informationTypeId(1L).build());
         when(policyRepository.existsByInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(true);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenReturn("purpose");
         service.validateRequests(List.of(request));
