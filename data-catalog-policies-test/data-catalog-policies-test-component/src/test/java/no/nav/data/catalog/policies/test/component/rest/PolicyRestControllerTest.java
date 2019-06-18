@@ -107,7 +107,7 @@ public class PolicyRestControllerTest {
 
         List<Policy> policies = Arrays.asList(policy1);
         Page<Policy> policyPage = new PageImpl<>(policies);
-        given(policyRepository.countByInformationTypeInformationTypeId(1L)).willReturn(1L);
+        given(policyRepository.countByInformationTypeId(1L)).willReturn(1L);
         mvc.perform(get("/policy/policy/count?informationTypeId=1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("1")) ;

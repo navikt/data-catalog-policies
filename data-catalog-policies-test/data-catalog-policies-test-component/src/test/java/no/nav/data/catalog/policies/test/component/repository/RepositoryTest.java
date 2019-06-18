@@ -24,11 +24,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ComponentTestConfig.class)
 @ActiveProfiles("test")
-@Transactional
 public class RepositoryTest {
     private static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
     private static final String PURPOSE_CODE1 = "PUR1";
-    private static final String PURPOSE_DESCRIPTION1 = "Purpose 1";
     private static final String INFORMATION_TYPE_DESCRIPTION1 = "InformationType 1";
     private static final String INFORMATION_TYPE_NAME1 = "InformationTypeName1";
 
@@ -40,7 +38,6 @@ public class RepositoryTest {
     @Before
     public void setUp() {
         policyRepository.deleteAll();
-//        TestTransaction.flagForCommit();
     }
 
     @After
@@ -66,25 +63,19 @@ public class RepositoryTest {
     public void getByInformationType() {
         createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 1L, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
         createTestdata("Legal basis 2", "PUR2", 2L, INFORMATION_TYPE_DESCRIPTION1, "InformationTypeName2");
-        assertThat(policyRepository.findByInformationTypeInformationTypeId(PageRequest.of(0, 10), 1L).getTotalElements(), is(1L));
-        assertThat(policyRepository.findByInformationTypeInformationTypeId(PageRequest.of(0, 10), 2L).getTotalElements(), is(1L));
-        assertThat(informationTypeRepository.count(), is(2L));
+        assertThat(policyRepository.findByInformationTypeId(PageRequest.of(0, 10), 1L).getTotalElements(), is(1L));
+        assertThat(policyRepository.findByInformationTypeId(PageRequest.of(0, 10), 2L).getTotalElements(), is(1L));
     }
 
     @Test
     public void countByInformationType() {
         createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 1L, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
         createTestdata("Legal basis 2", "PUR2", 2L, INFORMATION_TYPE_DESCRIPTION1, "InformationTypeName2");
-        assertThat(policyRepository.countByInformationTypeInformationTypeId(1L), is(1L));
-        assertThat(policyRepository.countByInformationTypeInformationTypeId(2L), is(1L));
-        assertThat(informationTypeRepository.count(), is(2L));
+        assertThat(policyRepository.countByInformationTypeId(1L), is(1L));
+        assertThat(policyRepository.countByInformationTypeId(2L), is(1L));
     }
 
     private void createTestdata(String legalBasisDescription, String purposeCode, Long informationTypeId, String informationTypeDescription, String informationTypeName) {
-        if (TestTransaction.isActive()) {
-            TestTransaction.end();
-        }
-
         InformationType informationType = InformationType.builder().informationTypeId(informationTypeId).name(informationTypeName).build();
 
         Policy policy = new Policy();

@@ -90,7 +90,7 @@ public class PolicyRestController {
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping(path = "/policy/count", params = {"informationTypeId"})
     public Long countPoliciesByInformationType(@RequestParam Long informationTypeId) {
-            return policyRepository.countByInformationTypeInformationTypeId(informationTypeId);
+            return policyRepository.countByInformationTypeId(informationTypeId);
     }
 
     @ApiOperation(value = "Create Policy", tags = {"Policies"})
