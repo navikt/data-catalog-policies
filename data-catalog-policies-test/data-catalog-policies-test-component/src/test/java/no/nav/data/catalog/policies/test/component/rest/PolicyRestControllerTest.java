@@ -2,10 +2,10 @@ package no.nav.data.catalog.policies.test.component.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.data.catalog.policies.app.AppStarter;
+import no.nav.data.catalog.policies.app.policy.PolicyService;
 import no.nav.data.catalog.policies.app.policy.domain.InformationType;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
-import no.nav.data.catalog.policies.app.policy.PolicyService;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
@@ -93,8 +93,7 @@ public class PolicyRestControllerTest {
         Policy policy1 = createPolicyTestdata(1L);
 
         List<Policy> policies = Arrays.asList(policy1);
-        Page<Policy> policyPage = new PageImpl<>(policies);
-        given(policyRepository.findByInformationTypeId(PageRequest.of(0, 100), 1L)).willReturn(policyPage);
+        given(policyRepository.findByInformationTypeId(PageRequest.of(0, 100), 1L)).willReturn(policies);
         mvc.perform(get("/policy/policy?page=0&size=100&informationTypeId=1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content",hasSize(1)));

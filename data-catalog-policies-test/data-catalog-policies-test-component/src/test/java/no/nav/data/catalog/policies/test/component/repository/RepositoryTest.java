@@ -10,13 +10,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.transaction.TestTransaction;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -27,7 +23,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class RepositoryTest {
     private static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
     private static final String PURPOSE_CODE1 = "PUR1";
-    private static final String INFORMATION_TYPE_DESCRIPTION1 = "InformationType 1";
     private static final String INFORMATION_TYPE_NAME1 = "InformationTypeName1";
 
     @Autowired
@@ -48,34 +43,34 @@ public class RepositoryTest {
 
     @Test
     public void getOne() {
-        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 1l, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 1l, INFORMATION_TYPE_NAME1);
         assertThat(policyRepository.count(), is(1L));
     }
 
     @Test
     public void getAll() {
-        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 1L, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
-        createTestdata("Legal basis 2", "PUR2", 2L, INFORMATION_TYPE_DESCRIPTION1, "InformationTypeName2");
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 1L, INFORMATION_TYPE_NAME1);
+        createTestdata("Legal basis 2", "PUR2", 2L, "InformationTypeName2");
         assertThat(policyRepository.count(), is(2L));
     }
 
     @Test
     public void getByInformationType() {
-        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 1L, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
-        createTestdata("Legal basis 2", "PUR2", 2L, INFORMATION_TYPE_DESCRIPTION1, "InformationTypeName2");
-        assertThat(policyRepository.findByInformationTypeId(PageRequest.of(0, 10), 1L).getTotalElements(), is(1L));
-        assertThat(policyRepository.findByInformationTypeId(PageRequest.of(0, 10), 2L).getTotalElements(), is(1L));
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 1L, INFORMATION_TYPE_NAME1);
+        createTestdata("Legal basis 2", "PUR2", 2L, "InformationTypeName2");
+        assertThat(policyRepository.findByInformationTypeId(PageRequest.of(0, 10), 1L).size(), is(1));
+        assertThat(policyRepository.findByInformationTypeId(PageRequest.of(0, 10), 2L).size(), is(1));
     }
 
     @Test
     public void countByInformationType() {
-        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 1L, INFORMATION_TYPE_DESCRIPTION1, INFORMATION_TYPE_NAME1);
-        createTestdata("Legal basis 2", "PUR2", 2L, INFORMATION_TYPE_DESCRIPTION1, "InformationTypeName2");
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 1L, INFORMATION_TYPE_NAME1);
+        createTestdata("Legal basis 2", "PUR2", 2L, "InformationTypeName2");
         assertThat(policyRepository.countByInformationTypeId(1L), is(1L));
         assertThat(policyRepository.countByInformationTypeId(2L), is(1L));
     }
 
-    private void createTestdata(String legalBasisDescription, String purposeCode, Long informationTypeId, String informationTypeDescription, String informationTypeName) {
+    private void createTestdata(String legalBasisDescription, String purposeCode, Long informationTypeId, String informationTypeName) {
         InformationType informationType = InformationType.builder().informationTypeId(informationTypeId).name(informationTypeName).build();
 
         Policy policy = new Policy();
