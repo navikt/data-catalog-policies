@@ -68,7 +68,7 @@ public class PolicyRestController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "All policies fetched", response = Policy.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Internal server error")})
-    @GetMapping(path = "/policy", params = {"informationTypeId"})
+    @GetMapping(path = "/policy", params = {"informationTypeId"}, produces = "application/json")
     public Page<PolicyResponse> getPoliciesByInformationType(Pageable pageable, @RequestParam Long informationTypeId) {
         if (pageable.getSort().getOrderFor("purpose.description") != null) {
             List<PolicyResponse> pageResponse = policyRepository.findByInformationTypeId(null, informationTypeId).stream().map(policy -> mapper.mapPolicyToResponse(policy)).collect(Collectors.toList());

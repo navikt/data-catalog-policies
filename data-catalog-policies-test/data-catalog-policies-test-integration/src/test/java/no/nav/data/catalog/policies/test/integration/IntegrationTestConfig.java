@@ -57,13 +57,8 @@ public class IntegrationTestConfig {
                 .willReturn(aResponse().withStatus(HttpStatus.OK.value())
                         .withHeader(ContentTypeHeader.KEY, MediaType.APPLICATION_JSON_VALUE)
                         .withTransformer("response-transformer", "", "")));
-//                        .withBody("{\"elasticsearchId\":\"DSwO_moBkfggy-HvwyLZ\",\"informationTypeId\":{{request.path.[0]}},\"name\":\"Sivilstand\",\"description\":\"Sivilstand beskrivelse\",\"category\":{\"description\":\"Personalia\",\"code\":\"PERSONALIA\"},\"producer\":{\"description\":\"Folkeregisteret\",\"code\":\"FOLKEREGISTERET\"},\"system\":{\"description\":\"Tjenestebasert PersondataSystem\",\"code\":\"TPS\"},\"personalData\":true}")));
-//                        .withBody("{\"elasticsearchId\":{{request.path}}")));
-//        wireMockServer.stubFor(get(urlMatching("/backend/informationtype/2"))
-//                .willReturn(aResponse().withStatus(HttpStatus.OK.value())
-//                        .withHeader(ContentTypeHeader.KEY, MediaType.APPLICATION_JSON_VALUE)
-//                        .withBody("{\"elasticsearchId\":\"DSwO_moBkfggy-HvwyLZ\",\"informationTypeId\":2,\"name\":\"Postadresse\",\"description\":\"Sivilstand beskrivelse\",\"category\":{\"description\":\"Personalia\",\"code\":\"PERSONALIA\"},\"producer\":{\"description\":\"Folkeregisteret\",\"code\":\"FOLKEREGISTERET\"},\"system\":{\"description\":\"Tjenestebasert PersondataSystem\",\"code\":\"TPS\"},\"personalData\":true}")
-//                ));
+
+
         return wireMockServer;
     }
 

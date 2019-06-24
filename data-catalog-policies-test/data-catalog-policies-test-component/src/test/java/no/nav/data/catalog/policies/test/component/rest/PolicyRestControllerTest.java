@@ -103,10 +103,6 @@ public class PolicyRestControllerTest {
 
     @Test
     public void countPoliciesForInformationType()throws Exception {
-        Policy policy1 = createPolicyTestdata(1L);
-
-        List<Policy> policies = Arrays.asList(policy1);
-        Page<Policy> policyPage = new PageImpl<>(policies);
         given(policyRepository.countByInformationTypeId(1L)).willReturn(1L);
         mvc.perform(get("/policy/policy/count?informationTypeId=1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -115,10 +111,6 @@ public class PolicyRestControllerTest {
 
     @Test
     public void countPolicies()throws Exception {
-        Policy policy1 = createPolicyTestdata(1L);
-
-        List<Policy> policies = Arrays.asList(policy1);
-        Page<Policy> policyPage = new PageImpl<>(policies);
         given(policyRepository.count()).willReturn(1L);
         mvc.perform(get("/policy/policy/count").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -214,7 +206,6 @@ public class PolicyRestControllerTest {
 
     @Test
     public void deletePolicy() throws Exception {
-        Policy policy1 = createPolicyTestdata(1L);
         mvc.perform(delete("/policy/policy/1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
