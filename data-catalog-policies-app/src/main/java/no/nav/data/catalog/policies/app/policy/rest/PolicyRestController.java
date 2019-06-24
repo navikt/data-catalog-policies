@@ -53,7 +53,7 @@ public class PolicyRestController {
     @GetMapping("/policy")
     public RestResponsePage<PolicyResponse> getPolicies(Pageable pageable) {
         List<PolicyResponse>  policyResponses = policyRepository.findAll(pageable).stream().map(policy -> mapper.mapPolicyToResponse(policy)).collect(Collectors.toList());
-        return new RestResponsePage(policyResponses, pageable, policyResponses.size());
+        return new RestResponsePage(policyResponses, pageable, policyRepository.count());
     }
 
     @ApiOperation(value = "Count all Policies", tags = {"Policies"})
@@ -82,7 +82,7 @@ public class PolicyRestController {
             return new RestResponsePage(pageResponse, pageable, pageResponse.size());
         } else {
             List<PolicyResponse> policyResponses = policyRepository.findByInformationTypeId(pageable, informationTypeId).stream().map(policy -> mapper.mapPolicyToResponse(policy)).collect(Collectors.toList());
-            return new RestResponsePage(policyResponses, pageable, policyResponses.size());
+            return new RestResponsePage(policyResponses, pageable, policyRepository.countByInformationTypeId(informationTypeId));
         }
     }
 

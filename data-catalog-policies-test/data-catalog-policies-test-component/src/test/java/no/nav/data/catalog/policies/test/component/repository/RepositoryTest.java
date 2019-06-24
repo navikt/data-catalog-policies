@@ -40,7 +40,6 @@ public class RepositoryTest {
         policyRepository.deleteAll();
     }
 
-
     @Test
     public void getOne() {
         createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 1l, INFORMATION_TYPE_NAME1);
