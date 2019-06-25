@@ -15,6 +15,7 @@ import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
+import static no.nav.data.catalog.policies.app.common.cache.CacheConfig.*;
 
 @RestController
 @CrossOrigin
@@ -45,6 +47,10 @@ public class PolicyRestController {
 
     @Autowired
     private PolicyRepository policyRepository;
+
+    @Autowired
+    private CacheManager cachemanager;
+
 
     @ApiOperation(value = "Get all Policies", tags = {"Policies"})
     @ApiResponses(value = {
@@ -177,5 +183,17 @@ public class PolicyRestController {
                 }
         );
         return policyRepository.saveAll(policies).stream().map(policy -> mapper.mapPolicyToResponse(policy)).collect(Collectors.toList());
+    }
+
+    @ApiOperation(value = "Cache evict", tags = {"Policies"})
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Cache evict", response = String.class),
+            @ApiResponse(code = 500, message = "Internal server error")})
+    @GetMapping("/clearcache")
+    public String clearCache() {
+        cachemanager.getCache(CODELIST_CACHE).clear();
+        cachemanager.getCache(INFORMATIONTYPEBYNAME_CACHE).clear();
+        cachemanager.getCache(INFORMATIONTYPEBYID_CACHE).clear();
+        return "OK";
     }
 }
