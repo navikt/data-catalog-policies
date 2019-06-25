@@ -45,7 +45,7 @@ import static org.junit.Assert.assertFalse;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = {IntegrationTestConfig.class, AppStarter.class})
 @Import(WiremockResponseTransformer.class)
-@ActiveProfiles("itest, wiremock")
+@ActiveProfiles("itest")
 @ContextConfiguration(initializers = {PolicyControllerIT.Initializer.class})
 public class PolicyControllerIT {
     public static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
