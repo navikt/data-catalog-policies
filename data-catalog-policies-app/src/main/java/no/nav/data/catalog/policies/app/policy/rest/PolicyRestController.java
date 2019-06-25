@@ -52,6 +52,7 @@ public class PolicyRestController {
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping("/policy")
     public Page<PolicyResponse> getPolicies(Pageable pageable) {
+        logger.debug("Received request for all Policies");
         return policyRepository.findAll(pageable).map(policy -> mapper.mapPolicyToResponse(policy));
     }
 
@@ -61,15 +62,17 @@ public class PolicyRestController {
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping("/policy/count")
     public Long countPolicies() {
+        logger.debug("Received request for number of Policies");
         return policyRepository.count();
     }
 
-    @ApiOperation(value = "Get all Policies", tags = {"Policies"})
+    @ApiOperation(value = "Get all Policies related to InformationType", tags = {"Policies"})
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "All policies fetched", response = Policy.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping(path = "/policy", params = {"informationTypeId"}, produces = "application/json")
     public Page<PolicyResponse> getPoliciesByInformationType(Pageable pageable, @RequestParam Long informationTypeId) {
+        logger.debug("Received request for Policies related to InformationType with id={}", informationTypeId);
         if (pageable.getSort().getOrderFor("purpose.description") != null) {
             List<PolicyResponse> pageResponse = policyRepository.findByInformationTypeId(null, informationTypeId).stream().map(policy -> mapper.mapPolicyToResponse(policy)).collect(Collectors.toList());
             Comparator<PolicyResponse> compareByDescription = Comparator.comparing((PolicyResponse o) -> o.getPurpose().get("description"));
@@ -90,7 +93,8 @@ public class PolicyRestController {
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping(path = "/policy/count", params = {"informationTypeId"})
     public Long countPoliciesByInformationType(@RequestParam Long informationTypeId) {
-            return policyRepository.countByInformationTypeId(informationTypeId);
+        logger.debug("Received request for number of policies related to InformationType with id={}", informationTypeId);
+        return policyRepository.countByInformationTypeId(informationTypeId);
     }
 
     @ApiOperation(value = "Create Policy", tags = {"Policies"})
@@ -101,6 +105,7 @@ public class PolicyRestController {
     @PostMapping("/policy")
     @ResponseStatus(HttpStatus.CREATED)
     public List<PolicyResponse> createPolicy(@Valid @RequestBody List<PolicyRequest> policyRequests) {
+        logger.debug("Received request to create InformationTypes");
         service.validateRequests(policyRequests);
         List<Policy> policies = policyRequests.stream().map(policy -> mapper.mapRequestToPolicy(policy, null)).collect(toList());
         return policyRepository.saveAll(policies).stream().map(policy -> mapper.mapPolicyToResponse(policy)).collect(Collectors.toList());
@@ -113,6 +118,7 @@ public class PolicyRestController {
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping("/policy/{id}")
     public PolicyResponse getPolicy(@PathVariable Long id) {
+        logger.debug("Received request for InformationType with id={}", id);
         Optional<Policy> optionalPolicy = policyRepository.findById(id);
         if (!optionalPolicy.isPresent()) {
             logger.error(String.format("getPolicy: Cannot find Policy with id: %s", id));
@@ -128,6 +134,7 @@ public class PolicyRestController {
             @ApiResponse(code = 500, message = "Internal server error")})
     @DeleteMapping("/policy/{id}")
     public void deletePolicy(@PathVariable Long id) {
+        logger.debug("Received request to delete InformationType with id={}", id);
         try {
             policyRepository.deleteById(id);
         } catch (EmptyResultDataAccessException e) {
@@ -143,9 +150,11 @@ public class PolicyRestController {
             @ApiResponse(code = 500, message = "Internal server error")})
     @PutMapping("/policy/{id}")
     public PolicyResponse updatePolicy(@PathVariable Long id, @Valid @RequestBody PolicyRequest policyRequest) {
+        logger.debug("Received request to update InformationType with id={}", id);
         service.validateRequests(List.of(policyRequest));
         Optional<Policy> optionalPolicy = policyRepository.findById(id);
         if (!optionalPolicy.isPresent()) {
+            logger.error(String.format("Cannot find Policy with id: %s", id));
             throw new DataCatalogPoliciesNotFoundException(String.format("Cannot find Policy with id: %s", id));
         }
         Policy storedPolicy = optionalPolicy.get();
@@ -162,11 +171,13 @@ public class PolicyRestController {
             @ApiResponse(code = 500, message = "Internal server error")})
     @PutMapping("/policy")
     public List<PolicyResponse> updatePolicies(@Valid @RequestBody List<PolicyRequest> policyRequests) {
+        logger.debug("Received requests to update InformationTypes");
         service.validateRequests(policyRequests);
         List<Policy> policies = new ArrayList<>();
         policyRequests.forEach(policyRequest -> {
                     Optional<Policy> optionalPolicy = policyRepository.findById(policyRequest.getId());
                     if (!optionalPolicy.isPresent()) {
+                        logger.error(String.format("Cannot find Policy with id: %s", policyRequest.getId()));
                         throw new DataCatalogPoliciesNotFoundException(String.format("Cannot find Policy with id: %s", policyRequest.getId()));
                     }
                     Policy storedPolicy = optionalPolicy.get();
