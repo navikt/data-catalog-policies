@@ -38,8 +38,8 @@ public class PolicyService {
         HashMap<String, HashMap> validationMap = new HashMap<>();
         HashMap<String, Integer> namesUsedInRequest = new HashMap<>();
         final AtomicInteger i = new AtomicInteger(1);
-        for (PolicyRequest request : requests) {
-            HashMap<String, String> requestMap = validateRequest(request, isUpdate(request.getId()));
+        requests.forEach(request -> {
+            HashMap<String, String> requestMap = validatePolicyRequest(request, isUpdate(request.getId()));
             if (!requestMap.isEmpty()) {
                 validationMap.put(request.getInformationTypeName() + "/" + request.getPurposeCode(), requestMap);
             }
@@ -55,7 +55,7 @@ public class PolicyService {
                 validationMap.put(String.format("Request nr:%s", i.intValue()), requestMap);
             }
             i.getAndIncrement();
-        }
+        });
         if (!validationMap.isEmpty()) {
             logger.error("Validation errors occurred when validating InformationTypeRequest: {}", validationMap);
             throw new ValidationException(validationMap, "Validation errors occurred when validating InformationTypeRequest.");
@@ -66,7 +66,7 @@ public class PolicyService {
         return id != null;
     }
 
-    private HashMap validateRequest(PolicyRequest request, boolean isUpdate) throws ValidationException {
+    private HashMap validatePolicyRequest(PolicyRequest request, boolean isUpdate) throws ValidationException {
         HashMap<String, String> validationErrors = new HashMap<>();
         if (request.getInformationTypeName() == null) {
             validationErrors.put("informationTypeName", "informationTypeName cannot be null");
