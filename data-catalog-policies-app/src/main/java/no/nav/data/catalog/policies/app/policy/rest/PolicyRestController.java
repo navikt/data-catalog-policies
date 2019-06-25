@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,9 +51,10 @@ public class PolicyRestController {
             @ApiResponse(code = 200, message = "All policies fetched", response = Policy.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping("/policy")
-    public Page<PolicyResponse> getPolicies(Pageable pageable) {
+    public RestResponsePage<PolicyResponse> getPolicies(Pageable pageable) {
         logger.debug("Received request for all Policies");
-        return policyRepository.findAll(pageable).map(policy -> mapper.mapPolicyToResponse(policy));
+        List<PolicyResponse>  policyResponses = policyRepository.findAll(pageable).stream().map(policy -> mapper.mapPolicyToResponse(policy)).collect(Collectors.toList());
+        return new RestResponsePage(policyResponses, pageable, policyRepository.count());
     }
 
     @ApiOperation(value = "Count all Policies", tags = {"Policies"})
@@ -71,7 +72,7 @@ public class PolicyRestController {
             @ApiResponse(code = 200, message = "All policies fetched", response = Policy.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping(path = "/policy", params = {"informationTypeId"}, produces = "application/json")
-    public Page<PolicyResponse> getPoliciesByInformationType(Pageable pageable, @RequestParam Long informationTypeId) {
+    public RestResponsePage<PolicyResponse> getPoliciesByInformationType(Pageable pageable, @RequestParam Long informationTypeId) {
         logger.debug("Received request for Policies related to InformationType with id={}", informationTypeId);
         if (pageable.getSort().getOrderFor("purpose.description") != null) {
             List<PolicyResponse> pageResponse = policyRepository.findByInformationTypeId(null, informationTypeId).stream().map(policy -> mapper.mapPolicyToResponse(policy)).collect(Collectors.toList());
@@ -81,9 +82,10 @@ public class PolicyRestController {
             } else {
                 pageResponse.sort(compareByDescription.reversed());
             }
-            return new PageImpl(pageResponse, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.unsorted()), pageResponse.size());
+            return new RestResponsePage(pageResponse, pageable, pageResponse.size());
         } else {
-            return policyRepository.findByInformationTypeId(pageable, informationTypeId).map(policy -> mapper.mapPolicyToResponse(policy));
+            List<PolicyResponse> policyResponses = policyRepository.findByInformationTypeId(pageable, informationTypeId).stream().map(policy -> mapper.mapPolicyToResponse(policy)).collect(Collectors.toList());
+            return new RestResponsePage(policyResponses, pageable, policyRepository.countByInformationTypeId(informationTypeId));
         }
     }
 
