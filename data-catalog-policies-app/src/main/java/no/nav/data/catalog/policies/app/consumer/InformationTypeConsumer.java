@@ -1,9 +1,12 @@
 package no.nav.data.catalog.policies.app.consumer;
 
+import lombok.extern.slf4j.Slf4j;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesTechnicalException;
 import no.nav.data.catalog.policies.app.policy.domain.InformationType;
 import no.nav.data.catalog.policies.app.policy.domain.InformationTypeResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -14,7 +17,10 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @Component
+@Slf4j
 public class InformationTypeConsumer {
+    private static final Logger logger = LoggerFactory.getLogger(InformationTypeConsumer.class);
+
     @Autowired
     private RestTemplate restTemplate;
 
@@ -22,6 +28,7 @@ public class InformationTypeConsumer {
     private String InformationTypeEndpointUrl;
 
     public InformationType getInformationTypeByName(String informationTypeName) {
+        logger.debug("InformationTypeConsumer: About to get InformationType by name={}", informationTypeName);
         try {
             ResponseEntity<InformationTypeResponse> responseEntity = restTemplate.getForEntity(InformationTypeEndpointUrl + "/name/" + informationTypeName.trim()
                     , InformationTypeResponse.class);
@@ -42,6 +49,7 @@ public class InformationTypeConsumer {
     }
 
     public InformationType getInformationTypeById(Long informationTypeId) {
+        logger.debug("InformationTypeConsumer: About to get InformationType by id={}", informationTypeId);
         try {
             ResponseEntity<InformationTypeResponse> responseEntity = restTemplate.getForEntity(InformationTypeEndpointUrl + "/" + informationTypeId
                     , InformationTypeResponse.class);
@@ -49,12 +57,17 @@ public class InformationTypeConsumer {
         } catch (
                 HttpClientErrorException e) {
             if (HttpStatus.NOT_FOUND.equals(e.getStatusCode())) {
+                logger.error(String.format("InformationType with id=%s does not exist", informationTypeId));
                 throw new DataCatalogPoliciesNotFoundException(String.format("InformationType with id=%s does not exist", informationTypeId));
             } else {
+                logger.error(String.format("Getting InformationType with id=%s failed with status=%s message=%s"
+                        , informationTypeId, e.getStatusCode(), e.getResponseBodyAsString()), e, e.getStatusCode());
                 throw new DataCatalogPoliciesTechnicalException(String.format("Getting InformationType with id=%s failed with status=%s message=%s"
                         , informationTypeId, e.getStatusCode(), e.getResponseBodyAsString()), e, e.getStatusCode());
             }
         } catch (HttpServerErrorException e) {
+            logger.error(String.format("Getting InformationType with id %s failed with status=%s message=%s"
+                    , informationTypeId, e.getStatusCode(), e.getResponseBodyAsString()), e, e.getStatusCode());
             throw new DataCatalogPoliciesTechnicalException(String.format("Getting InformationType with id %s failed with status=%s message=%s"
                     , informationTypeId, e.getStatusCode(), e.getResponseBodyAsString()), e, e.getStatusCode());
         }
