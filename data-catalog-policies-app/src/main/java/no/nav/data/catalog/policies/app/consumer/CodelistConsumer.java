@@ -5,12 +5,15 @@ import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesTec
 import no.nav.data.catalog.policies.app.policy.domain.ListName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+
+import static no.nav.data.catalog.policies.app.common.cache.CacheConfig.CODELIST_CACHE;
 
 @Component
 public class CodelistConsumer {
@@ -20,6 +23,7 @@ public class CodelistConsumer {
     @Value("${datacatalog.codelist.url}")
     private String codelistUrl;
 
+    @Cacheable(cacheNames = CODELIST_CACHE, key = "#listName.name() + '-' + #code")
     public String getCodelistDescription(ListName listName, String code) {
         if (code == null || listName == null) return null;
         try {

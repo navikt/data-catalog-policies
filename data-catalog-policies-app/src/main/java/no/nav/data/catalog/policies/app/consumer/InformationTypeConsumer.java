@@ -6,12 +6,16 @@ import no.nav.data.catalog.policies.app.policy.domain.InformationType;
 import no.nav.data.catalog.policies.app.policy.domain.InformationTypeResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+
+import static no.nav.data.catalog.policies.app.common.cache.CacheConfig.INFORMATIONTYPEBYID_CACHE;
+import static no.nav.data.catalog.policies.app.common.cache.CacheConfig.INFORMATIONTYPEBYNAME_CACHE;
 
 @Component
 public class InformationTypeConsumer {
@@ -21,6 +25,7 @@ public class InformationTypeConsumer {
     @Value("${datacatalog.informationtype.url}")
     private String InformationTypeEndpointUrl;
 
+    @Cacheable(cacheNames = INFORMATIONTYPEBYNAME_CACHE, key = "#informationTypeName")
     public InformationType getInformationTypeByName(String informationTypeName) {
         try {
             ResponseEntity<InformationTypeResponse> responseEntity = restTemplate.getForEntity(InformationTypeEndpointUrl + "/name/" + informationTypeName.trim()
@@ -41,6 +46,7 @@ public class InformationTypeConsumer {
         }
     }
 
+    @Cacheable(cacheNames = INFORMATIONTYPEBYID_CACHE, key = "#informationTypeId")
     public InformationType getInformationTypeById(Long informationTypeId) {
         try {
             ResponseEntity<InformationTypeResponse> responseEntity = restTemplate.getForEntity(InformationTypeEndpointUrl + "/" + informationTypeId
