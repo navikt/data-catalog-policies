@@ -1,6 +1,6 @@
 # data-catalog-policies
 Applikasjonen er en del av Datakatalog - prosjektet som skal levere en katalog over datasett i NAV
-, til hvilke formål disse datasettene brukes, og med hvilket rettslig runnlag som ligger til grunn for bruken.
+, til hvilke formål disse datasettene brukes, og hvilket rettslig grunnlag som ligger til grunn for bruken.
 
 Applikasjonen data-catalog-policies samler all funksjonalitet knyttet til Behandlingsregler for et datasett. 
 En behandlingsregel består av et datasett, et formål og et rettslig grunnlag. Det kan være ett eller flere formål 
