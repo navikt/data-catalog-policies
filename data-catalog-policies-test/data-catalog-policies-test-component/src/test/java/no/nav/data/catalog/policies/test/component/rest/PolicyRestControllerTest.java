@@ -93,7 +93,8 @@ public class PolicyRestControllerTest {
         Policy policy1 = createPolicyTestdata(1L);
 
         List<Policy> policies = Arrays.asList(policy1);
-        given(policyRepository.findByInformationTypeId(PageRequest.of(0, 100), 1L)).willReturn(policies);
+        Page<Policy> policyPage = new PageImpl<>(policies);
+        given(policyRepository.findByInformationTypeId(PageRequest.of(0, 100), 1L)).willReturn(policyPage);
         mvc.perform(get("/policy/policy?page=0&size=100&informationTypeId=1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content",hasSize(1)));

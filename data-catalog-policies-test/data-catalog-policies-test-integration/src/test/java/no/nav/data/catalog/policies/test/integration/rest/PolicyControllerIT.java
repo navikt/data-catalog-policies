@@ -6,6 +6,7 @@ import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
+import no.nav.data.catalog.policies.app.policy.rest.RestResponsePage;
 import no.nav.data.catalog.policies.test.integration.IntegrationTestConfig;
 import no.nav.data.catalog.policies.test.integration.util.WiremockResponseTransformer;
 import org.junit.After;
@@ -21,7 +22,6 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.hateoas.PagedResources;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -283,11 +283,13 @@ public class PolicyControllerIT {
     public void get20FirstPolicies() {
         createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
 
-        ResponseEntity<PagedResources<PolicyResponse>> responseEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT + "policy", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), new ParameterizedTypeReference<PagedResources<PolicyResponse>>() {
+        ResponseEntity<RestResponsePage<PolicyResponse>> responseEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), new ParameterizedTypeReference<RestResponsePage<PolicyResponse>>() {
                 });
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(responseEntity.getBody().getContent().size(), is(20));
+        assertThat(responseEntity.getBody().getTotalElements(), is(100L));
+        assertThat(responseEntity.getBody().getSize(), is(20));
         assertThat(policyRepository.count(), is(100L));
     }
 
@@ -295,11 +297,13 @@ public class PolicyControllerIT {
     public void get100Policies() {
         createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
 
-        ResponseEntity<PagedResources<PolicyResponse>> responseEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT + "policy?page=0&size=100", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), new ParameterizedTypeReference<PagedResources<PolicyResponse>>() {
+        ResponseEntity<RestResponsePage<PolicyResponse>> responseEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy?page=0&size=100", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), new ParameterizedTypeReference<RestResponsePage<PolicyResponse>>() {
                 });
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(responseEntity.getBody().getContent().size(), is(100));
+        assertThat(responseEntity.getBody().getTotalElements(), is(100L));
+        assertThat(responseEntity.getBody().getSize(), is(100));
         assertThat(policyRepository.count(), is(100L));
     }
 
@@ -317,8 +321,8 @@ public class PolicyControllerIT {
     public void getPoliciesPageBeyondMax() {
         createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
 
-        ResponseEntity<PagedResources<PolicyResponse>> responseEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT + "policy?page=1&size=100", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), new ParameterizedTypeReference<PagedResources<PolicyResponse>>() {
+        ResponseEntity<RestResponsePage<PolicyResponse>> responseEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy?page=1&size=100", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), new ParameterizedTypeReference<RestResponsePage<PolicyResponse>>() {
                 });
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(responseEntity.getBody().getContent().size(), is(0));
@@ -329,8 +333,8 @@ public class PolicyControllerIT {
     public void getPolicyForInformationType1() {
         createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
 
-        ResponseEntity<PagedResources<PolicyResponse>> responseEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT + "policy?informationTypeId=1", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), new ParameterizedTypeReference<PagedResources<PolicyResponse>>() {
+        ResponseEntity<RestResponsePage<PolicyResponse>> responseEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT + "policy?informationTypeId=1", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), new ParameterizedTypeReference<RestResponsePage<PolicyResponse>>() {
                 });
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(responseEntity.getBody().getContent().size(), is(1));

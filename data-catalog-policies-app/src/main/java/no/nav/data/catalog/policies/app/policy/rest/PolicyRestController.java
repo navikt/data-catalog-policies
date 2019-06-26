@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -53,8 +54,8 @@ public class PolicyRestController {
     @GetMapping("/policy")
     public RestResponsePage<PolicyResponse> getPolicies(Pageable pageable) {
         logger.debug("Received request for all Policies");
-        List<PolicyResponse>  policyResponses = policyRepository.findAll(pageable).stream().map(policy -> mapper.mapPolicyToResponse(policy)).collect(Collectors.toList());
-        return new RestResponsePage(policyResponses, pageable, policyRepository.count());
+        Page<PolicyResponse>  policyResponses = policyRepository.findAll(pageable).map(policy -> mapper.mapPolicyToResponse(policy));
+        return new RestResponsePage(policyResponses.getContent(), pageable, policyResponses.getTotalElements());
     }
 
     @ApiOperation(value = "Count all Policies", tags = {"Policies"})
@@ -84,8 +85,8 @@ public class PolicyRestController {
             }
             return new RestResponsePage(pageResponse, pageable, pageResponse.size());
         } else {
-            List<PolicyResponse> policyResponses = policyRepository.findByInformationTypeId(pageable, informationTypeId).stream().map(policy -> mapper.mapPolicyToResponse(policy)).collect(Collectors.toList());
-            return new RestResponsePage(policyResponses, pageable, policyRepository.countByInformationTypeId(informationTypeId));
+            Page<PolicyResponse> policyResponses = policyRepository.findByInformationTypeId(pageable, informationTypeId).map(policy -> mapper.mapPolicyToResponse(policy));
+            return new RestResponsePage(policyResponses.getContent(), pageable, policyResponses.getTotalElements());
         }
     }
 

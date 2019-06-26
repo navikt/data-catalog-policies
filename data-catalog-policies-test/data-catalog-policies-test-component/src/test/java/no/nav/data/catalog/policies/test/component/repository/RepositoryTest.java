@@ -57,8 +57,8 @@ public class RepositoryTest {
     public void getByInformationType() {
         createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 1L, INFORMATION_TYPE_NAME1);
         createTestdata("Legal basis 2", "PUR2", 2L, "InformationTypeName2");
-        assertThat(policyRepository.findByInformationTypeId(PageRequest.of(0, 10), 1L).size(), is(1));
-        assertThat(policyRepository.findByInformationTypeId(PageRequest.of(0, 10), 2L).size(), is(1));
+        assertThat(policyRepository.findByInformationTypeId(PageRequest.of(0, 10), 1L).getTotalElements(), is(1L));
+        assertThat(policyRepository.findByInformationTypeId(PageRequest.of(0, 10), 2L).getTotalElements(), is(1L));
     }
 
     @Test
