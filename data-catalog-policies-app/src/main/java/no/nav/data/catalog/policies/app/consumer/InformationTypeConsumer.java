@@ -9,12 +9,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+
+import static no.nav.data.catalog.policies.app.common.cache.CacheConfig.INFORMATIONTYPEBYID_CACHE;
+import static no.nav.data.catalog.policies.app.common.cache.CacheConfig.INFORMATIONTYPEBYNAME_CACHE;
 
 @Component
 @Slf4j
@@ -27,6 +31,7 @@ public class InformationTypeConsumer {
     @Value("${datacatalog.informationtype.url}")
     private String InformationTypeEndpointUrl;
 
+    @Cacheable(cacheNames = INFORMATIONTYPEBYNAME_CACHE, key = "#informationTypeName")
     public InformationType getInformationTypeByName(String informationTypeName) {
         logger.debug("InformationTypeConsumer: About to get InformationType by name={}", informationTypeName);
         try {
@@ -48,6 +53,7 @@ public class InformationTypeConsumer {
         }
     }
 
+    @Cacheable(cacheNames = INFORMATIONTYPEBYID_CACHE, key = "#informationTypeId")
     public InformationType getInformationTypeById(Long informationTypeId) {
         logger.debug("InformationTypeConsumer: About to get InformationType by id={}", informationTypeId);
         try {
