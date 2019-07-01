@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/navikt/data-catalog-policies.svg?branch=master)](https://travis-ci.com/navikt/data-catalog-policies)
+
 # data-catalog-policies
 Applikasjonen er en del av Datakatalog - prosjektet som skal levere en katalog over datasett i NAV
 , til hvilke formål disse datasettene brukes, og hvilket rettslig grunnlag som ligger til grunn for bruken.
