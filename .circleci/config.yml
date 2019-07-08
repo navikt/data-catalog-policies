@@ -42,7 +42,7 @@ jobs:
       - run:
           name: Copy jar and env
           command: |
-            mkdir ./data-catalog-policies-app/target/
+            mkdir -p ./data-catalog-policies-app/target/
             cp /tmp/workspace/app-exec.jar ./data-catalog-policies-app/target/app-exec.jar
             cat /tmp/workspace/properties.env >> $BASH_ENV
       - run:
