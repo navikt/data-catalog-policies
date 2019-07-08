@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/navikt/data-catalog-policies.svg?branch=master)](https://travis-ci.com/navikt/data-catalog-policies)
+[![CircleCI](https://circleci.com/gh/navikt/data-catalog-policies.svg?style=svg)](https://circleci.com/gh/navikt/data-catalog-policies)
 
 # data-catalog-policies
 Applikasjonen er en del av Datakatalog - prosjektet som skal levere en katalog over datasett i NAV
