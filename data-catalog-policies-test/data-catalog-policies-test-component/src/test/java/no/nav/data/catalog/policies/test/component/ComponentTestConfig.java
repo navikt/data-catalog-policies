@@ -18,9 +18,9 @@ public class ComponentTestConfig {
         List<String> pairs = new ArrayList<>();
 
         // postgres
-        pairs.add("spring.datasource.url=" + postgreSQLContainer.getJdbcUrl());
-        pairs.add("spring.datasource.username=" + postgreSQLContainer.getUsername());
-        pairs.add("spring.datasource.password=" + postgreSQLContainer.getPassword());
+        pairs.add("POSTGRES_URLl=" + postgreSQLContainer.getJdbcUrl());
+        pairs.add("POSTGRES_USER=" + postgreSQLContainer.getUsername());
+        pairs.add("POSTGRES_PASSWORD=" + postgreSQLContainer.getPassword());
         return TestPropertyValues.of(pairs);
     }
 }
