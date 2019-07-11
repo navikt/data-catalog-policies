@@ -34,7 +34,7 @@ public class RepositoryTest {
     private static final String INFORMATION_TYPE_NAME1 = "InformationTypeName1";
 
     @ClassRule
-    public static PostgreSQLContainer postgreSQLContainer = PolicyTestContainer.getInstance();
+    public static PolicyTestContainer postgreSQLContainer = PolicyTestContainer.getInstance();
 
     @Autowired
     private PolicyRepository policyRepository;

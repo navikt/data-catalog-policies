@@ -53,7 +53,7 @@ public class PolicyServiceTest {
     private PolicyService service;
 
     @ClassRule
-    public static PostgreSQLContainer postgreSQLContainer = PolicyTestContainer.getInstance();
+    public static PolicyTestContainer postgreSQLContainer = PolicyTestContainer.getInstance();
 
     @Test
     public void shouldValidateInsertRequest() {

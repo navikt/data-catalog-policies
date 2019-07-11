@@ -53,7 +53,7 @@ public class PolicyMapperTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     @ClassRule
-    public static PostgreSQLContainer postgreSQLContainer = PolicyTestContainer.getInstance();
+    public static PolicyTestContainer postgreSQLContainer = PolicyTestContainer.getInstance();
 
     @Test
     public void shouldMapToPolicy() {
