@@ -5,6 +5,7 @@ import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import no.nav.data.catalog.policies.test.component.ComponentTestConfig;
 import no.nav.data.catalog.policies.test.component.PolicyTestContainer;
+import no.nav.data.catalog.policies.test.component.mapper.PolicyMapperTest;
 import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -26,6 +27,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ComponentTestConfig.class)
 @ActiveProfiles("test")
+@ContextConfiguration(initializers = { RepositoryTest.Initializer.class })
 public class RepositoryTest {
     private static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
     private static final String PURPOSE_CODE1 = "PUR1";
@@ -79,5 +81,14 @@ public class RepositoryTest {
         policy.setPurposeCode(purposeCode);
         policy.setLegalBasisDescription(legalBasisDescription);
         policyRepository.save(policy);
+    }
+
+    static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        @Override
+        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+            ComponentTestConfig.using(postgreSQLContainer)
+                    .applyTo(configurableApplicationContext.getEnvironment());
+
+        }
     }
 }

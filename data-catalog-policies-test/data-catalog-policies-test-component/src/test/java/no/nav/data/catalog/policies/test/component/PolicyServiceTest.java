@@ -9,12 +9,15 @@ import no.nav.data.catalog.policies.app.policy.domain.InformationType;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.PolicyService;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
+import no.nav.data.catalog.policies.test.component.mapper.PolicyMapperTest;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -30,6 +33,7 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ComponentTestConfig.class)
 @ActiveProfiles("test")
+@ContextConfiguration(initializers = { PolicyServiceTest.Initializer.class })
 public class PolicyServiceTest {
 
     private static final String INFORMATIONTYPENAME = "Personalia";
@@ -169,5 +173,14 @@ public class PolicyServiceTest {
         when(policyRepository.existsByInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(true);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenReturn("purpose");
         service.validateRequests(List.of(request));
+    }
+
+    static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        @Override
+        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+            ComponentTestConfig.using(postgreSQLContainer)
+                    .applyTo(configurableApplicationContext.getEnvironment());
+
+        }
     }
 }
