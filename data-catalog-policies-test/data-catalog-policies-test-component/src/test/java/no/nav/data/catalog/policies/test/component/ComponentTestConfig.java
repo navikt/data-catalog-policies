@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Import;
 
 @Configuration
 @Import({AppStarter.class})
-@ComponentScan(value = "no.nav.data.catalog.policies.test.component")
+@ComponentScan(value = "no.nav.data.catalog.policies")
 public class ComponentTestConfig {
 }
 

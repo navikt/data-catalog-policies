@@ -8,6 +8,7 @@ import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import no.nav.data.catalog.policies.app.policy.rest.RestResponsePage;
 import no.nav.data.catalog.policies.test.integration.IntegrationTestConfig;
+import no.nav.data.catalog.policies.test.integration.PolicyTestContainer;
 import no.nav.data.catalog.policies.test.integration.util.WiremockResponseTransformer;
 import org.junit.After;
 import org.junit.Before;
@@ -16,10 +17,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -27,11 +25,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.PostgreSQLContainer;
 
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,8 +41,7 @@ import static org.junit.Assert.assertFalse;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = {IntegrationTestConfig.class, AppStarter.class})
 @Import(WiremockResponseTransformer.class)
-@ActiveProfiles("itest")
-@ContextConfiguration(initializers = {PolicyControllerIT.Initializer.class})
+@ActiveProfiles("test")
 public class PolicyControllerIT {
     public static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
     public static final String PURPOSE_CODE1 = "TEST1";
@@ -61,12 +56,7 @@ public class PolicyControllerIT {
     private PolicyRepository policyRepository;
 
     @ClassRule
-    public static PostgreSQLContainer postgreSQLContainer =
-            (PostgreSQLContainer) new PostgreSQLContainer("postgres:10.4")
-                    .withDatabaseName("sampledb")
-                    .withUsername("sampleuser")
-                    .withPassword("samplepwd")
-                    .withStartupTimeout(Duration.ofSeconds(600));
+    public static PostgreSQLContainer postgreSQLContainer = PolicyTestContainer.getInstance();
 
     @Before
     public void setUp() {
@@ -365,17 +355,6 @@ public class PolicyControllerIT {
 
     private PolicyRequest createPolicyRequest(String legalBasisDescription, String purposeCode, String informationTypeName) {
         return PolicyRequest.builder().informationTypeName(informationTypeName).legalBasisDescription(legalBasisDescription).purposeCode(purposeCode).build();
-    }
-
-    static class Initializer
-            implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            TestPropertyValues.of(
-                    "spring.datasource.url=" + postgreSQLContainer.getJdbcUrl(),
-                    "spring.datasource.username=" + postgreSQLContainer.getUsername(),
-                    "spring.datasource.password=" + postgreSQLContainer.getPassword()
-            ).applyTo(configurableApplicationContext.getEnvironment());
-        }
     }
 
     private void assertPolicy(PolicyResponse policy, String legalBasisDescription) {

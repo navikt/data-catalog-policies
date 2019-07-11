@@ -10,6 +10,8 @@ import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
 import no.nav.data.catalog.policies.test.component.ComponentTestConfig;
+import no.nav.data.catalog.policies.test.component.PolicyTestContainer;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -19,6 +21,7 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -40,11 +43,13 @@ public class PolicyMapperTest {
     public static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
     public static final String PURPOSE_CODE1 = "PUR1";
     public static final String PURPOSE_DESCRIPTION1 = "PurposeDescription 1";
-    public static final String INFORMATION_TYPE_DESCRIPTION1 = "InformationTypeDescription 1";
     public static final String INFORMATION_TYPE_NAME1 = "InformationTypeNeme 1";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+
+    @ClassRule
+    public static PostgreSQLContainer postgreSQLContainer = PolicyTestContainer.getInstance();
 
     @Test
     public void shouldMapToPolicy() {

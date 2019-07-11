@@ -4,15 +4,21 @@ import no.nav.data.catalog.policies.app.policy.domain.InformationType;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import no.nav.data.catalog.policies.test.component.ComponentTestConfig;
+import no.nav.data.catalog.policies.test.component.PolicyTestContainer;
 import org.junit.After;
-import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -25,18 +31,14 @@ public class RepositoryTest {
     private static final String PURPOSE_CODE1 = "PUR1";
     private static final String INFORMATION_TYPE_NAME1 = "InformationTypeName1";
 
+    @ClassRule
+    public static PostgreSQLContainer postgreSQLContainer = PolicyTestContainer.getInstance();
+
     @Autowired
     private PolicyRepository policyRepository;
 
-    @Autowired
-
-    @Before
-    public void setUp() {
-        policyRepository.deleteAll();
-    }
-
     @After
-    public void cleanUp() {
+    public void setUp() {
         policyRepository.deleteAll();
     }
 
@@ -78,5 +80,4 @@ public class RepositoryTest {
         policy.setLegalBasisDescription(legalBasisDescription);
         policyRepository.save(policy);
     }
-
 }
