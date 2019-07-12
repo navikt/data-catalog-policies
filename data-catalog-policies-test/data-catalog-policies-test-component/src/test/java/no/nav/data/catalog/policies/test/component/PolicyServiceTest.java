@@ -4,14 +4,12 @@ import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNot
 import no.nav.data.catalog.policies.app.common.exceptions.ValidationException;
 import no.nav.data.catalog.policies.app.consumer.CodelistConsumer;
 import no.nav.data.catalog.policies.app.consumer.InformationTypeConsumer;
-import no.nav.data.catalog.policies.app.policy.domain.ListName;
-import no.nav.data.catalog.policies.app.policy.domain.InformationType;
-import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.PolicyService;
+import no.nav.data.catalog.policies.app.policy.domain.InformationType;
+import no.nav.data.catalog.policies.app.policy.domain.ListName;
+import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
-import no.nav.data.catalog.policies.test.component.mapper.PolicyMapperTest;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -22,7 +20,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.util.List;
 
@@ -34,8 +31,7 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ComponentTestConfig.class)
 @ActiveProfiles("test")
-@Ignore
-@ContextConfiguration(initializers = { PolicyServiceTest.Initializer.class })
+@ContextConfiguration(initializers = {PolicyServiceTest.Initializer.class})
 public class PolicyServiceTest {
 
     private static final String INFORMATIONTYPENAME = "Personalia";

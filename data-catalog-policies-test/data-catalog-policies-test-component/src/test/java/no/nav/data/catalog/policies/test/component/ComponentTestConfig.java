@@ -18,7 +18,7 @@ public class ComponentTestConfig {
         List<String> pairs = new ArrayList<>();
 
         // postgres
-        pairs.add("POSTGRES_URLl=" + postgreSQLContainer.getJdbcUrl());
+        pairs.add("POSTGRES_URL=" + postgreSQLContainer.getJdbcUrl());
         pairs.add("POSTGRES_USER=" + postgreSQLContainer.getUsername());
         pairs.add("POSTGRES_PASSWORD=" + postgreSQLContainer.getPassword());
         return TestPropertyValues.of(pairs);

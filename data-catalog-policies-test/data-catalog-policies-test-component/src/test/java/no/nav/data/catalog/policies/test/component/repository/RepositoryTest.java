@@ -5,21 +5,18 @@ import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import no.nav.data.catalog.policies.test.component.ComponentTestConfig;
 import no.nav.data.catalog.policies.test.component.PolicyTestContainer;
-import no.nav.data.catalog.policies.test.component.mapper.PolicyMapperTest;
 import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.testcontainers.containers.PostgreSQLContainer;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -27,7 +24,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ComponentTestConfig.class)
 @ActiveProfiles("test")
-@ContextConfiguration(initializers = { RepositoryTest.Initializer.class })
+@ContextConfiguration(initializers = {RepositoryTest.Initializer.class})
 public class RepositoryTest {
     private static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
     private static final String PURPOSE_CODE1 = "PUR1";

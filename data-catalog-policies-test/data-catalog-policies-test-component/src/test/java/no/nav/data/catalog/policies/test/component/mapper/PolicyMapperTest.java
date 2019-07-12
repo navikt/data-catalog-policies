@@ -12,7 +12,6 @@ import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
 import no.nav.data.catalog.policies.test.component.ComponentTestConfig;
 import no.nav.data.catalog.policies.test.component.PolicyTestContainer;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -25,7 +24,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.testcontainers.containers.PostgreSQLContainer;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -36,8 +34,7 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ComponentTestConfig.class)
 @ActiveProfiles("test")
-@Ignore
-@ContextConfiguration(initializers = { PolicyMapperTest.Initializer.class })
+@ContextConfiguration(initializers = {PolicyMapperTest.Initializer.class})
 public class PolicyMapperTest {
     @Mock
     private CodelistConsumer codelistConsumer;
@@ -92,10 +89,10 @@ public class PolicyMapperTest {
     }
 
     private InformationType createBasicTestdata(String informationTypeName) {
-         return InformationType.builder()
-                 .informationTypeId(1L)
-                 .name(informationTypeName)
-                 .build();
+        return InformationType.builder()
+                .informationTypeId(1L)
+                .name(informationTypeName)
+                .build();
     }
 
     static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
