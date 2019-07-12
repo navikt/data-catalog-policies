@@ -23,7 +23,7 @@ jobs:
           key: policies_wf-{{ checksum "pom.xml" }}
       - run:
           name: Copy files
-          run: |
+          command: |
             mkdir /tmp/workspace
             cp ./data-catalog-policies-app/target/app-exec.jar /tmp/workspace/app-exec.jar
             cp ./Dockerfile /tmp/workspace/Dockerfile
