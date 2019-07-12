@@ -17,8 +17,8 @@ jobs:
           paths:
             - ~/.m2
           key: backend_wf-{{ checksum "pom.xml" }}
-      - nais/docker-deploy:
-          image: navikt/data-catalog-policies
+#      - nais/docker-deploy:
+#          image: navikt/data-catalog-policies
 workflows:
   version: 2
   build_and_release:
