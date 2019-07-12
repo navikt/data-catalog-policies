@@ -10,14 +10,17 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: backend_wf-{{ checksum "pom.xml" }}
+          key: policies_wf-{{ checksum "pom.xml" }}
+      - run:
+          name: Install java11
+          command: sudo apt install openjdk-11-jdk
       - run:
           name: Build application
           command: mvn package
       - save_cache:
           paths:
             - ~/.m2
-          key: backend_wf-{{ checksum "pom.xml" }}
+          key: policies_wf-{{ checksum "pom.xml" }}
 #      - nais/docker-deploy:
 #          image: navikt/data-catalog-policies
 workflows:
