@@ -12,7 +12,9 @@ jobs:
           key: policies_wf-{{ checksum "pom.xml" }}
       - run:
           name: Install java11
-          command: sudo apt install openjdk-11-jdk
+          command: |
+            sudo apt install openjdk-11-jdk
+            export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
       - run:
           name: MVN version
           command: mvn --version
