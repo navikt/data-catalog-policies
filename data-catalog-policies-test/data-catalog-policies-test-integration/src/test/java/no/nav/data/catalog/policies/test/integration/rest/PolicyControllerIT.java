@@ -56,7 +56,7 @@ public class PolicyControllerIT {
     private PolicyRepository policyRepository;
 
     @ClassRule
-    public static PostgreSQLContainer postgreSQLContainer = PolicyTestContainer.getInstance();
+    public static PolicyTestContainer postgreSQLContainer = PolicyTestContainer.getInstance();
 
     @Before
     public void setUp() {

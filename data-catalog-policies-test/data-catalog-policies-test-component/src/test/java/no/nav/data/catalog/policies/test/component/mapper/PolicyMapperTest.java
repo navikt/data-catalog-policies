@@ -34,7 +34,6 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ComponentTestConfig.class)
 @ActiveProfiles("test")
-@ContextConfiguration(initializers = {PolicyMapperTest.Initializer.class})
 public class PolicyMapperTest {
     @Mock
     private CodelistConsumer codelistConsumer;
@@ -93,14 +92,5 @@ public class PolicyMapperTest {
                 .informationTypeId(1L)
                 .name(informationTypeName)
                 .build();
-    }
-
-    static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        @Override
-        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            ComponentTestConfig.using(postgreSQLContainer)
-                    .applyTo(configurableApplicationContext.getEnvironment());
-
-        }
     }
 }

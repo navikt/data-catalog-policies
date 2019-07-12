@@ -31,7 +31,6 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ComponentTestConfig.class)
 @ActiveProfiles("test")
-@ContextConfiguration(initializers = {PolicyServiceTest.Initializer.class})
 public class PolicyServiceTest {
 
     private static final String INFORMATIONTYPENAME = "Personalia";
@@ -171,14 +170,5 @@ public class PolicyServiceTest {
         when(policyRepository.existsByInformationTypeIdAndPurposeCode(anyLong(), anyString())).thenReturn(true);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenReturn("purpose");
         service.validateRequests(List.of(request));
-    }
-
-    static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        @Override
-        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            ComponentTestConfig.using(postgreSQLContainer)
-                    .applyTo(configurableApplicationContext.getEnvironment());
-
-        }
     }
 }
