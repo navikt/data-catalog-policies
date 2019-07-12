@@ -12,6 +12,7 @@ import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
 import no.nav.data.catalog.policies.test.component.ComponentTestConfig;
 import no.nav.data.catalog.policies.test.component.PolicyTestContainer;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -35,6 +36,7 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ComponentTestConfig.class)
 @ActiveProfiles("test")
+@Ignore
 @ContextConfiguration(initializers = { PolicyMapperTest.Initializer.class })
 public class PolicyMapperTest {
     @Mock

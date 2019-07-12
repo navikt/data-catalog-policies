@@ -8,6 +8,7 @@ import no.nav.data.catalog.policies.test.component.PolicyTestContainer;
 import no.nav.data.catalog.policies.test.component.mapper.PolicyMapperTest;
 import org.junit.After;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ComponentTestConfig.class)
 @ActiveProfiles("test")
+@Ignore
 @ContextConfiguration(initializers = { RepositoryTest.Initializer.class })
 public class RepositoryTest {
     private static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
