@@ -11,17 +11,12 @@ jobs:
       - restore_cache:
           key: policies_wf-{{ checksum "pom.xml" }}
       - run:
-          name: Install java11
+          name: Install java11 and build
           command: |
             sudo apt install openjdk-11-jdk
             export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
             mvn --version
-      - run:
-          name: MVN version
-          command: mvn --version
-      - run:
-          name: Build application
-          command: mvn package
+            mvn package
       - save_cache:
           paths:
             - ~/.m2
