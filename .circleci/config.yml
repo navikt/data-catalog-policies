@@ -21,8 +21,6 @@ jobs:
           paths:
             - ~/.m2
           key: policies_wf-{{ checksum "pom.xml" }}
-      - nais/docker-deploy:
-          image: navikt/data-catalog-policies
   push:
     working_directory: ~/policies_wf
     docker:
