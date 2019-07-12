@@ -22,13 +22,14 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.PostgreSQLContainer;
 
+import java.time.Duration;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ComponentTestConfig.class)
 @ActiveProfiles("test")
-@Ignore
 @ContextConfiguration(initializers = { RepositoryTest.Initializer.class })
 public class RepositoryTest {
     private static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
@@ -36,7 +37,12 @@ public class RepositoryTest {
     private static final String INFORMATION_TYPE_NAME1 = "InformationTypeName1";
 
     @ClassRule
-    public static PolicyTestContainer postgreSQLContainer = PolicyTestContainer.getInstance();
+    public static PostgreSQLContainer postgreSQLContainer =
+            (PostgreSQLContainer) new PostgreSQLContainer("postgres:10.4")
+                    .withDatabaseName("sampledb")
+                    .withUsername("sampleuser")
+                    .withPassword("samplepwd")
+                    .withStartupTimeout(Duration.ofSeconds(600));
 
     @Autowired
     private PolicyRepository policyRepository;
@@ -85,12 +91,14 @@ public class RepositoryTest {
         policyRepository.save(policy);
     }
 
-    static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        @Override
+    static class Initializer
+            implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            ComponentTestConfig.using(postgreSQLContainer)
-                    .applyTo(configurableApplicationContext.getEnvironment());
-
+            TestPropertyValues.of(
+                    "spring.datasource.url=" + postgreSQLContainer.getJdbcUrl(),
+                    "spring.datasource.username=" + postgreSQLContainer.getUsername(),
+                    "spring.datasource.password=" + postgreSQLContainer.getPassword()
+            ).applyTo(configurableApplicationContext.getEnvironment());
         }
     }
 }
