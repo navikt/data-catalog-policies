@@ -5,6 +5,7 @@ jobs:
   build:
     machine:
       enabled: true
+      image: circleci/classic:latest
     working_directory: ~/policies_wf
     steps:
       - checkout
