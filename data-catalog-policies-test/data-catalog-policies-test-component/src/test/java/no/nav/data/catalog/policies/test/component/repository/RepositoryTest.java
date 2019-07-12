@@ -95,9 +95,9 @@ public class RepositoryTest {
             implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
             TestPropertyValues.of(
-                    "spring.datasource.url=" + postgreSQLContainer.getJdbcUrl(),
-                    "spring.datasource.username=" + postgreSQLContainer.getUsername(),
-                    "spring.datasource.password=" + postgreSQLContainer.getPassword()
+                    "POSTGRES_URL=" + postgreSQLContainer.getJdbcUrl(),
+                    "POSTGRES_USER=" + postgreSQLContainer.getUsername(),
+                    "POSTGRES_PASSWORD=" + postgreSQLContainer.getPassword()
             ).applyTo(configurableApplicationContext.getEnvironment());
         }
     }
