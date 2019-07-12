@@ -3,9 +3,9 @@ orbs:
   nais: navikt/nais-deployment@1.1.1
 jobs:
   build:
+    machine:
+      enabled: true
     working_directory: ~/policies_wf
-    docker:
-      - image: circleci/openjdk:11.0.3-stretch
     steps:
       - checkout
       - restore_cache:
