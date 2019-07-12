@@ -5,7 +5,6 @@ jobs:
   build:
     machine:
       enabled: true
-      image: circleci/classic:latest
     working_directory: ~/policies_wf
     steps:
       - checkout
@@ -14,6 +13,9 @@ jobs:
       - run:
           name: Install java11
           command: sudo apt install openjdk-11-jdk
+      - run:
+          name: MVN version
+          command: mvn --version
       - run:
           name: Build application
           command: mvn package
