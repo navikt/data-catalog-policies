@@ -84,7 +84,7 @@ public class PolicyMapperTest {
         InformationType informationType = createBasicTestdata(INFORMATION_TYPE_NAME1);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenThrow(new DataCatalogPoliciesNotFoundException("codelist not found"));
         Policy policy = new Policy(1L, informationType.getInformationTypeId(), PURPOSE_CODE1, LEGAL_BASIS_DESCRIPTION1);
-        PolicyResponse policyResponse = mapper.mapPolicyToResponse(policy);
+        mapper.mapPolicyToResponse(policy);
     }
 
     private InformationType createBasicTestdata(String informationTypeName) {
