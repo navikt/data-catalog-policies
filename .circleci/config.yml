@@ -21,11 +21,30 @@ jobs:
           paths:
             - ~/.m2
           key: policies_wf-{{ checksum "pom.xml" }}
+      - run:
+          name: Copy files
+          run: |
+            mkdir /tmp/workspace
+            cp ./data-catalog-policies-app/target/app-exec.jar /tmp/workspace/app-exec.jar
+            cp ./Dockerfile /tmp/workspace/Dockerfile
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - app-exec.jar
+            - Dockerfile
   push:
     working_directory: ~/policies_wf
     docker:
       - image: circleci/openjdk:11.0.3-stretch
     steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Copy jar and env
+          command: |
+            mkdir -p ./data-catalog-policies-app/target/
+            cp /tmp/workspace/Dockerfile ./Dockerfile
+            cp /tmp/workspace/app-exec.jar ./data-catalog-policies-app/target/app-exec.jar
       - nais/docker-deploy:
           image: navikt/data-catalog-policies
 workflows:
