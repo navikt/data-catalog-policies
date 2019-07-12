@@ -21,9 +21,9 @@ public class PolicyTestContainer extends PostgreSQLContainer<PolicyTestContainer
     @Override
     public void start() {
         super.start();
-//        System.setProperty("POSTGRES_URL", container.getJdbcUrl());
-//        System.setProperty("POSTGRES_USER", container.getUsername());
-//        System.setProperty("POSTGRES_PASSWORD", container.getPassword());
+        System.setProperty("POSTGRES_URL", container.getJdbcUrl());
+        System.setProperty("POSTGRES_USER", container.getUsername());
+        System.setProperty("POSTGRES_PASSWORD", container.getPassword());
     }
 
     @Override

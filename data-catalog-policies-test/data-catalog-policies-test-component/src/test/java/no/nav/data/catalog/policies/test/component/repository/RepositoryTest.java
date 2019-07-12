@@ -8,7 +8,6 @@ import no.nav.data.catalog.policies.test.component.PolicyTestContainer;
 import no.nav.data.catalog.policies.test.component.mapper.PolicyMapperTest;
 import org.junit.After;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +20,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.PostgreSQLContainer;
-
-import java.time.Duration;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -37,12 +34,7 @@ public class RepositoryTest {
     private static final String INFORMATION_TYPE_NAME1 = "InformationTypeName1";
 
     @ClassRule
-    public static PostgreSQLContainer postgreSQLContainer =
-            (PostgreSQLContainer) new PostgreSQLContainer("postgres:10.4")
-                    .withDatabaseName("sampledb")
-                    .withUsername("sampleuser")
-                    .withPassword("samplepwd")
-                    .withStartupTimeout(Duration.ofSeconds(600));
+    public static PolicyTestContainer postgreSQLContainer = PolicyTestContainer.getInstance();
 
     @Autowired
     private PolicyRepository policyRepository;
@@ -91,14 +83,12 @@ public class RepositoryTest {
         policyRepository.save(policy);
     }
 
-    static class Initializer
-            implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+    static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            TestPropertyValues.of(
-                    "POSTGRES_URL=" + postgreSQLContainer.getJdbcUrl(),
-                    "POSTGRES_USER=" + postgreSQLContainer.getUsername(),
-                    "POSTGRES_PASSWORD=" + postgreSQLContainer.getPassword()
-            ).applyTo(configurableApplicationContext.getEnvironment());
+            ComponentTestConfig.using(postgreSQLContainer)
+                    .applyTo(configurableApplicationContext.getEnvironment());
+
         }
     }
 }
