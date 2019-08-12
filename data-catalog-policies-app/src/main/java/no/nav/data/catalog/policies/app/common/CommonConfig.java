@@ -1,5 +1,7 @@
 package no.nav.data.catalog.policies.app.common;
 
+import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.hotspot.DefaultExports;
 import no.nav.data.catalog.policies.app.common.auditing.AuditorAwareImpl;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -19,5 +21,14 @@ public class CommonConfig {
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
         return builder.build();
+    }
+
+    /**
+     * Make sure spring uses the defaultRegistry
+     */
+    @Bean
+    public CollectorRegistry collectorRegistry() {
+        DefaultExports.initialize();
+        return CollectorRegistry.defaultRegistry;
     }
 }

@@ -9,11 +9,11 @@ spec:
   image: {{version}}
   port: 8080
   ingresses:
-    - "https://datacatalog.nais.oera-q.local/datacatalog/policies"
-    - "https://www-q0.nav.no/datacatalog/policies"
+    - "https://datacatalog.prod-sbs.nais.io/datacatalog/policies"
+    - "https://www.nav.no/datacatalog/policies"
   replicas:
-    min: 1
-    max: 2
+    min: 2
+    max: 3
     cpuThresholdPercentage: 50
   liveness:
     path: datacatalog/policies/internal/isAlive
@@ -29,3 +29,6 @@ spec:
       memory: 528Mi
   vault:
     enabled: true
+  prometheus:
+    enabled: true
+    path: datacatalog/policies/internal/metrics

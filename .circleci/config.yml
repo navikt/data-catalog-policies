@@ -5,70 +5,86 @@ jobs:
   build:
     machine:
       enabled: true
-    working_directory: ~/policies_wf
+    environment:
+      JAVA_HOME: /tmp/java
     steps:
       - checkout
       - restore_cache:
-          key: policies_wf-{{ checksum "pom.xml" }}
+          key: java11-{{ checksum ".circleci/install_java.sh" }}
       - run:
-          name: Install java11 and build
+          name: Install java11
+          command: cat ${JAVA_HOME}/release || bash .circleci/install_java.sh
+      - restore_cache:
+          key: m2-{{ checksum "pom.xml" }}
+      - run:
+          name: Build application
           command: |
-            sudo apt install openjdk-11-jdk
-            export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
             mvn --version
             mvn package
+      - persist_to_workspace:
+          root: .
+          paths:
+            - data-catalog-policies-app/target/app-exec.jar
+            - Dockerfile
       - save_cache:
+          key: m2-{{ checksum "pom.xml" }}
           paths:
             - ~/.m2
-          key: policies_wf-{{ checksum "pom.xml" }}
-      - run:
-          name: Copy files
-          command: |
-            mkdir /tmp/workspace
-            cp ./data-catalog-policies-app/target/app-exec.jar /tmp/workspace/app-exec.jar
-            cp ./Dockerfile /tmp/workspace/Dockerfile
-      - persist_to_workspace:
-          root: /tmp/workspace
+      - save_cache:
+          key: java11-{{ checksum ".circleci/install_java.sh" }}
           paths:
-            - app-exec.jar
-            - Dockerfile
-  push:
-    working_directory: ~/policies_wf
+            - /tmp/java
+  build_docker_image:
     docker:
-      - image: circleci/openjdk:11.0.3-stretch
+      - image: circleci/openjdk:11-stretch
     steps:
       - attach_workspace:
-          at: /tmp/workspace
-      - run:
-          name: Copy jar and env
-          command: |
-            mkdir -p ./data-catalog-policies-app/target/
-            cp /tmp/workspace/Dockerfile ./Dockerfile
-            cp /tmp/workspace/app-exec.jar ./data-catalog-policies-app/target/app-exec.jar
+          at: ~/project
       - nais/docker-deploy:
           image: navikt/data-catalog-policies
 workflows:
   version: 2
   build_and_release:
     jobs:
-      - build:
+      - build
+      - build_docker_image:
           context: NAIS deployment
-      - push:
-          context: NAIS deployment
-          requires:
-            - build
-      - nais/deploy:
-          context: NAIS deployment
-          build-and-push-docker-image: false
-          repo: navikt/data-catalog-policies
-          image: navikt/data-catalog-policies
-          github-app-id: 26100
-          nais-template: naiserator.yaml
-          environment: dev-sbs
-          team: teamdatajegerne
           requires:
             - build
           filters:
             branches:
               only:
                 - master
+                - prod
+      - nais/deploy:
+          name: Deploy preprod
+          context: NAIS deployment
+          build-and-push-docker-image: false
+          repo: navikt/data-catalog-policies
+          image: navikt/data-catalog-policies
+          github-app-id: 26100
+          nais-template: naiserator-preprod.yaml
+          environment: dev-sbs
+          team: teamdatajegerne
+          requires:
+            - build_docker_image
+          filters:
+            branches:
+              only:
+                - master
+      - nais/deploy:
+          name: Deploy prod
+          context: NAIS deployment
+          build-and-push-docker-image: false
+          repo: navikt/data-catalog-policies
+          image: navikt/data-catalog-policies
+          github-app-id: 26100
+          nais-template: naiserator-prod.yaml
+          environment: prod-sbs
+          team: teamdatajegerne
+          requires:
+            - build_docker_image
+          filters:
+            branches:
+              only:
+                - prod

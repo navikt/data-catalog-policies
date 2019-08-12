@@ -1,0 +1,34 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: data-catalog-policies
+  namespace: default
+  labels:
+    team: {{team}}
+spec:
+  image: {{version}}
+  port: 8080
+  ingresses:
+    - "https://datacatalog.nais.oera-q.local/datacatalog/policies"
+    - "https://www-q0.nav.no/datacatalog/policies"
+  replicas:
+    min: 1
+    max: 2
+    cpuThresholdPercentage: 50
+  liveness:
+    path: datacatalog/policies/internal/isAlive
+    initialDelay: 60
+  readiness:
+    path: datacatalog/policies/internal/isReady
+    initialDelay: 60
+  resources:
+    limits:
+      cpu: 1500m
+      memory: 1024Mi
+    requests:
+      memory: 528Mi
+  vault:
+    enabled: true
+  prometheus:
+    enabled: true
+    path: datacatalog/policies/internal/metrics
