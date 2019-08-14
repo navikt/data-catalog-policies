@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -16,13 +18,13 @@ public class PolicyRequest {
     private Long id;
     private String legalBasisDescription;
     private String purposeCode;
-    private String informationTypeName;
+    private String datasetTitle;
     @JsonIgnore
-    private Long informationTypeId;
+    private UUID datasetId;
 
-    public PolicyRequest(String legalBasisDescription, String purposeCode, String informationTypeName) {
+    public PolicyRequest(String legalBasisDescription, String purposeCode, String datasetTitle) {
         this.legalBasisDescription = legalBasisDescription;
         this.purposeCode = purposeCode;
-        this.informationTypeName = informationTypeName;
+        this.datasetTitle = datasetTitle;
     }
 }
