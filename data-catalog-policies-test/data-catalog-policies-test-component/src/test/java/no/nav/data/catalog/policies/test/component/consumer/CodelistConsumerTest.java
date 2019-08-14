@@ -57,7 +57,7 @@ public class CodelistConsumerTest {
     @Test
     public void throwInternalServerError() {
         expectedException.expect(DataCatalogPoliciesTechnicalException.class);
-        expectedException.expectMessage("Getting Codelist (PURPOSE: AAP) description  failed with status=500 INTERNAL_SERVER_ERROR");
+        expectedException.expectMessage("Getting Codelist (PURPOSE: AAP) description failed with status=500 INTERNAL_SERVER_ERROR");
         when(restTemplate.getForEntity(anyString(), eq(String.class))).thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
         consumer.getCodelistDescription(ListName.PURPOSE, "AAP");
     }

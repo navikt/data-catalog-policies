@@ -6,11 +6,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.UUID;
+
 @Repository
 public interface PolicyRepository extends JpaRepository<Policy, Long> {
-    Page<Policy> findByInformationTypeId(Pageable  pageable, Long informationTypeId);
 
-    long countByInformationTypeId(Long informationTypeId);
+    Page<Policy> findByDatasetId(Pageable pageable, UUID datasetId);
 
-    boolean existsByInformationTypeIdAndPurposeCode(Long informtionTypeId, String purposeCode);
+    long countByDatasetId(UUID datasetId);
+
+    boolean existsByDatasetIdAndPurposeCode(UUID datasetId, String purposeCode);
 }

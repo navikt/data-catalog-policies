@@ -4,8 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesTechnicalException;
 import no.nav.data.catalog.policies.app.policy.domain.ListName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
@@ -14,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import static no.nav.data.catalog.policies.app.common.cache.CacheConfig.CODELIST_CACHE;
@@ -21,7 +20,6 @@ import static no.nav.data.catalog.policies.app.common.cache.CacheConfig.CODELIST
 @Component
 @Slf4j
 public class CodelistConsumer {
-    private static final Logger logger = LoggerFactory.getLogger(CodelistConsumer.class);
 
     @Autowired
     private RestTemplate restTemplate;
@@ -31,23 +29,30 @@ public class CodelistConsumer {
 
     @Cacheable(cacheNames = CODELIST_CACHE, key = "#listName.name() + '-' + #code")
     public String getCodelistDescription(ListName listName, String code) {
-        logger.debug("CodelistConsumer: About to get codelist description for ListName={} and code={}", listName.name(), code);
-        if (code == null || listName == null) return null;
+        if (code == null || listName == null) {
+            return null;
+        }
+        log.debug("CodelistConsumer: About to get codelist description for ListName={} and code={}", listName.name(), code);
+        String codeTrimmed = code.trim().toUpperCase();
         try {
-            ResponseEntity<String> responseEntity = restTemplate.getForEntity(codelistUrl + "/" + listName.name() + "/" + code.trim().toUpperCase(), String.class);
+            ResponseEntity<String> responseEntity = restTemplate.getForEntity(String.format("%s/%s/%s", codelistUrl, listName.name(), codeTrimmed), String.class);
             return responseEntity.getBody();
-        } catch (
-                HttpClientErrorException e) {
+        } catch (HttpClientErrorException e) {
             if (HttpStatus.NOT_FOUND.equals(e.getStatusCode())) {
-                logger.error(String.format("Codelist (" + listName.name() + ") with ID=%s does not exist", code.trim().toUpperCase()));
-                throw new DataCatalogPoliciesNotFoundException(String.format("Codelist (" + listName.name() + ") with ID=%s does not exist", code.trim().toUpperCase()));
+                String err = String.format("Codelist (%s) with ID=%s does not exist", listName.name(), codeTrimmed);
+                log.error(err);
+                throw new DataCatalogPoliciesNotFoundException(err);
             } else {
-                logger.error(String.format("Getting Codelist (" + listName.name() + ": %s) description failed with status=%s message=%s", code.trim().toUpperCase(), e.getStatusCode(), e.getResponseBodyAsString()), e, e.getStatusCode());
-                throw new DataCatalogPoliciesTechnicalException(String.format("Getting Codelist (" + listName.name() + ": %s) description failed with status=%s message=%s", code.trim().toUpperCase(), e.getStatusCode(), e.getResponseBodyAsString()), e, e.getStatusCode());
+                return throwException(listName, codeTrimmed, e);
             }
         } catch (HttpServerErrorException e) {
-            logger.error(String.format("Getting Codelist (" + listName.name() + ": %s) description  failed with status=%s message=%s", code.trim().toUpperCase(), e.getStatusCode(), e.getResponseBodyAsString()), e, e.getStatusCode());
-            throw new DataCatalogPoliciesTechnicalException(String.format("Getting Codelist (" + listName.name() + ": %s) description  failed with status=%s message=%s", code.trim().toUpperCase(), e.getStatusCode(), e.getResponseBodyAsString()), e, e.getStatusCode());
+            return throwException(listName, codeTrimmed, e);
         }
+    }
+
+    private String throwException(ListName listName, String code, HttpStatusCodeException e) {
+        var err = String.format("Getting Codelist (%s: %s) description failed with status=%s message=%s", listName.name(), code, e.getStatusCode(), e.getResponseBodyAsString());
+        log.error(err, e);
+        throw new DataCatalogPoliciesTechnicalException(err, e, e.getStatusCode());
     }
 }

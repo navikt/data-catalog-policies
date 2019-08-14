@@ -1,6 +1,6 @@
 package no.nav.data.catalog.policies.test.component.repository;
 
-import no.nav.data.catalog.policies.app.policy.domain.InformationType;
+import no.nav.data.catalog.policies.app.policy.domain.Dataset;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import no.nav.data.catalog.policies.test.component.ComponentTestConfig;
@@ -11,12 +11,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -25,9 +24,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @SpringBootTest(classes = ComponentTestConfig.class)
 @ActiveProfiles("test")
 public class RepositoryTest {
+
     private static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
     private static final String PURPOSE_CODE1 = "PUR1";
-    private static final String INFORMATION_TYPE_NAME1 = "InformationTypeName1";
+    private static final String DATASET_TITLE = "DatasetTitle1";
+    private static final UUID DATASET_ID_1 = UUID.fromString("cd7f037e-374e-4e68-b705-55b61966b2fc");
+    private static final UUID DATASET_ID_2 = UUID.fromString("5992e0d0-1fc9-4d67-b825-d198be0827bf");
 
     @ClassRule
     public static PolicyTestContainer postgreSQLContainer = PolicyTestContainer.getInstance();
@@ -42,38 +44,38 @@ public class RepositoryTest {
 
     @Test
     public void getOne() {
-        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 1l, INFORMATION_TYPE_NAME1);
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, DATASET_ID_1, DATASET_TITLE);
         assertThat(policyRepository.count(), is(1L));
     }
 
     @Test
     public void getAll() {
-        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 1L, INFORMATION_TYPE_NAME1);
-        createTestdata("Legal basis 2", "PUR2", 2L, "InformationTypeName2");
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, DATASET_ID_1, DATASET_TITLE);
+        createTestdata("Legal basis 2", "PUR2", UUID.fromString("5992e0d0-1fc9-4d67-b825-d198be0827bf"), "DatasetTitle2");
         assertThat(policyRepository.count(), is(2L));
     }
 
     @Test
-    public void getByInformationType() {
-        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 1L, INFORMATION_TYPE_NAME1);
-        createTestdata("Legal basis 2", "PUR2", 2L, "InformationTypeName2");
-        assertThat(policyRepository.findByInformationTypeId(PageRequest.of(0, 10), 1L).getTotalElements(), is(1L));
-        assertThat(policyRepository.findByInformationTypeId(PageRequest.of(0, 10), 2L).getTotalElements(), is(1L));
+    public void getByDataset() {
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, DATASET_ID_1, DATASET_TITLE);
+        createTestdata("Legal basis 2", "PUR2", DATASET_ID_2, "DatasetTitle2");
+        assertThat(policyRepository.findByDatasetId(PageRequest.of(0, 10), DATASET_ID_1).getTotalElements(), is(1L));
+        assertThat(policyRepository.findByDatasetId(PageRequest.of(0, 10), DATASET_ID_2).getTotalElements(), is(1L));
     }
 
     @Test
-    public void countByInformationType() {
-        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 1L, INFORMATION_TYPE_NAME1);
-        createTestdata("Legal basis 2", "PUR2", 2L, "InformationTypeName2");
-        assertThat(policyRepository.countByInformationTypeId(1L), is(1L));
-        assertThat(policyRepository.countByInformationTypeId(2L), is(1L));
+    public void countByDataset() {
+        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, DATASET_ID_1, DATASET_TITLE);
+        createTestdata("Legal basis 2", "PUR2", DATASET_ID_2, "DatasetTitle2");
+        assertThat(policyRepository.countByDatasetId(DATASET_ID_1), is(1L));
+        assertThat(policyRepository.countByDatasetId(DATASET_ID_2), is(1L));
     }
 
-    private void createTestdata(String legalBasisDescription, String purposeCode, Long informationTypeId, String informationTypeName) {
-        InformationType informationType = InformationType.builder().informationTypeId(informationTypeId).name(informationTypeName).build();
+    private void createTestdata(String legalBasisDescription, String purposeCode, UUID datasetId, String datasetTitle) {
+        Dataset dataset = Dataset.builder().datasetId(datasetId).title(datasetTitle).build();
 
         Policy policy = new Policy();
-        policy.setInformationTypeId(informationType.getInformationTypeId());
+        policy.setDatasetId(dataset.getDatasetId());
         policy.setPurposeCode(purposeCode);
         policy.setLegalBasisDescription(legalBasisDescription);
         policyRepository.save(policy);

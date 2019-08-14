@@ -13,7 +13,7 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PolicyResponse {
     private Long policyId;
-    private InformationType informationType;
+    private Dataset dataset;
     private String legalBasisDescription;
     private Map<String, String> purpose;
 }

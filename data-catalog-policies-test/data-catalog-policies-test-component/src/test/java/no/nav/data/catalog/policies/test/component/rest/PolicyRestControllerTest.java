@@ -3,7 +3,7 @@ package no.nav.data.catalog.policies.test.component.rest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.data.catalog.policies.app.AppStarter;
 import no.nav.data.catalog.policies.app.policy.PolicyService;
-import no.nav.data.catalog.policies.app.policy.domain.InformationType;
+import no.nav.data.catalog.policies.app.policy.domain.Dataset;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
@@ -27,21 +27,31 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(PolicyRestController.class)
 @ContextConfiguration(classes = AppStarter.class)
 @ActiveProfiles("test")
 public class PolicyRestControllerTest {
+
+    private static final UUID DATASET_ID_1 = UUID.fromString("cd7f037e-374e-4e68-b705-55b61966b2fc");
+    private static final UUID DATASET_ID_2 = UUID.fromString("5992e0d0-1fc9-4d67-b825-d198be0827bf");
 
     @Autowired
     private MockMvc mvc;
@@ -57,8 +67,8 @@ public class PolicyRestControllerTest {
 
     @Test
     public void getAllPolicies() throws Exception {
-        Policy policy1 = createPolicyTestdata(1L);
-        Policy policy2 = createPolicyTestdata(2L);
+        Policy policy1 = createPolicyTestdata(DATASET_ID_1);
+        Policy policy2 = createPolicyTestdata(DATASET_ID_2);
 
         List<Policy> policies = Arrays.asList(policy1, policy2);
         Page<Policy> policyPage = new PageImpl<>(policies);
@@ -66,19 +76,19 @@ public class PolicyRestControllerTest {
         mvc.perform(get("/policy/policy?page=0&size=100")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content",hasSize(2)));
+                .andExpect(jsonPath("$.content", hasSize(2)));
     }
 
     @Test
     public void getOnePolicy() throws Exception {
-        Policy policy1 = createPolicyTestdata(1L);
-        PolicyResponse response = new PolicyResponse(1L, new InformationType(), "Description", null);
+        Policy policy1 = createPolicyTestdata(DATASET_ID_1);
+        PolicyResponse response = new PolicyResponse(1L, new Dataset(), "Description", null);
 
         given(policyRepository.findById(1L)).willReturn(Optional.of(policy1));
         given(mapper.mapPolicyToResponse(policy1)).willReturn(response);
         ResultActions result = mvc.perform(get("/policy/policy/1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.legalBasisDescription",is("Description")));
+                .andExpect(jsonPath("$.legalBasisDescription", is("Description")));
     }
 
     @Test
@@ -89,40 +99,40 @@ public class PolicyRestControllerTest {
     }
 
     @Test
-    public void getPoliciesForInformationType()throws Exception {
-        Policy policy1 = createPolicyTestdata(1L);
+    public void getPoliciesForDataset() throws Exception {
+        Policy policy1 = createPolicyTestdata(DATASET_ID_1);
 
-        List<Policy> policies = Arrays.asList(policy1);
+        List<Policy> policies = Collections.singletonList(policy1);
         Page<Policy> policyPage = new PageImpl<>(policies);
-        given(policyRepository.findByInformationTypeId(PageRequest.of(0, 100), 1L)).willReturn(policyPage);
-        mvc.perform(get("/policy/policy?page=0&size=100&informationTypeId=1").contentType(MediaType.APPLICATION_JSON))
+        given(policyRepository.findByDatasetId(PageRequest.of(0, 100), DATASET_ID_1)).willReturn(policyPage);
+        mvc.perform(get("/policy/policy?page=0&size=100&datasetId=" + DATASET_ID_1).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content",hasSize(1)));
+                .andExpect(jsonPath("$.content", hasSize(1)));
 
     }
 
     @Test
-    public void countPoliciesForInformationType()throws Exception {
-        given(policyRepository.countByInformationTypeId(1L)).willReturn(1L);
-        mvc.perform(get("/policy/policy/count?informationTypeId=1").contentType(MediaType.APPLICATION_JSON))
+    public void countPoliciesForDataset() throws Exception {
+        given(policyRepository.countByDatasetId(DATASET_ID_1)).willReturn(1L);
+        mvc.perform(get("/policy/policy/count?datasetId=" + DATASET_ID_1).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string("1")) ;
+                .andExpect(content().string("1"));
     }
 
     @Test
-    public void countPolicies()throws Exception {
+    public void countPolicies() throws Exception {
         given(policyRepository.count()).willReturn(1L);
         mvc.perform(get("/policy/policy/count").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string("1")) ;
+                .andExpect(content().string("1"));
     }
 
 
     @Test
     public void createOnePolicy() throws Exception {
-        Policy policy1 = createPolicyTestdata(1L);
-        List<PolicyRequest> request = Arrays.asList(new PolicyRequest());
-        List<Policy> policies = Arrays.asList(policy1);
+        Policy policy1 = createPolicyTestdata(DATASET_ID_1);
+        List<PolicyRequest> request = Collections.singletonList(new PolicyRequest());
+        List<Policy> policies = Collections.singletonList(policy1);
 
         given(mapper.mapRequestToPolicy(request.get(0), null)).willReturn(policy1);
         given(policyRepository.saveAll(policies)).willReturn(policies);
@@ -131,14 +141,14 @@ public class PolicyRestControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.*",hasSize(1)));
+                .andExpect(jsonPath("$.*", hasSize(1)));
     }
 
     @Test
     public void createTwoPolicies() throws Exception {
-        Policy policy1 = createPolicyTestdata(1L);
-        Policy policy2 = createPolicyTestdata(2L);
-        List<PolicyRequest> request = Arrays.asList(new PolicyRequest("Desc1","Code1","Name1"), new PolicyRequest("Desc2","Code2","Name2"));
+        Policy policy1 = createPolicyTestdata(DATASET_ID_1);
+        Policy policy2 = createPolicyTestdata(DATASET_ID_2);
+        List<PolicyRequest> request = Arrays.asList(new PolicyRequest("Desc1", "Code1", "Title1"), new PolicyRequest("Desc2", "Code2", "Title2"));
         List<Policy> policies = Arrays.asList(policy1, policy2);
 
         given(mapper.mapRequestToPolicy(request.get(0), null)).willReturn(policy1);
@@ -149,14 +159,14 @@ public class PolicyRestControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.*",hasSize(2)));
+                .andExpect(jsonPath("$.*", hasSize(2)));
     }
 
     @Test
     public void updatePolicy() throws Exception {
-        Policy policy1 = createPolicyTestdata(1L);
+        Policy policy1 = createPolicyTestdata(DATASET_ID_1);
         PolicyRequest request = new PolicyRequest();
-        PolicyResponse response = new PolicyResponse(1L, new InformationType(), "Description", null);
+        PolicyResponse response = new PolicyResponse(1L, new Dataset(), "Description", null);
 
         given(mapper.mapRequestToPolicy(request, 1L)).willReturn(policy1);
         given(policyRepository.findById(1L)).willReturn(Optional.of(policy1));
@@ -167,14 +177,14 @@ public class PolicyRestControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.legalBasisDescription",is("Description")));
+                .andExpect(jsonPath("$.legalBasisDescription", is("Description")));
     }
 
     @Test
     public void updateTwoPolicies() throws Exception {
-        Policy policy1 = createPolicyTestdata(1L);
-        Policy policy2 = createPolicyTestdata(2L);
-        List<PolicyRequest> request = Arrays.asList(new PolicyRequest("Desc1","Code1","Name1"), new PolicyRequest("Desc2","Code2","Name2"));
+        Policy policy1 = createPolicyTestdata(DATASET_ID_1);
+        Policy policy2 = createPolicyTestdata(DATASET_ID_2);
+        List<PolicyRequest> request = Arrays.asList(new PolicyRequest("Desc1", "Code1", "Title1"), new PolicyRequest("Desc2", "Code2", "Title2"));
         List<Policy> policies = Arrays.asList(policy1, policy2);
 
         given(mapper.mapRequestToPolicy(request.get(0), request.get(0).getId())).willReturn(policy1);
@@ -187,12 +197,12 @@ public class PolicyRestControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.*",hasSize(2)));
+                .andExpect(jsonPath("$.*", hasSize(2)));
     }
 
     @Test
     public void updateNotExistingPolicy() throws Exception {
-        Policy policy1 = createPolicyTestdata(1L);
+        Policy policy1 = createPolicyTestdata(DATASET_ID_1);
         PolicyRequest request = new PolicyRequest();
 
         given(mapper.mapRequestToPolicy(request, 1L)).willReturn(policy1);
@@ -220,13 +230,13 @@ public class PolicyRestControllerTest {
     }
 
 
-    private Policy createPolicyTestdata(Long informationTypeId) {
+    private Policy createPolicyTestdata(UUID datasetId) {
         Policy policy = new Policy();
-        InformationType informationType = new InformationType();
-        informationType.setInformationTypeId(informationTypeId);
-        policy.setInformationTypeId(informationType.getInformationTypeId());
+        Dataset dataset = new Dataset();
+        dataset.setDatasetId(datasetId);
+        policy.setDatasetId(dataset.getDatasetId());
         policy.setLegalBasisDescription("Description");
-        return  policy;
+        return policy;
     }
 
     private static String asJsonString(final Object obj) {

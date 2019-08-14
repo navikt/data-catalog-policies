@@ -4,10 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class InformationTypeResponse {
-    private Long informationTypeId;
-    private String name;
+public class DatasetResponse {
+
+    private UUID datasetId;
+    private String title;
 }

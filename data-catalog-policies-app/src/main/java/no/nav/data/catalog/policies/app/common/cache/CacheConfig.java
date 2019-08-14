@@ -16,8 +16,8 @@ import java.util.concurrent.TimeUnit;
 public class CacheConfig {
 
     public static final String CODELIST_CACHE = "codelistCache";
-    public static final String INFORMATIONTYPEBYNAME_CACHE = "informationTypeByNameCache";
-    public static final String INFORMATIONTYPEBYID_CACHE = "informationTypeByIdCache";
+    public static final String DATASET_BY_TITLE_CACHE = "datasetByTitleCache";
+    public static final String DATASET_BY_ID_CACHE = "datasetByIdCache";
 
     @Bean
     CacheManager cacheManager() {
@@ -26,10 +26,10 @@ public class CacheConfig {
                 new CaffeineCache(CODELIST_CACHE, Caffeine.newBuilder()
                         .expireAfterWrite(2, TimeUnit.DAYS)
                         .maximumSize(10000).build()),
-                new CaffeineCache(INFORMATIONTYPEBYID_CACHE, Caffeine.newBuilder()
+                new CaffeineCache(DATASET_BY_TITLE_CACHE, Caffeine.newBuilder()
                         .expireAfterWrite(2, TimeUnit.DAYS)
                         .maximumSize(10000).build()),
-                new CaffeineCache(INFORMATIONTYPEBYNAME_CACHE, Caffeine.newBuilder()
+                new CaffeineCache(DATASET_BY_ID_CACHE, Caffeine.newBuilder()
                         .expireAfterWrite(2, TimeUnit.DAYS)
                         .maximumSize(10000).build())
         ));

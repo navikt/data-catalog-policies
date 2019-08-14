@@ -7,6 +7,7 @@ import no.nav.data.catalog.policies.app.common.auditing.Auditable;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
+import java.util.UUID;
 import javax.persistence.*;
 
 @Entity
@@ -23,8 +24,8 @@ public class Policy extends Auditable<String> {
     @Column(name="POLICY_ID", nullable = false, updatable = false, unique = true)
     private Long policyId;
 
-    @Column(name="INFORMATION_TYPE_ID",  nullable = false)
-    private Long informationTypeId;
+    @Column(name="DATASET_ID")
+    private UUID datasetId;
 
     @Column(name="PURPOSE_CODE",  nullable = false)
     private String purposeCode;
