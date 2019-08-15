@@ -9,10 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PolicyResponse {
+public class CodeResponse {
 
-    private Long policyId;
-    private Dataset dataset;
-    private String legalBasisDescription;
-    private CodeResponse purpose;
+    private String code;
+    private String description;
+
 }

@@ -75,8 +75,8 @@ public class PolicyMapperTest {
         PolicyResponse policyResponse = mapper.mapPolicyToResponse(policy);
         assertThat(policyResponse.getDataset().getDatasetId(), is(policy.getDatasetId()));
         assertThat(policyResponse.getLegalBasisDescription(), is(LEGAL_BASIS_DESCRIPTION1));
-        assertThat(policyResponse.getPurpose().get("code"), is(PURPOSE_CODE1));
-        assertThat(policyResponse.getPurpose().get("description"), is(PURPOSE_DESCRIPTION1));
+        assertThat(policyResponse.getPurpose().getCode(), is(PURPOSE_CODE1));
+        assertThat(policyResponse.getPurpose().getDescription(), is(PURPOSE_DESCRIPTION1));
     }
 
     @Test

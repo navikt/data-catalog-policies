@@ -81,7 +81,7 @@ public class PolicyRestController {
         log.debug("Received request for Policies related to Dataset with id={}", datasetId);
         if (pageable.getSort().getOrderFor("purpose.description") != null) {
             List<PolicyResponse> pageResponse = policyRepository.findByDatasetId(null, datasetId).stream().map(policy -> mapper.mapPolicyToResponse(policy)).collect(Collectors.toList());
-            Comparator<PolicyResponse> compareByDescription = Comparator.comparing((PolicyResponse o) -> o.getPurpose().get("description"));
+            Comparator<PolicyResponse> compareByDescription = Comparator.comparing((PolicyResponse o) -> o.getPurpose().getDescription());
             if (pageable.getSort().getOrderFor("purpose.description").isAscending()) {
                 pageResponse.sort(compareByDescription);
             } else {

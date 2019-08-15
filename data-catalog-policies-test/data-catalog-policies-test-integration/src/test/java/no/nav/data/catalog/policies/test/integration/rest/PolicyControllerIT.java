@@ -369,6 +369,6 @@ public class PolicyControllerIT {
     private void assertPolicy(PolicyResponse policy, String legalBasisDescription) {
         assertThat(policy.getDataset().getTitle(), is(DATASET_TITLE));
         assertThat(policy.getLegalBasisDescription(), is(legalBasisDescription));
-        assertThat(policy.getPurpose().get("code"), is(PURPOSE_CODE1));
+        assertThat(policy.getPurpose().getCode(), is(PURPOSE_CODE1));
     }
 }
