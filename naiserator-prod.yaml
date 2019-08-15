@@ -9,17 +9,17 @@ spec:
   image: {{version}}
   port: 8080
   ingresses:
-    - "https://datacatalog.prod-sbs.nais.io/datacatalog/policies"
-    - "https://www.nav.no/datacatalog/policies"
+    - "https://datakatalog.prod-sbs.nais.io/policies"
+    - "https://datakatalog.nav.no/policies"
   replicas:
     min: 2
     max: 3
     cpuThresholdPercentage: 50
   liveness:
-    path: datacatalog/policies/internal/isAlive
+    path: policies/internal/isAlive
     initialDelay: 60
   readiness:
-    path: datacatalog/policies/internal/isReady
+    path: policies/internal/isReady
     initialDelay: 60
   resources:
     limits:
@@ -31,4 +31,4 @@ spec:
     enabled: true
   prometheus:
     enabled: true
-    path: datacatalog/policies/internal/metrics
+    path: policies/internal/metrics
