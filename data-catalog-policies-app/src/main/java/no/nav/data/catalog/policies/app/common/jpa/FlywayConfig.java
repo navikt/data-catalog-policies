@@ -1,4 +1,4 @@
-package no.nav.data.catalog.policies.app.common;
+package no.nav.data.catalog.policies.app.common.jpa;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
