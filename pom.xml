@@ -27,6 +27,7 @@
 		<testcontainer.version>1.12.0</testcontainer.version>
 		<azuread.version>2.1.6</azuread.version>
 		<prometheus.version>0.6.0</prometheus.version>
+		<azure.version>2.1.7</azure.version>
 	</properties>
 
 	<dependencies>
@@ -43,6 +44,13 @@
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>
 				<version>${spring-cloud-dependencies.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.microsoft.azure</groupId>
+				<artifactId>azure-spring-boot-bom</artifactId>
+				<version>${azure.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
