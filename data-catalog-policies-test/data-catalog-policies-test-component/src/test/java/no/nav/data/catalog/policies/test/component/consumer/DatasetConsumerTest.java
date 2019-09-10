@@ -52,7 +52,7 @@ public class DatasetConsumerTest {
 
     @Test
     public void getDatasetById() {
-        DatasetResponse response = DatasetResponse.builder().title(TITLE).build();
+        DatasetResponse response = DatasetResponse.builder().title(TITLE).id(UUID.randomUUID()).build();
         when(restTemplate.getForEntity(anyString(), eq(DatasetResponse.class))).thenReturn(new ResponseEntity<>(response, HttpStatus.OK));
         Dataset dataset = consumer.getDatasetById(DATASET_ID_1);
         assertDataset(dataset);
@@ -76,7 +76,7 @@ public class DatasetConsumerTest {
 
     @Test
     public void getDatasetByTitle() {
-        DatasetResponse response = DatasetResponse.builder().title(TITLE).build();
+        DatasetResponse response = DatasetResponse.builder().title(TITLE).id(UUID.randomUUID()).build();
         when(restTemplate.getForEntity(anyString(), eq(DatasetResponse.class))).thenReturn(new ResponseEntity<>(response, HttpStatus.OK));
         Dataset dataset = consumer.getDatasetByTitle(TITLE);
         assertDataset(dataset);
