@@ -35,19 +35,19 @@ public class IntegrationTestConfig {
                 .atPriority(2)
                 .willReturn(aResponse().withStatus(HttpStatus.OK.value())
                         .withHeader(ContentTypeHeader.KEY, MediaType.APPLICATION_JSON_VALUE)
-                        .withBody("{\"elasticsearchId\":\"DSwO_moBkfggy-HvwyLZ\",\"datasetId\":\"0702e097-0800-47e1-9fc9-da9fa935c76d\",\"title\":\"Sivilstand\",\"description\":\"Sivilstand beskrivelse\",\"category\":{\"description\":\"Personalia\",\"code\":\"PERSONALIA\"},\"producer\":{\"description\":\"Folkeregisteret\",\"code\":\"FOLKEREGISTERET\"},\"system\":{\"description\":\"Tjenestebasert PersondataSystem\",\"code\":\"TPS\"},\"personalData\":true}")
+                        .withBody("{\"elasticsearchId\":\"DSwO_moBkfggy-HvwyLZ\",\"id\":\"0702e097-0800-47e1-9fc9-da9fa935c76d\",\"title\":\"Sivilstand\",\"description\":\"Sivilstand beskrivelse\",\"category\":{\"description\":\"Personalia\",\"code\":\"PERSONALIA\"},\"producer\":{\"description\":\"Folkeregisteret\",\"code\":\"FOLKEREGISTERET\"},\"system\":{\"description\":\"Tjenestebasert PersondataSystem\",\"code\":\"TPS\"},\"personalData\":true}")
                 ));
         wireMockServer.stubFor(get("/backend/dataset/title/Postadresse")
                 .atPriority(1)
                 .willReturn(aResponse().withStatus(HttpStatus.OK.value())
                         .withHeader(ContentTypeHeader.KEY, MediaType.APPLICATION_JSON_VALUE)
-                        .withBody("{\"elasticsearchId\":\"DSwO_moBkfggy-HvwyLZ\",\"datasetId\":\"bc83058f-4263-4d56-b26b-f5906e4b9339\",\"title\":\"Postadresse\",\"description\":\"Postadresse beskrivelse\",\"category\":{\"description\":\"Personalia\",\"code\":\"PERSONALIA\"},\"producer\":{\"description\":\"Folkeregisteret\",\"code\":\"FOLKEREGISTERET\"},\"system\":{\"description\":\"Tjenestebasert PersondataSystem\",\"code\":\"TPS\"},\"personalData\":true}")
+                        .withBody("{\"elasticsearchId\":\"DSwO_moBkfggy-HvwyLZ\",\"id\":\"bc83058f-4263-4d56-b26b-f5906e4b9339\",\"title\":\"Postadresse\",\"description\":\"Postadresse beskrivelse\",\"category\":{\"description\":\"Personalia\",\"code\":\"PERSONALIA\"},\"producer\":{\"description\":\"Folkeregisteret\",\"code\":\"FOLKEREGISTERET\"},\"system\":{\"description\":\"Tjenestebasert PersondataSystem\",\"code\":\"TPS\"},\"personalData\":true}")
                 ));
         wireMockServer.stubFor(get("/backend/dataset/title/Arbeidsforhold")
                 .atPriority(2)
                 .willReturn(aResponse().withStatus(HttpStatus.OK.value())
                         .withHeader(ContentTypeHeader.KEY, MediaType.APPLICATION_JSON_VALUE)
-                        .withBody("{\"elasticsearchId\":\"DSwO_moBkfggy-HvwyLZ\",\"datasetId\":\"b2766a0b-afaa-4572-a47f-90aff9c471a9\",\"title\":\"Arbeidsforhold\",\"description\":\"Arbeidsforhold beskrivelse\",\"category\":{\"description\":\"Personalia\",\"code\":\"PERSONALIA\"},\"producer\":{\"description\":\"Folkeregisteret\",\"code\":\"FOLKEREGISTERET\"},\"system\":{\"description\":\"Tjenestebasert PersondataSystem\",\"code\":\"TPS\"},\"personalData\":true}")
+                        .withBody("{\"elasticsearchId\":\"DSwO_moBkfggy-HvwyLZ\",\"id\":\"b2766a0b-afaa-4572-a47f-90aff9c471a9\",\"title\":\"Arbeidsforhold\",\"description\":\"Arbeidsforhold beskrivelse\",\"category\":{\"description\":\"Personalia\",\"code\":\"PERSONALIA\"},\"producer\":{\"description\":\"Folkeregisteret\",\"code\":\"FOLKEREGISTERET\"},\"system\":{\"description\":\"Tjenestebasert PersondataSystem\",\"code\":\"TPS\"},\"personalData\":true}")
                 ));
         wireMockServer.stubFor(get("/backend/dataset/title/NOTFOUND")
                 .atPriority(1)

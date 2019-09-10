@@ -12,7 +12,7 @@ public class WiremockResponseTransformer extends ResponseTransformer {
     public Response transform(Request request, Response response, FileSource files, Parameters parameters) {
         if (response.getBody().length == 0) {
             return Response.Builder.like(response)
-                    .but().body("{\"elasticsearchId\":\"DSwO_moBkfggy-HvwyLZ\",\"datasetId\":\"" + request.getUrl().substring(request.getUrl().lastIndexOf("/") + 1) + "\",\"title\":\"Sivilstand\",\"description\":\"Sivilstand beskrivelse\",\"category\":{\"description\":\"Personalia\",\"code\":\"PERSONALIA\"},\"producer\":{\"description\":\"Folkeregisteret\",\"code\":\"FOLKEREGISTERET\"},\"system\":{\"description\":\"Tjenestebasert PersondataSystem\",\"code\":\"TPS\"},\"personalData\":true}")
+                    .but().body("{\"elasticsearchId\":\"DSwO_moBkfggy-HvwyLZ\",\"id\":\"" + request.getUrl().substring(request.getUrl().lastIndexOf("/") + 1) + "\",\"title\":\"Sivilstand\",\"description\":\"Sivilstand beskrivelse\",\"category\":{\"description\":\"Personalia\",\"code\":\"PERSONALIA\"},\"producer\":{\"description\":\"Folkeregisteret\",\"code\":\"FOLKEREGISTERET\"},\"system\":{\"description\":\"Tjenestebasert PersondataSystem\",\"code\":\"TPS\"},\"personalData\":true}")
                     .build();
         } else
             return response;
