@@ -31,7 +31,7 @@ public class DatasetConsumer {
     @Value("${datacatalog.dataset.url}")
     private String datasetEndpointUrl;
 
-    @Cacheable(cacheNames = DATASET_BY_TITLE_CACHE, key = "#datasetTitle")
+    @Cacheable(cacheNames = DATASET_BY_TITLE_CACHE)
     public Dataset getDatasetByTitle(String datasetTitle) {
         log.debug("DatasetConsumer: About to get Dataset by title={}", datasetTitle);
         try {
@@ -53,7 +53,7 @@ public class DatasetConsumer {
         }
     }
 
-    @Cacheable(cacheNames = DATASET_BY_ID_CACHE, key = "#datasetId")
+    @Cacheable(cacheNames = DATASET_BY_ID_CACHE)
     public Dataset getDatasetById(UUID datasetId) {
         log.debug("DatasetConsumer: About to get Dataset by id={}", datasetId);
         try {
