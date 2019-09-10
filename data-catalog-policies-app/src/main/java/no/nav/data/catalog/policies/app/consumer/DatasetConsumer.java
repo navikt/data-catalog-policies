@@ -16,6 +16,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
 import java.util.UUID;
 
 import static no.nav.data.catalog.policies.app.common.cache.CacheConfig.DATASET_BY_ID_CACHE;
@@ -79,7 +80,24 @@ public class DatasetConsumer {
         }
     }
 
-    private Dataset throwException(UUID datasetId, HttpStatusCodeException e) {
+    public void syncDatasetById(List<UUID> datasetIds) {
+        log.debug("DatasetConsumer: About to sync Dataset by ids={}", datasetIds);
+        try {
+            restTemplate.postForLocation(datasetEndpointUrl + "/sync", datasetIds);
+        } catch (
+                HttpClientErrorException e) {
+            if (HttpStatus.NOT_FOUND.equals(e.getStatusCode())) {
+                log.error(String.format("Dataset with id=%s does not exist", datasetIds));
+                throw new DataCatalogPoliciesNotFoundException(String.format("Dataset with id=%s does not exist", datasetIds));
+            } else {
+                throwException(datasetIds, e);
+            }
+        } catch (HttpServerErrorException e) {
+            throwException(datasetIds, e);
+        }
+    }
+
+    private Dataset throwException(Object datasetId, HttpStatusCodeException e) {
         log.error(String.format("Getting Dataset with id=%s failed with status=%s message=%s"
                 , datasetId, e.getStatusCode(), e.getResponseBodyAsString()), e, e.getStatusCode());
         throw new DataCatalogPoliciesTechnicalException(String.format("Getting Dataset with id=%s failed with status=%s message=%s"

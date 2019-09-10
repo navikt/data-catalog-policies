@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
+import no.nav.data.catalog.policies.app.consumer.DatasetConsumer;
 import no.nav.data.catalog.policies.app.policy.PolicyService;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
@@ -14,22 +15,33 @@ import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import javax.validation.Valid;
 
 import static java.util.stream.Collectors.toList;
-import static no.nav.data.catalog.policies.app.common.cache.CacheConfig.*;
+import static no.nav.data.catalog.policies.app.common.cache.CacheConfig.CODELIST_CACHE;
+import static no.nav.data.catalog.policies.app.common.cache.CacheConfig.DATASET_BY_ID_CACHE;
+import static no.nav.data.catalog.policies.app.common.cache.CacheConfig.DATASET_BY_TITLE_CACHE;
 
 @RestController
 @CrossOrigin
@@ -50,6 +62,9 @@ public class PolicyRestController {
     @Autowired
     private CacheManager cachemanager;
 
+    @Autowired
+    private DatasetConsumer datasetConsumer;
+
 
     @ApiOperation(value = "Get all Policies", tags = {"Policies"})
     @ApiResponses(value = {
@@ -58,13 +73,13 @@ public class PolicyRestController {
     @GetMapping("/policy")
     public RestResponsePage<PolicyResponse> getPolicies(Pageable pageable) {
         log.debug("Received request for all Policies");
-        Page<PolicyResponse>  policyResponses = policyRepository.findAll(pageable).map(policy -> mapper.mapPolicyToResponse(policy));
+        Page<PolicyResponse> policyResponses = policyRepository.findAll(pageable).map(policy -> mapper.mapPolicyToResponse(policy));
         return new RestResponsePage<>(policyResponses.getContent(), pageable, policyResponses.getTotalElements());
     }
 
     @ApiOperation(value = "Count all Policies", tags = {"Policies"})
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Count policies fetched", response =  Long.class),
+            @ApiResponse(code = 200, message = "Count policies fetched", response = Long.class),
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping("/policy/count")
     public Long countPolicies() {
@@ -80,7 +95,8 @@ public class PolicyRestController {
     public RestResponsePage<PolicyResponse> getPoliciesByDataset(Pageable pageable, @RequestParam UUID datasetId) {
         log.debug("Received request for Policies related to Dataset with id={}", datasetId);
         if (pageable.getSort().getOrderFor("purpose.description") != null) {
-            List<PolicyResponse> pageResponse = policyRepository.findByDatasetId(null, datasetId).stream().map(policy -> mapper.mapPolicyToResponse(policy)).collect(Collectors.toList());
+            List<PolicyResponse> pageResponse = policyRepository.findByDatasetId(null, datasetId).stream().map(policy -> mapper.mapPolicyToResponse(policy))
+                    .collect(Collectors.toList());
             Comparator<PolicyResponse> compareByDescription = Comparator.comparing((PolicyResponse o) -> o.getPurpose().getDescription());
             if (pageable.getSort().getOrderFor("purpose.description").isAscending()) {
                 pageResponse.sort(compareByDescription);
@@ -115,6 +131,7 @@ public class PolicyRestController {
         log.debug("Received request to create Policies");
         service.validateRequests(policyRequests);
         List<Policy> policies = policyRequests.stream().map(policy -> mapper.mapRequestToPolicy(policy, null)).collect(toList());
+        datasetConsumer.syncDatasetById(policies.stream().map(Policy::getDatasetId).collect(toList()));
         return policyRepository.saveAll(policies).stream().map(policy -> mapper.mapPolicyToResponse(policy)).collect(Collectors.toList());
     }
 
@@ -142,12 +159,13 @@ public class PolicyRestController {
     @DeleteMapping("/policy/{id}")
     public void deletePolicy(@PathVariable Long id) {
         log.debug("Received request to delete Policy with id={}", id);
-        try {
-            policyRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
-            log.error(String.format("deletePolicy: Finner ikke id: %s, som skal slettes", id), e);
-            throw new DataCatalogPoliciesNotFoundException(e.getMessage());
+        Optional<Policy> optionalPolicy = policyRepository.findById(id);
+        if (optionalPolicy.isEmpty()) {
+            log.error("deletePolicy: Finner ikke id: %s, som skal slettes", id);
+            throw new DataCatalogPoliciesNotFoundException(String.format("deletePolicy: Finner ikke id: %s, som skal slettes", id));
         }
+        datasetConsumer.syncDatasetById(List.of(optionalPolicy.get().getDatasetId()));
+        policyRepository.deleteById(id);
     }
 
     @ApiOperation(value = "Update Policy", tags = {"Policies"})
@@ -168,6 +186,7 @@ public class PolicyRestController {
         Policy policy = mapper.mapRequestToPolicy(policyRequest, id);
         policy.setCreatedBy(storedPolicy.getCreatedBy());
         policy.setCreatedDate(storedPolicy.getCreatedDate());
+        datasetConsumer.syncDatasetById(List.of(policy.getDatasetId()));
         return mapper.mapPolicyToResponse(policyRepository.save(policy));
     }
 
@@ -194,6 +213,7 @@ public class PolicyRestController {
                     policies.add(policy);
                 }
         );
+        datasetConsumer.syncDatasetById(policies.stream().map(Policy::getDatasetId).collect(toList()));
         return policyRepository.saveAll(policies).stream().map(policy -> mapper.mapPolicyToResponse(policy)).collect(Collectors.toList());
     }
 
