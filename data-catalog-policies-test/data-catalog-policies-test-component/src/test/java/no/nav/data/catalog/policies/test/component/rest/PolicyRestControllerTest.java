@@ -78,7 +78,7 @@ public class PolicyRestControllerTest {
         List<Policy> policies = Arrays.asList(policy1, policy2);
         Page<Policy> policyPage = new PageImpl<>(policies);
         given(policyRepository.findAll(PageRequest.of(0, 100))).willReturn(policyPage);
-        mvc.perform(get("/policy/policy?page=0&size=100")
+        mvc.perform(get("/policy?page=0&size=100")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(2)));
@@ -91,7 +91,7 @@ public class PolicyRestControllerTest {
 
         given(policyRepository.findById(1L)).willReturn(Optional.of(policy1));
         given(mapper.mapPolicyToResponse(policy1)).willReturn(response);
-        ResultActions result = mvc.perform(get("/policy/policy/1").contentType(MediaType.APPLICATION_JSON))
+        ResultActions result = mvc.perform(get("/policy/1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.legalBasisDescription", is("Description")));
     }
@@ -99,7 +99,7 @@ public class PolicyRestControllerTest {
     @Test
     public void getNotExistingPolicy() throws Exception {
         given(policyRepository.findById(1L)).willReturn(Optional.ofNullable(null));
-        mvc.perform(get("/policy/policy/1").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/policy/1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
@@ -110,7 +110,7 @@ public class PolicyRestControllerTest {
         List<Policy> policies = Collections.singletonList(policy1);
         Page<Policy> policyPage = new PageImpl<>(policies);
         given(policyRepository.findByDatasetId(PageRequest.of(0, 100), DATASET_ID_1)).willReturn(policyPage);
-        mvc.perform(get("/policy/policy?page=0&size=100&datasetId=" + DATASET_ID_1).contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/policy?page=0&size=100&datasetId=" + DATASET_ID_1).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(1)));
 
@@ -119,7 +119,7 @@ public class PolicyRestControllerTest {
     @Test
     public void countPoliciesForDataset() throws Exception {
         given(policyRepository.countByDatasetId(DATASET_ID_1)).willReturn(1L);
-        mvc.perform(get("/policy/policy/count?datasetId=" + DATASET_ID_1).contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/policy/count?datasetId=" + DATASET_ID_1).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("1"));
     }
@@ -127,7 +127,7 @@ public class PolicyRestControllerTest {
     @Test
     public void countPolicies() throws Exception {
         given(policyRepository.count()).willReturn(1L);
-        mvc.perform(get("/policy/policy/count").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/policy/count").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("1"));
     }
@@ -142,7 +142,7 @@ public class PolicyRestControllerTest {
         given(mapper.mapRequestToPolicy(request.get(0), null)).willReturn(policy1);
         given(policyRepository.saveAll(policies)).willReturn(policies);
 
-        mvc.perform(post("/policy/policy")
+        mvc.perform(post("/policy")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(request)))
                 .andExpect(status().isCreated())
@@ -162,7 +162,7 @@ public class PolicyRestControllerTest {
         given(mapper.mapRequestToPolicy(request.get(1), null)).willReturn(policy2);
         given(policyRepository.saveAll(policies)).willReturn(policies);
 
-        mvc.perform(post("/policy/policy")
+        mvc.perform(post("/policy")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(request)))
                 .andExpect(status().isCreated())
@@ -181,7 +181,7 @@ public class PolicyRestControllerTest {
         given(policyRepository.save(policy1)).willReturn(policy1);
         given(mapper.mapPolicyToResponse(policy1)).willReturn(response);
 
-        mvc.perform(put("/policy/policy/1")
+        mvc.perform(put("/policy/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(request)))
                 .andExpect(status().isOk())
@@ -203,7 +203,7 @@ public class PolicyRestControllerTest {
         given(policyRepository.findById(request.get(1).getId())).willReturn(Optional.of(policy2));
         given(policyRepository.saveAll(policies)).willReturn(policies);
 
-        mvc.perform(put("/policy/policy")
+        mvc.perform(put("/policy")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(request)))
                 .andExpect(status().isOk())
@@ -220,7 +220,7 @@ public class PolicyRestControllerTest {
         given(mapper.mapRequestToPolicy(request, 1L)).willReturn(policy1);
         given(policyRepository.findById(1L)).willReturn(Optional.ofNullable(null));
 
-        mvc.perform(put("/policy/policy/1")
+        mvc.perform(put("/policy/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(request)))
                 .andExpect(status().isNotFound());
@@ -231,7 +231,7 @@ public class PolicyRestControllerTest {
         Policy policy1 = createPolicyTestdata(DATASET_ID_1);
         given(policyRepository.findById(1L)).willReturn(Optional.of(policy1));
 
-        mvc.perform(delete("/policy/policy/1")
+        mvc.perform(delete("/policy/1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
         verify(datasetConsumer).syncDatasetById(List.of(policy1.getDatasetId()));
@@ -240,7 +240,7 @@ public class PolicyRestControllerTest {
     @Test
     public void deleteNotExistsingPolicy() throws Exception {
         doThrow(new EmptyResultDataAccessException(1)).when(policyRepository).deleteById(1L);
-        mvc.perform(delete("/policy/policy/1")
+        mvc.perform(delete("/policy/1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
