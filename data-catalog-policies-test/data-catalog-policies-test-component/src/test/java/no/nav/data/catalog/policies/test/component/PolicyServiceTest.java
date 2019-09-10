@@ -23,7 +23,8 @@ import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
@@ -58,7 +59,7 @@ public class PolicyServiceTest {
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
                 .purposeCode(PURPOSECODE)
                 .build();
-        when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().datasetId(DATASET_ID_1).build());
+        when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().id(DATASET_ID_1).build());
         when(policyRepository.existsByDatasetIdAndPurposeCode(any(UUID.class), anyString())).thenReturn(false);
         service.validateRequests(List.of(request));
     }
@@ -70,7 +71,7 @@ public class PolicyServiceTest {
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
                 .purposeCode(PURPOSECODE)
                 .build();
-        when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().datasetId(DATASET_ID_1).build());
+        when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().id(DATASET_ID_1).build());
         when(policyRepository.existsByDatasetIdAndPurposeCode(any(UUID.class), anyString())).thenReturn(false);
         try {
             service.validateRequests(List.of(request));
@@ -108,7 +109,7 @@ public class PolicyServiceTest {
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
                 .purposeCode(PURPOSECODE)
                 .build();
-        when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().datasetId(DATASET_ID_1).build());
+        when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().id(DATASET_ID_1).build());
         when(policyRepository.existsByDatasetIdAndPurposeCode(any(UUID.class), anyString())).thenReturn(true);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenReturn("purpose");
         try {
@@ -126,7 +127,7 @@ public class PolicyServiceTest {
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
                 .purposeCode(PURPOSECODE)
                 .build();
-        when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().datasetId(DATASET_ID_1).build());
+        when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().id(DATASET_ID_1).build());
         when(policyRepository.existsByDatasetIdAndPurposeCode(any(UUID.class), anyString())).thenReturn(false);
         try {
             service.validateRequests(List.of(request));
@@ -165,7 +166,7 @@ public class PolicyServiceTest {
                 .purposeCode(PURPOSECODE)
                 .id(1L)
                 .build();
-        when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().datasetId(DATASET_ID_1).build());
+        when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().id(DATASET_ID_1).build());
         when(policyRepository.existsByDatasetIdAndPurposeCode(any(UUID.class), anyString())).thenReturn(true);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenReturn("purpose");
         service.validateRequests(List.of(request));

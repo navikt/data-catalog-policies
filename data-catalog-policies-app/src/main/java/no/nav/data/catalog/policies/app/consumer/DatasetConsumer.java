@@ -38,6 +38,9 @@ public class DatasetConsumer {
             ResponseEntity<DatasetResponse> responseEntity = restTemplate.getForEntity(String.format("%s/title/%s", datasetEndpointUrl, datasetTitle.trim())
                     , DatasetResponse.class);
             DatasetResponse response = responseEntity.getBody();
+            if (response == null || response.getId() == null) {
+                throw new DataCatalogPoliciesNotFoundException(String.format("Dataset with title=%s does not exist", datasetTitle.trim()));
+            }
             return new Dataset().convertToDataset(response);
         } catch (
                 HttpClientErrorException e) {
@@ -58,7 +61,11 @@ public class DatasetConsumer {
         log.debug("DatasetConsumer: About to get Dataset by id={}", datasetId);
         try {
             ResponseEntity<DatasetResponse> responseEntity = restTemplate.getForEntity(String.format("%s/%s", datasetEndpointUrl, datasetId), DatasetResponse.class);
-            return new Dataset().convertToDataset(responseEntity.getBody());
+            DatasetResponse response = responseEntity.getBody();
+            if (response == null || response.getId() == null) {
+                throw new DataCatalogPoliciesNotFoundException(String.format("Dataset with id=%s does not exist", datasetId));
+            }
+            return new Dataset().convertToDataset(response);
         } catch (
                 HttpClientErrorException e) {
             if (HttpStatus.NOT_FOUND.equals(e.getStatusCode())) {

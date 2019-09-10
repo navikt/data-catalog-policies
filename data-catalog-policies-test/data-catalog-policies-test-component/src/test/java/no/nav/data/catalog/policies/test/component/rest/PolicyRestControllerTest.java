@@ -233,8 +233,8 @@ public class PolicyRestControllerTest {
     private Policy createPolicyTestdata(UUID datasetId) {
         Policy policy = new Policy();
         Dataset dataset = new Dataset();
-        dataset.setDatasetId(datasetId);
-        policy.setDatasetId(dataset.getDatasetId());
+        dataset.setId(datasetId);
+        policy.setDatasetId(dataset.getId());
         policy.setLegalBasisDescription("Description");
         return policy;
     }

@@ -89,10 +89,10 @@ public class PolicyService {
                 validationErrors.put("datasetTitle", String.format("A dataset with title %s does not exist", request.getDatasetTitle()));
             }
             if (dataset != null) {
-                request.setDatasetId(dataset.getDatasetId());
+                request.setDatasetId(dataset.getId());
             }
 
-            if (!isUpdate && dataset != null && policyRepository.existsByDatasetIdAndPurposeCode(dataset.getDatasetId(), request.getPurposeCode())) {
+            if (!isUpdate && dataset != null && policyRepository.existsByDatasetIdAndPurposeCode(dataset.getId(), request.getPurposeCode())) {
                 validationErrors.put("datasetAndPurpose",
                         String.format("A policy combining Dataset %s and Purpose %s already exists", request.getDatasetTitle(), request.getPurposeCode()));
             }

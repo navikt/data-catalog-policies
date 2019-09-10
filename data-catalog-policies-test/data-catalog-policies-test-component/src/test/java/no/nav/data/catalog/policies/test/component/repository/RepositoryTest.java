@@ -72,10 +72,10 @@ public class RepositoryTest {
     }
 
     private void createTestdata(String legalBasisDescription, String purposeCode, UUID datasetId, String datasetTitle) {
-        Dataset dataset = Dataset.builder().datasetId(datasetId).title(datasetTitle).build();
+        Dataset dataset = Dataset.builder().id(datasetId).title(datasetTitle).build();
 
         Policy policy = new Policy();
-        policy.setDatasetId(dataset.getDatasetId());
+        policy.setDatasetId(dataset.getId());
         policy.setPurposeCode(purposeCode);
         policy.setLegalBasisDescription(legalBasisDescription);
         policyRepository.save(policy);
