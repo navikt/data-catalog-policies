@@ -12,6 +12,7 @@ import javax.annotation.PreDestroy;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
@@ -59,6 +60,9 @@ public class IntegrationTestConfig {
                 .willReturn(aResponse().withStatus(HttpStatus.OK.value())
                         .withHeader(ContentTypeHeader.KEY, MediaType.APPLICATION_JSON_VALUE)
                         .withTransformer("response-transformer", "", "")));
+        wireMockServer.stubFor(post(urlMatching("/backend/dataset/sync"))
+                .willReturn(aResponse().withStatus(HttpStatus.OK.value())
+                        .withHeader(ContentTypeHeader.KEY, MediaType.APPLICATION_JSON_VALUE)));
 
 
         return wireMockServer;
