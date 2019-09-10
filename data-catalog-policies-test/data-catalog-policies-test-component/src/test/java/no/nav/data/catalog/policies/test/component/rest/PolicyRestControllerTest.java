@@ -2,6 +2,7 @@ package no.nav.data.catalog.policies.test.component.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.data.catalog.policies.app.AppStarter;
+import no.nav.data.catalog.policies.app.consumer.DatasetConsumer;
 import no.nav.data.catalog.policies.app.policy.PolicyService;
 import no.nav.data.catalog.policies.app.policy.domain.Dataset;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
@@ -36,6 +37,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -64,6 +66,9 @@ public class PolicyRestControllerTest {
 
     @MockBean
     private PolicyRepository policyRepository;
+
+    @MockBean
+    private DatasetConsumer datasetConsumer;
 
     @Test
     public void getAllPolicies() throws Exception {
@@ -142,6 +147,8 @@ public class PolicyRestControllerTest {
                 .content(asJsonString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.*", hasSize(1)));
+
+        verify(datasetConsumer).syncDatasetById(List.of(policy1.getDatasetId()));
     }
 
     @Test
@@ -160,6 +167,7 @@ public class PolicyRestControllerTest {
                 .content(asJsonString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.*", hasSize(2)));
+        verify(datasetConsumer).syncDatasetById(List.of(policy1.getDatasetId(), policy2.getDatasetId()));
     }
 
     @Test
@@ -178,6 +186,8 @@ public class PolicyRestControllerTest {
                 .content(asJsonString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.legalBasisDescription", is("Description")));
+
+        verify(datasetConsumer).syncDatasetById(List.of(policy1.getDatasetId()));
     }
 
     @Test
@@ -198,6 +208,8 @@ public class PolicyRestControllerTest {
                 .content(asJsonString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", hasSize(2)));
+
+        verify(datasetConsumer).syncDatasetById(List.of(policy1.getDatasetId(), policy2.getDatasetId()));
     }
 
     @Test
@@ -216,9 +228,13 @@ public class PolicyRestControllerTest {
 
     @Test
     public void deletePolicy() throws Exception {
+        Policy policy1 = createPolicyTestdata(DATASET_ID_1);
+        given(policyRepository.findById(1L)).willReturn(Optional.of(policy1));
+
         mvc.perform(delete("/policy/policy/1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+        verify(datasetConsumer).syncDatasetById(List.of(policy1.getDatasetId()));
     }
 
     @Test
