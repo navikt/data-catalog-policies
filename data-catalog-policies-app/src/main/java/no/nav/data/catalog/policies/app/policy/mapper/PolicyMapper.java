@@ -26,6 +26,7 @@ public class PolicyMapper {
     public Policy mapRequestToPolicy(PolicyRequest policyRequest, Long id) {
         Policy policy = new Policy();
         policy.setDatasetId(policyRequest.getDatasetId());
+        policy.setDatasetTitle(policyRequest.getDatasetTitle());
         policy.setPurposeCode(policyRequest.getPurposeCode());
         policy.setLegalBasisDescription(policyRequest.getLegalBasisDescription());
         if (id != null) {

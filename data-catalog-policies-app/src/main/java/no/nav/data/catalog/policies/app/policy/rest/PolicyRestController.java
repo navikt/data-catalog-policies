@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.data.catalog.policies.app.behandlingsgrunnlag.BehandlingsgrunnlagService;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.consumer.DatasetConsumer;
 import no.nav.data.catalog.policies.app.policy.PolicyService;
@@ -13,7 +14,6 @@ import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -40,27 +40,29 @@ import static no.nav.data.catalog.policies.app.common.cache.CacheConfig.CODELIST
 import static no.nav.data.catalog.policies.app.common.cache.CacheConfig.DATASET_BY_ID_CACHE;
 import static no.nav.data.catalog.policies.app.common.cache.CacheConfig.DATASET_BY_TITLE_CACHE;
 
+@Slf4j
 @RestController
 @CrossOrigin
 @Api(value = "Data Catalog Policies", description = "REST API for Policies", tags = {"Policies"})
 @RequestMapping("/policy")
-@Slf4j
 public class PolicyRestController {
 
-    @Autowired
-    private PolicyService service;
+    private final PolicyService service;
+    private final PolicyMapper mapper;
+    private final PolicyRepository policyRepository;
+    private final CacheManager cachemanager;
+    private final DatasetConsumer datasetConsumer;
+    private final BehandlingsgrunnlagService behandlingsgrunnlagService;
 
-    @Autowired
-    private PolicyMapper mapper;
-
-    @Autowired
-    private PolicyRepository policyRepository;
-
-    @Autowired
-    private CacheManager cachemanager;
-
-    @Autowired
-    private DatasetConsumer datasetConsumer;
+    public PolicyRestController(PolicyService service, PolicyMapper mapper, PolicyRepository policyRepository, CacheManager cachemanager,
+            DatasetConsumer datasetConsumer, BehandlingsgrunnlagService behandlingsgrunnlagService) {
+        this.service = service;
+        this.mapper = mapper;
+        this.policyRepository = policyRepository;
+        this.cachemanager = cachemanager;
+        this.datasetConsumer = datasetConsumer;
+        this.behandlingsgrunnlagService = behandlingsgrunnlagService;
+    }
 
 
     @ApiOperation(value = "Get all Policies", tags = {"Policies"})
@@ -116,7 +118,7 @@ public class PolicyRestController {
         log.debug("Received request to create Policies");
         service.validateRequests(policyRequests);
         List<Policy> policies = policyRequests.stream().map(policy -> mapper.mapRequestToPolicy(policy, null)).collect(toList());
-        datasetConsumer.syncDatasetById(policies.stream().map(Policy::getDatasetId).collect(toList()));
+        onChange(policies);
         return policyRepository.saveAll(policies).stream().map(policy -> mapper.mapPolicyToResponse(policy)).collect(Collectors.toList());
     }
 
@@ -149,7 +151,7 @@ public class PolicyRestController {
             log.error("deletePolicy: Finner ikke id: %s, som skal slettes", id);
             throw new DataCatalogPoliciesNotFoundException(String.format("deletePolicy: Finner ikke id: %s, som skal slettes", id));
         }
-        datasetConsumer.syncDatasetById(List.of(optionalPolicy.get().getDatasetId()));
+        onChange(List.of(optionalPolicy.get()));
         policyRepository.deleteById(id);
     }
 
@@ -171,7 +173,7 @@ public class PolicyRestController {
         Policy policy = mapper.mapRequestToPolicy(policyRequest, id);
         policy.setCreatedBy(storedPolicy.getCreatedBy());
         policy.setCreatedDate(storedPolicy.getCreatedDate());
-        datasetConsumer.syncDatasetById(List.of(policy.getDatasetId()));
+        onChange(List.of(policy));
         return mapper.mapPolicyToResponse(policyRepository.save(policy));
     }
 
@@ -198,8 +200,8 @@ public class PolicyRestController {
                     policies.add(policy);
                 }
         );
-        datasetConsumer.syncDatasetById(policies.stream().map(Policy::getDatasetId).collect(toList()));
-        return policyRepository.saveAll(policies).stream().map(policy -> mapper.mapPolicyToResponse(policy)).collect(Collectors.toList());
+        onChange(policies);
+        return policyRepository.saveAll(policies).stream().map(mapper::mapPolicyToResponse).collect(Collectors.toList());
     }
 
     @ApiOperation(value = "Cache evict", tags = {"Policies"})
@@ -212,5 +214,10 @@ public class PolicyRestController {
         cachemanager.getCache(DATASET_BY_TITLE_CACHE).clear();
         cachemanager.getCache(DATASET_BY_ID_CACHE).clear();
         return "OK";
+    }
+
+    private void onChange(List<Policy> policies) {
+        policies.stream().map(Policy::getPurposeCode).distinct().forEach(behandlingsgrunnlagService::scheduleDistributeForPurpose);
+        datasetConsumer.syncDatasetById(policies.stream().map(Policy::getDatasetId).collect(toList()));
     }
 }

@@ -70,9 +70,10 @@ public class PolicyMapperTest {
         Dataset dataset = createBasicTestdata(DATASET_TITLE_1);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenReturn(PURPOSE_DESCRIPTION1);
         when(datasetConsumer.getDatasetById(DATASET_ID_1)).thenReturn(dataset);
-        Policy policy = new Policy(1L, dataset.getId(), PURPOSE_CODE1, LEGAL_BASIS_DESCRIPTION1);
+        Policy policy = new Policy(1L, dataset.getId(), dataset.getTitle(), PURPOSE_CODE1, LEGAL_BASIS_DESCRIPTION1);
         PolicyResponse policyResponse = mapper.mapPolicyToResponse(policy);
         assertThat(policyResponse.getDataset().getId(), is(policy.getDatasetId()));
+        assertThat(policyResponse.getDataset().getTitle(), is(policy.getDatasetTitle()));
         assertThat(policyResponse.getLegalBasisDescription(), is(LEGAL_BASIS_DESCRIPTION1));
         assertThat(policyResponse.getPurpose().getCode(), is(PURPOSE_CODE1));
         assertThat(policyResponse.getPurpose().getDescription(), is(PURPOSE_DESCRIPTION1));
@@ -83,7 +84,7 @@ public class PolicyMapperTest {
         expectedException.expect(DataCatalogPoliciesNotFoundException.class);
         Dataset dataset = createBasicTestdata(DATASET_TITLE_1);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenThrow(new DataCatalogPoliciesNotFoundException("codelist not found"));
-        Policy policy = new Policy(1L, dataset.getId(), PURPOSE_CODE1, LEGAL_BASIS_DESCRIPTION1);
+        Policy policy = new Policy(1L, dataset.getId(), dataset.getTitle(), PURPOSE_CODE1, LEGAL_BASIS_DESCRIPTION1);
         mapper.mapPolicyToResponse(policy);
     }
 

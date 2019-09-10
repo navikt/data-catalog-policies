@@ -2,6 +2,7 @@ package no.nav.data.catalog.policies.test.component.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.data.catalog.policies.app.AppStarter;
+import no.nav.data.catalog.policies.app.behandlingsgrunnlag.BehandlingsgrunnlagService;
 import no.nav.data.catalog.policies.app.consumer.DatasetConsumer;
 import no.nav.data.catalog.policies.app.policy.PolicyService;
 import no.nav.data.catalog.policies.app.policy.domain.Dataset;
@@ -69,6 +70,9 @@ public class PolicyRestControllerTest {
 
     @MockBean
     private DatasetConsumer datasetConsumer;
+
+    @MockBean
+    private BehandlingsgrunnlagService behandlingsgrunnlagService;
 
     @Test
     public void getAllPolicies() throws Exception {

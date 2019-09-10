@@ -1,31 +1,22 @@
 package no.nav.data.catalog.policies.test.integration.rest;
 
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import no.nav.data.catalog.policies.app.AppStarter;
+import no.nav.data.catalog.policies.app.behandlingsgrunnlag.BehandlingsgrunnlagService;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
-import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import no.nav.data.catalog.policies.app.policy.rest.RestResponsePage;
-import no.nav.data.catalog.policies.test.integration.IntegrationTestConfig;
-import no.nav.data.catalog.policies.test.integration.PolicyTestContainer;
-import no.nav.data.catalog.policies.test.integration.util.WiremockResponseTransformer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
+import no.nav.data.catalog.policies.test.integration.IntegrationTestBase;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,40 +26,23 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = {IntegrationTestConfig.class, AppStarter.class})
-@Import(WiremockResponseTransformer.class)
-@ActiveProfiles("test")
-public class PolicyControllerIT {
+public class PolicyControllerIT extends IntegrationTestBase {
 
-    public static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
-    public static final String PURPOSE_CODE1 = "TEST1";
-    public static final String DATASET_TITLE = "Sivilstand";
+    private static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
+    private static final String PURPOSE_CODE1 = "TEST1";
+    private static final String DATASET_TITLE = "Sivilstand";
 
-    public static final String POLICY_REST_ENDPOINT = "/policy/";
-    private static final String DATASET_ID_1 = "0702e097-0800-47e1-9fc9-da9fa935c76d";
+    private static final String POLICY_REST_ENDPOINT = "/policy/";
 
     @Autowired
     protected TestRestTemplate restTemplate;
 
-    @Autowired
-    private PolicyRepository policyRepository;
-
-    @ClassRule
-    public static PolicyTestContainer postgreSQLContainer = PolicyTestContainer.getInstance();
-
-    @Before
-    public void setUp() {
-        policyRepository.deleteAll();
-    }
-
-    @After
-    public void cleanUp() {
-        policyRepository.deleteAll();
-    }
+    @MockBean
+    private BehandlingsgrunnlagService behandlingsgrunnlagService;
 
     @Test
     public void createPolicy() {
@@ -79,6 +53,7 @@ public class PolicyControllerIT {
         assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
         assertThat(policyRepository.count(), is(1L));
         assertPolicy(createEntity.getBody().get(0), LEGAL_BASIS_DESCRIPTION1);
+        verify(behandlingsgrunnlagService).scheduleDistributeForPurpose(PURPOSE_CODE1);
     }
 
     @Test
@@ -138,7 +113,7 @@ public class PolicyControllerIT {
     public void getOnePolicy() {
         List<PolicyRequest> requestList = Arrays.asList(createPolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, DATASET_TITLE));
         ResponseEntity<List<PolicyResponse>> createEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT , HttpMethod.POST, new HttpEntity<>(requestList), new ParameterizedTypeReference<List<PolicyResponse>>() {
+                POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), new ParameterizedTypeReference<List<PolicyResponse>>() {
                 });
         assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
 
@@ -163,6 +138,7 @@ public class PolicyControllerIT {
                 POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), new ParameterizedTypeReference<List<PolicyResponse>>() {
                 });
         assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
+        verify(behandlingsgrunnlagService).scheduleDistributeForPurpose(PURPOSE_CODE1);
 
         PolicyRequest request = requestList.get(0);
         request.setId(createEntity.getBody().get(0).getPolicyId());
@@ -172,6 +148,7 @@ public class PolicyControllerIT {
         assertThat(updateEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(policyRepository.count(), is(1L));
         assertPolicy(updateEntity.getBody(), "UPDATED");
+        verify(behandlingsgrunnlagService, times(2)).scheduleDistributeForPurpose(PURPOSE_CODE1);
     }
 
     @Test
@@ -214,6 +191,7 @@ public class PolicyControllerIT {
         assertPolicy(updateEntity.getBody().get(0), "UPDATED");
         assertThat(updateEntity.getBody().get(1).getLegalBasisDescription(), is("UPDATED"));
         assertThat(policyRepository.count(), is(2L));
+        verify(behandlingsgrunnlagService, times(2)).scheduleDistributeForPurpose(PURPOSE_CODE1);
     }
 
     @Test
@@ -261,11 +239,13 @@ public class PolicyControllerIT {
                 POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), new ParameterizedTypeReference<List<Policy>>() {
                 });
         assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
+        verify(behandlingsgrunnlagService).scheduleDistributeForPurpose(PURPOSE_CODE1);
 
         ResponseEntity<String> deleteEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT + createEntity.getBody().get(0).getPolicyId(), HttpMethod.DELETE, new HttpEntity<>(new HttpHeaders()), String.class);
         assertThat(deleteEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(policyRepository.count(), is(0L));
+        verify(behandlingsgrunnlagService, times(2)).scheduleDistributeForPurpose(PURPOSE_CODE1);
     }
 
     @Test
@@ -278,7 +258,7 @@ public class PolicyControllerIT {
 
     @Test
     public void get20FirstPolicies() {
-        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
+        createPolicy(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
 
         ResponseEntity<RestResponsePage<PolicyResponse>> responseEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT, HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), new ParameterizedTypeReference<RestResponsePage<PolicyResponse>>() {
@@ -292,7 +272,7 @@ public class PolicyControllerIT {
 
     @Test
     public void get100Policies() {
-        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
+        createPolicy(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
 
         ResponseEntity<RestResponsePage<PolicyResponse>> responseEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT + "?pageNumber=0&pageSize=100", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()),
@@ -307,7 +287,7 @@ public class PolicyControllerIT {
 
     @Test
     public void countPolicies() {
-        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
+        createPolicy(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
 
         ResponseEntity<Long> responseEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT + "count", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), Long.class);
@@ -317,7 +297,7 @@ public class PolicyControllerIT {
 
     @Test
     public void getPoliciesPageBeyondMax() {
-        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
+        createPolicy(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
 
         ResponseEntity<RestResponsePage<PolicyResponse>> responseEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT + "?pageNumber=1&pageSize=100", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()),
@@ -330,7 +310,7 @@ public class PolicyControllerIT {
 
     @Test
     public void getPolicyForDataset1() {
-        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
+        createPolicy(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
 
         ResponseEntity<RestResponsePage<PolicyResponse>> responseEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT + "?datasetId={id}", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()),
@@ -343,23 +323,12 @@ public class PolicyControllerIT {
 
     @Test
     public void countPolicyForDataset1() {
-        createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
+        createPolicy(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
 
         ResponseEntity<Long> responseEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT + "count?datasetId={id}", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), Long.class, DATASET_ID_1);
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(responseEntity.getBody(), is(1L));
-    }
-
-    private void createTestdata(String legalBasisDescription, String purposeCode, int rows) {
-        int i = 0;
-        while (i++ < rows) {
-            Policy policy = new Policy();
-            policy.setDatasetId(i == 1 ? DATASET_ID_1 : UUID.randomUUID().toString());
-            policy.setLegalBasisDescription(legalBasisDescription);
-            policy.setPurposeCode(purposeCode);
-            policyRepository.save(policy);
-        }
     }
 
     private PolicyRequest createPolicyRequest(String legalBasisDescription, String purposeCode, String datasetTitle) {

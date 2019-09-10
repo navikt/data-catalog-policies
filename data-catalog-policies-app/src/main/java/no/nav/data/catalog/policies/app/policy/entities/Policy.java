@@ -33,6 +33,9 @@ public class Policy extends Auditable<String> {
     @Column(name = "DATASET_ID", nullable = false)
     private String datasetId;
 
+    @Column(name="DATASET_TITLE")
+    private String datasetTitle;
+
     @NotNull
     @Column(name = "PURPOSE_CODE", nullable = false)
     private String purposeCode;
