@@ -1,29 +1,56 @@
 package no.nav.data.catalog.policies.app.common.nais;
 
-import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
+import io.micrometer.core.instrument.MeterRegistry;
+import no.nav.data.catalog.policies.app.AppStarter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(SpringRunner.class)
+@WebMvcTest(NaisEndpoints.class)
+@ContextConfiguration(classes = AppStarter.class)
+@ActiveProfiles("test")
 public class NaisEndpointsTest {
 
-	private NaisEndpoints naisEndpoints = new NaisEndpoints(new CompositeMeterRegistry());
+    @MockBean
+    private MeterRegistry meterRegistry;
+    @MockBean
+    private HealthIndicator dbHealthIndicator;
+    @Autowired
+    private MockMvc mvc;
 
-	@Test
-	public void naisIsReady() {
-		ResponseEntity response = naisEndpoints.isReady();
-		assertThat(response.getStatusCode(), is(HttpStatus.OK));
-	}
+    @Test
+    public void naisIsReady() throws Exception {
+        String urlIsReady = "/internal/isReady";
+        mvc.perform(get(urlIsReady))
+                .andExpect(status().isOk());
+    }
 
-	@Test
-	public void naisIsAlive() {
-		ResponseEntity response = naisEndpoints.isAlive();
-		assertThat(response.getStatusCode(), is(HttpStatus.OK));
-	}
+    @Test
+    public void naisIsAlive() throws Exception {
+        when(dbHealthIndicator.health()).thenReturn(Health.up().build());
+        String urlIsAlive = "/internal/isAlive";
+        mvc.perform(get(urlIsAlive))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void naisIsDead() throws Exception {
+        when(dbHealthIndicator.health()).thenReturn(Health.down().build());
+        String urlIsAlive = "/internal/isAlive";
+        mvc.perform(get(urlIsAlive))
+                .andExpect(status().isInternalServerError());
+    }
 }
