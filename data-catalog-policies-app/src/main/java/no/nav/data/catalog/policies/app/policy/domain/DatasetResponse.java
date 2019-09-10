@@ -11,6 +11,6 @@ import java.util.UUID;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DatasetResponse {
 
-    private UUID datasetId;
+    private UUID id;
     private String title;
 }
