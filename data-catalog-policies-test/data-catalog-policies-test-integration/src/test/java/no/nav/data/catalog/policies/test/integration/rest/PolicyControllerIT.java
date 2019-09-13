@@ -286,7 +286,7 @@ public class PolicyControllerIT {
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(responseEntity.getBody().getContent().size(), is(20));
         assertThat(responseEntity.getBody().getTotalElements(), is(100L));
-        assertThat(responseEntity.getBody().getSize(), is(20));
+        assertThat(responseEntity.getBody().getPageSize(), is(20));
         assertThat(policyRepository.count(), is(100L));
     }
 
@@ -295,13 +295,13 @@ public class PolicyControllerIT {
         createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
 
         ResponseEntity<RestResponsePage<PolicyResponse>> responseEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT + "?page=0&size=100", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()),
+                POLICY_REST_ENDPOINT + "?pageNumber=0&pageSize=100", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()),
                 new ParameterizedTypeReference<RestResponsePage<PolicyResponse>>() {
                 });
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(responseEntity.getBody().getContent().size(), is(100));
         assertThat(responseEntity.getBody().getTotalElements(), is(100L));
-        assertThat(responseEntity.getBody().getSize(), is(100));
+        assertThat(responseEntity.getBody().getPageSize(), is(100));
         assertThat(policyRepository.count(), is(100L));
     }
 
@@ -320,7 +320,7 @@ public class PolicyControllerIT {
         createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
 
         ResponseEntity<RestResponsePage<PolicyResponse>> responseEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT + "?page=1&size=100", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()),
+                POLICY_REST_ENDPOINT + "?pageNumber=1&pageSize=100", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()),
                 new ParameterizedTypeReference<RestResponsePage<PolicyResponse>>() {
                 });
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));

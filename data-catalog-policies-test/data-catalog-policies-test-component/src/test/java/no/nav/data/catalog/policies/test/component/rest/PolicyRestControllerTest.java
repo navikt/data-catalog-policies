@@ -77,7 +77,7 @@ public class PolicyRestControllerTest {
         List<Policy> policies = Arrays.asList(policy1, policy2);
         Page<Policy> policyPage = new PageImpl<>(policies);
         given(policyRepository.findAll(PageRequest.of(0, 100))).willReturn(policyPage);
-        mvc.perform(get("/policy?page=0&size=100")
+        mvc.perform(get("/policy?pageNumber=0&pageSize=100")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(2)));
@@ -109,7 +109,7 @@ public class PolicyRestControllerTest {
         List<Policy> policies = Collections.singletonList(policy1);
         Page<Policy> policyPage = new PageImpl<>(policies);
         given(policyRepository.findByDatasetId(PageRequest.of(0, 100), DATASET_ID_1)).willReturn(policyPage);
-        mvc.perform(get("/policy?page=0&size=100&datasetId=" + DATASET_ID_1).contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/policy?pageNumber=0&pageSize=100&datasetId=" + DATASET_ID_1).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(1)));
 

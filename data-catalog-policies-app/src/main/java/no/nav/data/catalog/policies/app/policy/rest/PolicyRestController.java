@@ -16,7 +16,6 @@ import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,7 +30,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -70,10 +68,10 @@ public class PolicyRestController {
             @ApiResponse(code = 200, message = "All policies fetched", response = Policy.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping
-    public RestResponsePage<PolicyResponse> getPolicies(Pageable pageable) {
+    public RestResponsePage<PolicyResponse> getPolicies(PageParameters pageParameters) {
         log.debug("Received request for all Policies");
-        Page<PolicyResponse> policyResponses = policyRepository.findAll(pageable).map(policy -> mapper.mapPolicyToResponse(policy));
-        return new RestResponsePage<>(policyResponses.getContent(), pageable, policyResponses.getTotalElements());
+        Page<PolicyResponse> policyResponses = policyRepository.findAll(pageParameters.createIdSortedPage()).map(policy -> mapper.mapPolicyToResponse(policy));
+        return new RestResponsePage<>(policyResponses.getContent(), policyResponses.getPageable(), policyResponses.getTotalElements());
     }
 
     @ApiOperation(value = "Count all Policies", tags = {"Policies"})
@@ -91,22 +89,10 @@ public class PolicyRestController {
             @ApiResponse(code = 200, message = "All policies fetched", response = Policy.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping(params = {"datasetId"}, produces = "application/json")
-    public RestResponsePage<PolicyResponse> getPoliciesByDataset(Pageable pageable, @RequestParam String datasetId) {
+    public RestResponsePage<PolicyResponse> getPoliciesByDataset(PageParameters pageParameters, @RequestParam String datasetId) {
         log.debug("Received request for Policies related to Dataset with id={}", datasetId);
-        if (pageable.getSort().getOrderFor("purpose.description") != null) {
-            List<PolicyResponse> pageResponse = policyRepository.findByDatasetId(null, datasetId).stream().map(policy -> mapper.mapPolicyToResponse(policy))
-                    .collect(Collectors.toList());
-            Comparator<PolicyResponse> compareByDescription = Comparator.comparing((PolicyResponse o) -> o.getPurpose().getDescription());
-            if (pageable.getSort().getOrderFor("purpose.description").isAscending()) {
-                pageResponse.sort(compareByDescription);
-            } else {
-                pageResponse.sort(compareByDescription.reversed());
-            }
-            return new RestResponsePage<>(pageResponse, pageable, pageResponse.size());
-        } else {
-            Page<PolicyResponse> policyResponses = policyRepository.findByDatasetId(pageable, datasetId).map(policy -> mapper.mapPolicyToResponse(policy));
-            return new RestResponsePage<>(policyResponses.getContent(), pageable, policyResponses.getTotalElements());
-        }
+        Page<PolicyResponse> policyResponses = policyRepository.findByDatasetId(pageParameters.createIdSortedPage(), datasetId).map(policy -> mapper.mapPolicyToResponse(policy));
+        return new RestResponsePage<>(policyResponses.getContent(), policyResponses.getPageable(), policyResponses.getTotalElements());
     }
 
     @ApiOperation(value = "Count Policies by Dataset", tags = {"Policies"})
