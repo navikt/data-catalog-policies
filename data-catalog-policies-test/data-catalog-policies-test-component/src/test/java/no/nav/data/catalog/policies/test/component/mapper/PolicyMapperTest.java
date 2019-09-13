@@ -2,7 +2,6 @@ package no.nav.data.catalog.policies.test.component.mapper;
 
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.consumer.CodelistConsumer;
-import no.nav.data.catalog.policies.app.consumer.DatasetConsumer;
 import no.nav.data.catalog.policies.app.policy.domain.Dataset;
 import no.nav.data.catalog.policies.app.policy.domain.ListName;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
@@ -36,8 +35,6 @@ public class PolicyMapperTest {
 
     @Mock
     private CodelistConsumer codelistConsumer;
-    @Mock
-    private DatasetConsumer datasetConsumer;
     @InjectMocks
     private PolicyMapper mapper;
 
@@ -56,20 +53,19 @@ public class PolicyMapperTest {
     @Test
     public void shouldMapToPolicy() {
         Dataset dataset = createBasicTestdata(DATASET_TITLE_1);
-        when(datasetConsumer.getDatasetByTitle(DATASET_TITLE_1)).thenReturn(dataset);
         PolicyRequest request = new PolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, dataset.getTitle());
         request.setDatasetId(DATASET_ID_1);
         Policy policy = mapper.mapRequestToPolicy(request, null);
         assertThat(policy.getLegalBasisDescription(), is(LEGAL_BASIS_DESCRIPTION1));
         assertThat(policy.getPurposeCode(), is(PURPOSE_CODE1));
         assertThat(policy.getDatasetId(), is(dataset.getId()));
+        assertThat(policy.getDatasetTitle(), is(dataset.getTitle()));
     }
 
     @Test
     public void shouldMapToPolicyResponse() {
         Dataset dataset = createBasicTestdata(DATASET_TITLE_1);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenReturn(PURPOSE_DESCRIPTION1);
-        when(datasetConsumer.getDatasetById(DATASET_ID_1)).thenReturn(dataset);
         Policy policy = new Policy(1L, dataset.getId(), dataset.getTitle(), PURPOSE_CODE1, LEGAL_BASIS_DESCRIPTION1);
         PolicyResponse policyResponse = mapper.mapPolicyToResponse(policy);
         assertThat(policyResponse.getDataset().getId(), is(policy.getDatasetId()));
