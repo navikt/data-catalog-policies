@@ -10,6 +10,7 @@ import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
+import no.nav.data.catalog.policies.app.policy.rest.PageParameters;
 import no.nav.data.catalog.policies.app.policy.rest.PolicyRestController;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -75,8 +76,8 @@ public class PolicyRestControllerTest {
         Policy policy2 = createPolicyTestdata(DATASET_ID_2);
 
         List<Policy> policies = Arrays.asList(policy1, policy2);
-        Page<Policy> policyPage = new PageImpl<>(policies);
-        given(policyRepository.findAll(PageRequest.of(0, 100))).willReturn(policyPage);
+        Page<Policy> policyPage = new PageImpl<>(policies, PageRequest.of(0, 100), 2);
+        given(policyRepository.findAll(new PageParameters(0, 100).createIdSortedPage())).willReturn(policyPage);
         mvc.perform(get("/policy?pageNumber=0&pageSize=100")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -107,8 +108,8 @@ public class PolicyRestControllerTest {
         Policy policy1 = createPolicyTestdata(DATASET_ID_1);
 
         List<Policy> policies = Collections.singletonList(policy1);
-        Page<Policy> policyPage = new PageImpl<>(policies);
-        given(policyRepository.findByDatasetId(PageRequest.of(0, 100), DATASET_ID_1)).willReturn(policyPage);
+        Page<Policy> policyPage = new PageImpl<>(policies, PageRequest.of(0, 100), 1);
+        given(policyRepository.findByDatasetId(new PageParameters(0, 100).createIdSortedPage(), DATASET_ID_1)).willReturn(policyPage);
         mvc.perform(get("/policy?pageNumber=0&pageSize=100&datasetId=" + DATASET_ID_1).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(1)));
