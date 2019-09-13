@@ -7,20 +7,19 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PolicyRequest {
+
     private Long id;
     private String legalBasisDescription;
     private String purposeCode;
     private String datasetTitle;
     @JsonIgnore
-    private UUID datasetId;
+    private String datasetId;
 
     public PolicyRequest(String legalBasisDescription, String purposeCode, String datasetTitle) {
         this.legalBasisDescription = legalBasisDescription;

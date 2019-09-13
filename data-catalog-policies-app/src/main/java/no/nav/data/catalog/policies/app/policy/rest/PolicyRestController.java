@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 
@@ -92,7 +91,7 @@ public class PolicyRestController {
             @ApiResponse(code = 200, message = "All policies fetched", response = Policy.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping(params = {"datasetId"}, produces = "application/json")
-    public RestResponsePage<PolicyResponse> getPoliciesByDataset(Pageable pageable, @RequestParam UUID datasetId) {
+    public RestResponsePage<PolicyResponse> getPoliciesByDataset(Pageable pageable, @RequestParam String datasetId) {
         log.debug("Received request for Policies related to Dataset with id={}", datasetId);
         if (pageable.getSort().getOrderFor("purpose.description") != null) {
             List<PolicyResponse> pageResponse = policyRepository.findByDatasetId(null, datasetId).stream().map(policy -> mapper.mapPolicyToResponse(policy))
@@ -115,7 +114,7 @@ public class PolicyRestController {
             @ApiResponse(code = 200, message = "Count fetched", response = Long.class),
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping(path = "/count", params = {"datasetId"})
-    public Long countPoliciesByDataset(@RequestParam UUID datasetId) {
+    public Long countPoliciesByDataset(@RequestParam String datasetId) {
         log.debug("Received request for number of policies related to Datasets with id={}", datasetId);
         return policyRepository.countByDatasetId(datasetId);
     }

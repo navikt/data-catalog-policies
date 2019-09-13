@@ -355,7 +355,7 @@ public class PolicyControllerIT {
         int i = 0;
         while (i++ < rows) {
             Policy policy = new Policy();
-            policy.setDatasetId(i == 1 ? UUID.fromString(DATASET_ID_1) : UUID.randomUUID());
+            policy.setDatasetId(i == 1 ? DATASET_ID_1 : UUID.randomUUID().toString());
             policy.setLegalBasisDescription(legalBasisDescription);
             policy.setPurposeCode(purposeCode);
             policyRepository.save(policy);

@@ -19,7 +19,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
-import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -35,7 +34,7 @@ public class PolicyServiceTest {
     private static final String DATASET_TITLE = "Personalia";
     private static final String LEGALBASISDESCRIPTION = "LegalBasis";
     private static final String PURPOSECODE = "AAP";
-    private static final UUID DATASET_ID_1 = UUID.fromString("cd7f037e-374e-4e68-b705-55b61966b2fc");
+    private static final String DATASET_ID_1 = "cd7f037e-374e-4e68-b705-55b61966b2fc";
 
     @Mock
     private CodelistConsumer codelistConsumer;
@@ -60,7 +59,7 @@ public class PolicyServiceTest {
                 .purposeCode(PURPOSECODE)
                 .build();
         when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().id(DATASET_ID_1).build());
-        when(policyRepository.existsByDatasetIdAndPurposeCode(any(UUID.class), anyString())).thenReturn(false);
+        when(policyRepository.existsByDatasetIdAndPurposeCode(any(String.class), anyString())).thenReturn(false);
         service.validateRequests(List.of(request));
     }
 
@@ -72,7 +71,7 @@ public class PolicyServiceTest {
                 .purposeCode(PURPOSECODE)
                 .build();
         when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().id(DATASET_ID_1).build());
-        when(policyRepository.existsByDatasetIdAndPurposeCode(any(UUID.class), anyString())).thenReturn(false);
+        when(policyRepository.existsByDatasetIdAndPurposeCode(any(String.class), anyString())).thenReturn(false);
         try {
             service.validateRequests(List.of(request));
         } catch (ValidationException e) {
@@ -91,7 +90,7 @@ public class PolicyServiceTest {
                 .purposeCode(PURPOSECODE)
                 .build();
         when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenThrow(new DataCatalogPoliciesNotFoundException(""));
-        when(policyRepository.existsByDatasetIdAndPurposeCode(any(UUID.class), anyString())).thenReturn(false);
+        when(policyRepository.existsByDatasetIdAndPurposeCode(any(String.class), anyString())).thenReturn(false);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenThrow(new DataCatalogPoliciesNotFoundException(""));
         try {
             service.validateRequests(List.of(request));
@@ -110,7 +109,7 @@ public class PolicyServiceTest {
                 .purposeCode(PURPOSECODE)
                 .build();
         when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().id(DATASET_ID_1).build());
-        when(policyRepository.existsByDatasetIdAndPurposeCode(any(UUID.class), anyString())).thenReturn(true);
+        when(policyRepository.existsByDatasetIdAndPurposeCode(any(String.class), anyString())).thenReturn(true);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenReturn("purpose");
         try {
             service.validateRequests(List.of(request));
@@ -128,7 +127,7 @@ public class PolicyServiceTest {
                 .purposeCode(PURPOSECODE)
                 .build();
         when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().id(DATASET_ID_1).build());
-        when(policyRepository.existsByDatasetIdAndPurposeCode(any(UUID.class), anyString())).thenReturn(false);
+        when(policyRepository.existsByDatasetIdAndPurposeCode(any(String.class), anyString())).thenReturn(false);
         try {
             service.validateRequests(List.of(request));
         } catch (ValidationException e) {
@@ -147,7 +146,7 @@ public class PolicyServiceTest {
                 .purposeCode(PURPOSECODE)
                 .build();
         when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenThrow(new DataCatalogPoliciesNotFoundException(""));
-        when(policyRepository.existsByDatasetIdAndPurposeCode(any(UUID.class), anyString())).thenReturn(false);
+        when(policyRepository.existsByDatasetIdAndPurposeCode(any(String.class), anyString())).thenReturn(false);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenThrow(new DataCatalogPoliciesNotFoundException(""));
         try {
             service.validateRequests(List.of(request));
@@ -167,7 +166,7 @@ public class PolicyServiceTest {
                 .id(1L)
                 .build();
         when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().id(DATASET_ID_1).build());
-        when(policyRepository.existsByDatasetIdAndPurposeCode(any(UUID.class), anyString())).thenReturn(true);
+        when(policyRepository.existsByDatasetIdAndPurposeCode(any(String.class), anyString())).thenReturn(true);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenReturn("purpose");
         service.validateRequests(List.of(request));
     }

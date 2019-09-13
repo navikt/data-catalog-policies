@@ -17,7 +17,6 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
-import java.util.UUID;
 
 import static no.nav.data.catalog.policies.app.common.cache.CacheConfig.DATASET_BY_ID_CACHE;
 import static no.nav.data.catalog.policies.app.common.cache.CacheConfig.DATASET_BY_TITLE_CACHE;
@@ -58,7 +57,7 @@ public class DatasetConsumer {
     }
 
     @Cacheable(cacheNames = DATASET_BY_ID_CACHE)
-    public Dataset getDatasetById(UUID datasetId) {
+    public Dataset getDatasetById(String datasetId) {
         log.debug("DatasetConsumer: About to get Dataset by id={}", datasetId);
         try {
             ResponseEntity<DatasetResponse> responseEntity = restTemplate.getForEntity(String.format("%s/%s", datasetEndpointUrl, datasetId), DatasetResponse.class);
@@ -80,7 +79,7 @@ public class DatasetConsumer {
         }
     }
 
-    public void syncDatasetById(List<UUID> datasetIds) {
+    public void syncDatasetById(List<String> datasetIds) {
         log.debug("DatasetConsumer: About to sync Dataset by ids={}", datasetIds);
         try {
             restTemplate.postForLocation(datasetEndpointUrl + "/sync", datasetIds);

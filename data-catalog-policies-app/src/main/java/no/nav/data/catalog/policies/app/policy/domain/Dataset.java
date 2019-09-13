@@ -5,15 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 @Data
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
 public class Dataset {
 
-    private UUID id;
+    private String id;
     private String title;
 
     public Dataset convertToDataset(DatasetResponse response) {

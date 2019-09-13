@@ -22,8 +22,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.UUID;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -47,7 +45,7 @@ public class PolicyMapperTest {
     private static final String PURPOSE_CODE1 = "PUR1";
     private static final String PURPOSE_DESCRIPTION1 = "PurposeDescription 1";
     private static final String DATASET_TITLE_1 = "DatasetTitle 1";
-    private static final UUID DATASET_ID_1 = UUID.fromString("cd7f037e-374e-4e68-b705-55b61966b2fc");
+    private static final String DATASET_ID_1 = "cd7f037e-374e-4e68-b705-55b61966b2fc";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();

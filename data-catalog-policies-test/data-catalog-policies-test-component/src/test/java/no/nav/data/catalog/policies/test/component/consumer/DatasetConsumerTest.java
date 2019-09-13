@@ -19,7 +19,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Map;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -33,13 +32,8 @@ import static org.mockito.Mockito.when;
 @ActiveProfiles("test")
 public class DatasetConsumerTest {
 
-    private static final String DESCRIPTION = "Dataset description";
     private static final String TITLE = "Dataset title";
-    private static final Map CATEGORY = Map.of("code", "CAT1", "description", "Dataset category");
-    private static final Map PRODUCER = Map.of("code", "PROD", "description", "Dataset producer");
-    private static final Map SYSTEM = Map.of("code", "SYS1", "description", "Dataset system");
-    private static final Boolean PERSONAL_DATA = true;
-    private static final UUID DATASET_ID_1 = UUID.fromString("cd7f037e-374e-4e68-b705-55b61966b2fc");
+    private static final String DATASET_ID_1 = "cd7f037e-374e-4e68-b705-55b61966b2fc";
 
     @MockBean
     private RestTemplate restTemplate = mock(RestTemplate.class);
@@ -52,7 +46,7 @@ public class DatasetConsumerTest {
 
     @Test
     public void getDatasetById() {
-        DatasetResponse response = DatasetResponse.builder().title(TITLE).id(UUID.randomUUID()).build();
+        DatasetResponse response = DatasetResponse.builder().title(TITLE).id(UUID.randomUUID().toString()).build();
         when(restTemplate.getForEntity(anyString(), eq(DatasetResponse.class))).thenReturn(new ResponseEntity<>(response, HttpStatus.OK));
         Dataset dataset = consumer.getDatasetById(DATASET_ID_1);
         assertDataset(dataset);
@@ -76,7 +70,7 @@ public class DatasetConsumerTest {
 
     @Test
     public void getDatasetByTitle() {
-        DatasetResponse response = DatasetResponse.builder().title(TITLE).id(UUID.randomUUID()).build();
+        DatasetResponse response = DatasetResponse.builder().title(TITLE).id(UUID.randomUUID().toString()).build();
         when(restTemplate.getForEntity(anyString(), eq(DatasetResponse.class))).thenReturn(new ResponseEntity<>(response, HttpStatus.OK));
         Dataset dataset = consumer.getDatasetByTitle(TITLE);
         assertDataset(dataset);

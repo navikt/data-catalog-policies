@@ -31,7 +31,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -52,8 +51,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 public class PolicyRestControllerTest {
 
-    private static final UUID DATASET_ID_1 = UUID.fromString("cd7f037e-374e-4e68-b705-55b61966b2fc");
-    private static final UUID DATASET_ID_2 = UUID.fromString("5992e0d0-1fc9-4d67-b825-d198be0827bf");
+    private static final String DATASET_ID_1 = "cd7f037e-374e-4e68-b705-55b61966b2fc";
+    private static final String DATASET_ID_2 = "5992e0d0-1fc9-4d67-b825-d198be0827bf";
 
     @Autowired
     private MockMvc mvc;
@@ -246,7 +245,7 @@ public class PolicyRestControllerTest {
     }
 
 
-    private Policy createPolicyTestdata(UUID datasetId) {
+    private Policy createPolicyTestdata(String datasetId) {
         Policy policy = new Policy();
         Dataset dataset = new Dataset();
         dataset.setId(datasetId);
