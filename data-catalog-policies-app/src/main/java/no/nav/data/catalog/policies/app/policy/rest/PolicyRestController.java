@@ -68,13 +68,13 @@ public class PolicyRestController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "All policies fetched", response = PolicyResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Internal server error")})
-    @GetMapping(params = {"datasetId"}, produces = "application/json")
+    @GetMapping
     public RestResponsePage<PolicyResponse> getPolicies(PageParameters pageParameters, @RequestParam(required = false) String datasetId) {
         datasetId = StringUtils.trim(datasetId);
         if (datasetId != null) {
             log.debug("Received request for Policies related to Dataset with id={}", datasetId);
             Page<PolicyResponse> policyResponses = policyRepository.findByDatasetId(pageParameters.createIdSortedPage(), datasetId).map(mapper::mapPolicyToResponse);
-            log.debug("Found {}/{} Policies related to Dataset id={}", policyResponses.getNumberOfElements(), policyResponses.getTotalElements(), datasetId);
+            log.debug("Found {}/{} Policies related to Dataset id={}", policyResponses.getSize(),policyResponses.getTotalElements(), datasetId);
             return new RestResponsePage<>(policyResponses.getContent(), policyResponses.getPageable(), policyResponses.getTotalElements());
         }
         log.debug("Received request for all Policies");
