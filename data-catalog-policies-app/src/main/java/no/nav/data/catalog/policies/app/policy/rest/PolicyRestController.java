@@ -68,9 +68,15 @@ public class PolicyRestController {
             @ApiResponse(code = 200, message = "All policies fetched", response = PolicyResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping
-    public RestResponsePage<PolicyResponse> getPolicies(PageParameters pageParameters) {
-        log.debug("Received request for all Policies");
-        Page<PolicyResponse> policyResponses = policyRepository.findAll(pageParameters.createIdSortedPage()).map(mapper::mapPolicyToResponse);
+    public RestResponsePage<PolicyResponse> getPolicies(PageParameters pageParameters, @RequestParam(required = false) String datasetId) {
+        Page<PolicyResponse> policyResponses;
+        if (datasetId != null) {
+            log.debug("Received request for Policies related to Dataset with id={}", datasetId);
+            policyResponses = policyRepository.findByDatasetId(pageParameters.createIdSortedPage(), datasetId).map(mapper::mapPolicyToResponse);
+        } else {
+            log.debug("Received request for all Policies");
+            policyResponses = policyRepository.findAll(pageParameters.createIdSortedPage()).map(mapper::mapPolicyToResponse);
+        }
         return new RestResponsePage<>(policyResponses.getContent(), policyResponses.getPageable(), policyResponses.getTotalElements());
     }
 
@@ -82,17 +88,6 @@ public class PolicyRestController {
     public Long countPolicies() {
         log.debug("Received request for number of Policies");
         return policyRepository.count();
-    }
-
-    @ApiOperation(value = "Get all Policies related to Dataset", tags = {"Policies"})
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "All policies fetched", response = PolicyResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Internal server error")})
-    @GetMapping(params = {"datasetId"}, produces = "application/json")
-    public RestResponsePage<PolicyResponse> getPoliciesByDataset(PageParameters pageParameters, @RequestParam String datasetId) {
-        log.debug("Received request for Policies related to Dataset with id={}", datasetId);
-        Page<PolicyResponse> policyResponses = policyRepository.findByDatasetId(pageParameters.createIdSortedPage(), datasetId).map(mapper::mapPolicyToResponse);
-        return new RestResponsePage<>(policyResponses.getContent(), policyResponses.getPageable(), policyResponses.getTotalElements());
     }
 
     @ApiOperation(value = "Count Policies by Dataset", tags = {"Policies"})
