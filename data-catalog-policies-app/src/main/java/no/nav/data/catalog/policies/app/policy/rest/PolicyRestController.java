@@ -13,6 +13,7 @@ import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
@@ -69,9 +70,11 @@ public class PolicyRestController {
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping
     public RestResponsePage<PolicyResponse> getPolicies(PageParameters pageParameters, @RequestParam(required = false) String datasetId) {
+        datasetId = StringUtils.trim(datasetId);
         if (datasetId != null) {
             log.debug("Received request for Policies related to Dataset with id={}", datasetId);
             Page<PolicyResponse> policyResponses = policyRepository.findByDatasetId(pageParameters.createIdSortedPage(), datasetId).map(mapper::mapPolicyToResponse);
+            log.debug("Found {}/{} Policies related to Dataset id={}", policyResponses.getSize(),policyResponses.getTotalElements(), datasetId);
             return new RestResponsePage<>(policyResponses.getContent(), policyResponses.getPageable(), policyResponses.getTotalElements());
         }
         log.debug("Received request for all Policies");
