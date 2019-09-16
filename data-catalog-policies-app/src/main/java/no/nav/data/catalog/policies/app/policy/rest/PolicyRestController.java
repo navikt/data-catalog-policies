@@ -65,12 +65,12 @@ public class PolicyRestController {
 
     @ApiOperation(value = "Get all Policies", tags = {"Policies"})
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "All policies fetched", response = Policy.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "All policies fetched", response = PolicyResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping
     public RestResponsePage<PolicyResponse> getPolicies(PageParameters pageParameters) {
         log.debug("Received request for all Policies");
-        Page<PolicyResponse> policyResponses = policyRepository.findAll(pageParameters.createIdSortedPage()).map(policy -> mapper.mapPolicyToResponse(policy));
+        Page<PolicyResponse> policyResponses = policyRepository.findAll(pageParameters.createIdSortedPage()).map(mapper::mapPolicyToResponse);
         return new RestResponsePage<>(policyResponses.getContent(), policyResponses.getPageable(), policyResponses.getTotalElements());
     }
 
@@ -86,12 +86,12 @@ public class PolicyRestController {
 
     @ApiOperation(value = "Get all Policies related to Dataset", tags = {"Policies"})
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "All policies fetched", response = Policy.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "All policies fetched", response = PolicyResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping(params = {"datasetId"}, produces = "application/json")
     public RestResponsePage<PolicyResponse> getPoliciesByDataset(PageParameters pageParameters, @RequestParam String datasetId) {
         log.debug("Received request for Policies related to Dataset with id={}", datasetId);
-        Page<PolicyResponse> policyResponses = policyRepository.findByDatasetId(pageParameters.createIdSortedPage(), datasetId).map(policy -> mapper.mapPolicyToResponse(policy));
+        Page<PolicyResponse> policyResponses = policyRepository.findByDatasetId(pageParameters.createIdSortedPage(), datasetId).map(mapper::mapPolicyToResponse);
         return new RestResponsePage<>(policyResponses.getContent(), policyResponses.getPageable(), policyResponses.getTotalElements());
     }
 
@@ -107,7 +107,7 @@ public class PolicyRestController {
 
     @ApiOperation(value = "Create Policy", tags = {"Policies"})
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Policy successfully created", response = Policy.class, responseContainer = "List"),
+            @ApiResponse(code = 201, message = "Policy successfully created", response = PolicyResponse.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Illegal arguments"),
             @ApiResponse(code = 500, message = "Internal server error")})
     @PostMapping
@@ -117,12 +117,12 @@ public class PolicyRestController {
         service.validateRequests(policyRequests);
         List<Policy> policies = policyRequests.stream().map(policy -> mapper.mapRequestToPolicy(policy, null)).collect(toList());
         datasetConsumer.syncDatasetById(policies.stream().map(Policy::getDatasetId).collect(toList()));
-        return policyRepository.saveAll(policies).stream().map(policy -> mapper.mapPolicyToResponse(policy)).collect(Collectors.toList());
+        return policyRepository.saveAll(policies).stream().map(mapper::mapPolicyToResponse).collect(Collectors.toList());
     }
 
     @ApiOperation(value = "Get Policy", tags = {"Policies"})
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Fetched policy", response = Policy.class),
+            @ApiResponse(code = 200, message = "Fetched policy", response = PolicyResponse.class),
             @ApiResponse(code = 404, message = "Policy not found"),
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping("/{id}")
@@ -155,7 +155,7 @@ public class PolicyRestController {
 
     @ApiOperation(value = "Update Policy", tags = {"Policies"})
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Policy updated"),
+            @ApiResponse(code = 200, message = "Policy updated", response = PolicyResponse.class),
             @ApiResponse(code = 404, message = "Policy not found"),
             @ApiResponse(code = 500, message = "Internal server error")})
     @PutMapping("/{id}")
@@ -177,7 +177,7 @@ public class PolicyRestController {
 
     @ApiOperation(value = "Update Policies", tags = {"Policies"})
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Polices updated", response = Policy.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "Polices updated", response = PolicyResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Policy not found"),
             @ApiResponse(code = 500, message = "Internal server error")})
     @PutMapping
@@ -199,7 +199,7 @@ public class PolicyRestController {
                 }
         );
         datasetConsumer.syncDatasetById(policies.stream().map(Policy::getDatasetId).collect(toList()));
-        return policyRepository.saveAll(policies).stream().map(policy -> mapper.mapPolicyToResponse(policy)).collect(Collectors.toList());
+        return policyRepository.saveAll(policies).stream().map(mapper::mapPolicyToResponse).collect(Collectors.toList());
     }
 
     @ApiOperation(value = "Cache evict", tags = {"Policies"})
