@@ -23,9 +23,9 @@
 	<properties>
 		<start-class>no.nav.data.catalog.policies.app.AppStarter</start-class>
 		<springfox.version>2.9.2</springfox.version>
+		<swagger.version>1.5.23</swagger.version>
 		<spring-cloud-dependencies.version>Greenwich.SR2</spring-cloud-dependencies.version>
 		<testcontainer.version>1.12.0</testcontainer.version>
-		<azuread.version>2.1.6</azuread.version>
 		<prometheus.version>0.6.0</prometheus.version>
 		<azure.version>2.1.7</azure.version>
 	</properties>
@@ -53,6 +53,17 @@
 				<version>${azure.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>io.swagger</groupId>
+				<artifactId>swagger-annotations</artifactId>
+				<version>${swagger.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.swagger</groupId>
+				<artifactId>swagger-models</artifactId>
+				<version>${swagger.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
