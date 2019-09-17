@@ -37,11 +37,12 @@ public class PolicyMapper {
         PolicyResponse response = new PolicyResponse();
         response.setPolicyId(policy.getPolicyId());
         response.setLegalBasisDescription(policy.getLegalBasisDescription());
-        Dataset dataset = datasetConsumer.getDatasetById(policy.getDatasetId());
-        if (dataset == null) {
-            log.error(String.format("Cannot find Dataset with id: %s", policy.getDatasetId()));
+        try {
+            Dataset dataset = datasetConsumer.getDatasetById(policy.getDatasetId());
+            response.setDataset(dataset);
+        } catch (Exception e) {
+            log.trace(String.format("Cannot find Dataset with id: %s", policy.getDatasetId()));
         }
-        response.setDataset(dataset);
         response.setPurpose(new CodeResponse(policy.getPurposeCode(), codelistConsumer.getCodelistDescription(ListName.PURPOSE, policy.getPurposeCode())));
         return response;
     }
