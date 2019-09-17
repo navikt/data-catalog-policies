@@ -3,7 +3,6 @@ package no.nav.data.catalog.policies.test.integration.behandlingsgrunnlag;
 import no.nav.data.catalog.Behandlingsgrunnlag;
 import no.nav.data.catalog.policies.app.behandlingsgrunnlag.BehandlingsgrunnlagDistributionRepository;
 import no.nav.data.catalog.policies.app.behandlingsgrunnlag.BehandlingsgrunnlagService;
-import no.nav.data.catalog.policies.app.behandlingsgrunnlag.DistributionStatus;
 import no.nav.data.catalog.policies.test.integration.IntegrationTestBase;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.awaitility.Duration;
@@ -29,12 +28,9 @@ public class BehandlingsgrunnlagIT extends IntegrationTestBase {
         createPolicy("desc", purpose, 1);
 
         behandlingsgrunnlagService.scheduleDistributeForPurpose(purpose);
+        behandlingsgrunnlagService.distributeAll();
 
-        await().atMost(Duration.TEN_SECONDS)
-                .untilAsserted(() -> {
-                    assertThat(repository.findAllByStatus(DistributionStatus.DISTRIBUTED), hasSize(1));
-                    assertThat(repository.findAllByStatus(DistributionStatus.CHANGED), hasSize(0));
-                });
+        await().atMost(Duration.TEN_SECONDS).untilAsserted(() -> assertThat(repository.count(), is(0L)));
 
         ConsumerRecord<String, Behandlingsgrunnlag> singleRecord = KafkaTestUtils.getSingleRecord(behandlingsgrunnlagConsumer(), topicProperties.getBehandlingsgrunnlag());
 

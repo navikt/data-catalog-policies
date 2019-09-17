@@ -6,6 +6,8 @@ import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import io.prometheus.client.CollectorRegistry;
 import no.nav.data.catalog.Behandlingsgrunnlag;
 import no.nav.data.catalog.policies.app.AppStarter;
+import no.nav.data.catalog.policies.app.common.nais.LeaderElectionService;
+import no.nav.data.catalog.policies.app.common.util.JsonUtils;
 import no.nav.data.catalog.policies.app.kafka.KafkaTopicProperties;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
@@ -38,6 +40,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
+
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {AppStarter.class}, webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -68,6 +73,7 @@ public abstract class IntegrationTestBase {
 
     @Before
     public void setUpAbstract() {
+        wiremock.stubFor(get("/elector").willReturn(okJson(JsonUtils.toJson(LeaderElectionService.getHostInfo()))));
         IntegrationTestConfig.mockDataCatalogBackend(wiremock);
         policyRepository.deleteAll();
     }

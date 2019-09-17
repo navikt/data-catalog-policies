@@ -3,10 +3,9 @@ package no.nav.data.catalog.policies.app.behandlingsgrunnlag;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface BehandlingsgrunnlagDistributionRepository extends CrudRepository<BehandlingsgrunnlagDistribution, String> {
+public interface BehandlingsgrunnlagDistributionRepository extends CrudRepository<BehandlingsgrunnlagDistribution, UUID> {
 
-    List<BehandlingsgrunnlagDistribution> findAllByStatus(DistributionStatus status);
 }

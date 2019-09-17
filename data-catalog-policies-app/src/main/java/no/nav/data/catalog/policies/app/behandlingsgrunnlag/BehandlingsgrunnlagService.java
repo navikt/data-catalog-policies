@@ -1,5 +1,6 @@
 package no.nav.data.catalog.policies.app.behandlingsgrunnlag;
 
+import no.nav.data.catalog.policies.app.common.nais.LeaderElectionService;
 import no.nav.data.catalog.policies.app.kafka.BehandlingsgrunnlagProducer;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -7,10 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import javax.transaction.Transactional;
 
 @Service
 public class BehandlingsgrunnlagService {
@@ -18,40 +17,33 @@ public class BehandlingsgrunnlagService {
     private final BehandlingsgrunnlagDistributionRepository distributionRepository;
     private final PolicyRepository policyRepository;
     private final BehandlingsgrunnlagProducer behandlingsgrunnlagProducer;
-
-    private LocalDateTime lastDistribution = LocalDateTime.MIN;
+    private final LeaderElectionService leaderElectionService;
 
     public BehandlingsgrunnlagService(BehandlingsgrunnlagDistributionRepository distributionRepository,
-            PolicyRepository policyRepository, BehandlingsgrunnlagProducer behandlingsgrunnlagProducer) {
+            PolicyRepository policyRepository, BehandlingsgrunnlagProducer behandlingsgrunnlagProducer,
+            LeaderElectionService leaderElectionService) {
         this.distributionRepository = distributionRepository;
         this.policyRepository = policyRepository;
         this.behandlingsgrunnlagProducer = behandlingsgrunnlagProducer;
+        this.leaderElectionService = leaderElectionService;
         scheduleDistributions();
     }
 
-    @Transactional
     public void scheduleDistributeForPurpose(String purpose) {
-        var distribution = distributionRepository.findById(purpose)
-                .orElse(BehandlingsgrunnlagDistribution.newForPurpose(purpose))
-                .markChanged();
-        distributionRepository.save(distribution);
-        distributeAll();
+        distributionRepository.save(BehandlingsgrunnlagDistribution.newForPurpose(purpose));
     }
 
-    private void distributeAll() {
-        if (lastDistribution.isAfter(LocalDateTime.now().minusSeconds(30))) {
+    public void distributeAll() {
+        if (!leaderElectionService.isLeader()) {
             return;
         }
-        distributionRepository.findAllByStatus(DistributionStatus.CHANGED).stream()
-                .map(BehandlingsgrunnlagDistribution::getPurpose)
-                .forEach(this::distribute);
-        lastDistribution = LocalDateTime.now();
+        distributionRepository.findAll().forEach(this::distribute);
     }
 
-    private void distribute(String purpose) {
-        List<String> datasets = policyRepository.selectDatasetTitleByPurposeCode(purpose);
-        if (behandlingsgrunnlagProducer.sendBehandlingsgrunnlag(purpose, datasets)) {
-            distributionRepository.save(distributionRepository.findById(purpose).orElseThrow().markDistributed());
+    private void distribute(BehandlingsgrunnlagDistribution distribution) {
+        List<String> datasets = policyRepository.selectDatasetTitleByPurposeCode(distribution.getPurpose());
+        if (behandlingsgrunnlagProducer.sendBehandlingsgrunnlag(distribution.getPurpose(), datasets)) {
+            distributionRepository.deleteById(distribution.getId());
         }
     }
 
@@ -59,6 +51,6 @@ public class BehandlingsgrunnlagService {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
         scheduler.setThreadNamePrefix("BehGrnlgDist");
         scheduler.initialize();
-        scheduler.scheduleAtFixedRate(this::distributeAll, Instant.now().plus(5, ChronoUnit.MINUTES), Duration.ofMinutes(5));
+        scheduler.scheduleAtFixedRate(this::distributeAll, Instant.now().plus(1, ChronoUnit.MINUTES), Duration.ofMinutes(1));
     }
 }
