@@ -1,7 +1,6 @@
 package no.nav.data.catalog.policies.app.policy.mapper;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.consumer.CodelistConsumer;
 import no.nav.data.catalog.policies.app.consumer.DatasetConsumer;
 import no.nav.data.catalog.policies.app.policy.domain.CodeResponse;
@@ -41,7 +40,6 @@ public class PolicyMapper {
         Dataset dataset = datasetConsumer.getDatasetById(policy.getDatasetId());
         if (dataset == null) {
             log.error(String.format("Cannot find Dataset with id: %s", policy.getDatasetId()));
-            throw new DataCatalogPoliciesNotFoundException(String.format("Cannot find Dataset with id: %s", policy.getDatasetId()));
         }
         response.setDataset(dataset);
         response.setPurpose(new CodeResponse(policy.getPurposeCode(), codelistConsumer.getCodelistDescription(ListName.PURPOSE, policy.getPurposeCode())));
