@@ -225,7 +225,7 @@ public class PolicyRestController {
 
     private <T> ResponseEntity<T> notFoundError(Long id) {
         String message = String.format("Cannot find Policy with id: %s", id);
-        log.error(message);
+        log.warn(message);
         throw new DataCatalogPoliciesNotFoundException(message);
     }
 
