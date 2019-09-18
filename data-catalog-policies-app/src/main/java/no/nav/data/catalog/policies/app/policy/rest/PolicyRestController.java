@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
+import no.nav.data.catalog.policies.app.common.exceptions.ValidationException;
 import no.nav.data.catalog.policies.app.consumer.DatasetConsumer;
 import no.nav.data.catalog.policies.app.policy.PolicyService;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
@@ -13,6 +14,7 @@ import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
@@ -146,6 +148,21 @@ public class PolicyRestController {
         }
         datasetConsumer.syncDatasetById(List.of(optionalPolicy.get().getDatasetId()));
         policyRepository.deleteById(id);
+    }
+
+    @ApiOperation(value = "Delete Policies by datasetId", tags = {"Policies"})
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Policies deleted"),
+            @ApiResponse(code = 500, message = "Internal server error")})
+    @DeleteMapping(params = {"datasetId"})
+    public void deletePoliciesByDataset(@RequestParam String datasetId) {
+        log.debug("Received request to delete Policies with datasetId={}", datasetId);
+        if (StringUtils.isBlank(datasetId)) {
+            throw new ValidationException("Blank datasetId");
+        }
+        long deletes = policyRepository.deleteByDatasetId(datasetId);
+        datasetConsumer.syncDatasetById(List.of(datasetId));
+        log.debug("Deleted {} policies", deletes);
     }
 
     @ApiOperation(value = "Update Policy", tags = {"Policies"})
