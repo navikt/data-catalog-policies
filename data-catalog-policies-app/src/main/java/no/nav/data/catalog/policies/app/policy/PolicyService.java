@@ -37,9 +37,6 @@ public class PolicyService {
         final AtomicInteger i = new AtomicInteger(1);
         requests.forEach(request -> {
             Map<String, String> requestMap = validatePolicyRequest(request, isUpdate(request.getId()));
-            if (!requestMap.isEmpty()) {
-                validationMap.put(request.getDatasetTitle() + "/" + request.getPurposeCode(), requestMap);
-            }
             if (titlesUsedInRequest.containsKey(request.getDatasetTitle() + request.getPurposeCode())) {
                 requestMap.put("combinationNotUniqueInThisRequest", String.format("A request combining Dataset: %s and Purpose: %s is not unique because " + "" +
                                 "it is already used in this request (see request nr:%s)",
@@ -47,8 +44,8 @@ public class PolicyService {
             } else if (request.getDatasetTitle() != null && request.getPurposeCode() != null) {
                 titlesUsedInRequest.put(request.getDatasetTitle() + request.getPurposeCode(), i.intValue());
             }
-
             if (!requestMap.isEmpty()) {
+                validationMap.put(request.getDatasetTitle() + "/" + request.getPurposeCode(), requestMap);
                 validationMap.put(String.format("Request nr:%s", i.intValue()), requestMap);
             }
             i.getAndIncrement();

@@ -61,21 +61,17 @@ class PolicyServiceTest {
 
     @Test
     void shouldThrowAllNullValidationExceptionOnInsert() {
-        PolicyRequest request = PolicyRequest.builder()
-                .datasetTitle(DATASET_TITLE)
-                .legalBasisDescription(LEGALBASISDESCRIPTION)
-                .purposeCode(PURPOSECODE)
-                .build();
+        PolicyRequest request = PolicyRequest.builder().build();
         when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().id(DATASET_ID_1).build());
         when(policyRepository.existsByDatasetIdAndPurposeCode(any(String.class), anyString())).thenReturn(false);
         try {
             service.validateRequests(List.of(request));
             fail();
         } catch (ValidationException e) {
-            assertEquals(3, e.get().get(DATASET_TITLE + "/" + PURPOSECODE).size());
-            assertEquals("datasetTitle cannot be null", e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("datasetTitle"));
-            assertEquals("purposeCode cannot be null", e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("purposeCode"));
-            assertEquals("legalBasisDescription cannot be null", e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("legalBasisDescription"));
+            assertEquals(3, e.get().get("Request nr:1").size());
+            assertEquals("datasetTitle cannot be null", e.get().get("Request nr:1").get("datasetTitle"));
+            assertEquals("purposeCode cannot be null", e.get().get("Request nr:1").get("purposeCode"));
+            assertEquals("legalBasisDescription cannot be null", e.get().get("Request nr:1").get("legalBasisDescription"));
         }
     }
 
@@ -120,21 +116,17 @@ class PolicyServiceTest {
 
     @Test
     void shouldThrowAllNullValidationExceptionOnUpdate() {
-        PolicyRequest request = PolicyRequest.builder()
-                .datasetTitle(DATASET_TITLE)
-                .legalBasisDescription(LEGALBASISDESCRIPTION)
-                .purposeCode(PURPOSECODE)
-                .build();
+        PolicyRequest request = PolicyRequest.builder().build();
         when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().id(DATASET_ID_1).build());
         when(policyRepository.existsByDatasetIdAndPurposeCode(any(String.class), anyString())).thenReturn(false);
         try {
             service.validateRequests(List.of(request));
             fail();
         } catch (ValidationException e) {
-            assertEquals(3, e.get().get(DATASET_TITLE + "/" + PURPOSECODE).size());
-            assertEquals("datasetTitle cannot be null", e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("datasetTitle"));
-            assertEquals("purposeCode cannot be null", e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("purposeCode"));
-            assertEquals("legalBasisDescription cannot be null", e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("legalBasisDescription"));
+            assertEquals(3, e.get().get("Request nr:1").size());
+            assertEquals("datasetTitle cannot be null", e.get().get("Request nr:1").get("datasetTitle"));
+            assertEquals("purposeCode cannot be null", e.get().get("Request nr:1").get("purposeCode"));
+            assertEquals("legalBasisDescription cannot be null", e.get().get("Request nr:1").get("legalBasisDescription"));
         }
     }
 
