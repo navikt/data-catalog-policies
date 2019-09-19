@@ -133,6 +133,8 @@
                         <configuration>
                             <sourceDirectory>${project.basedir}/src/main/resources/avro/</sourceDirectory>
                             <outputDirectory>${project.basedir}/target/generated-sources/avro/</outputDirectory>
+                            <fieldVisibility>private</fieldVisibility>
+                            <stringType>String</stringType>
                         </configuration>
                     </execution>
                 </executions>

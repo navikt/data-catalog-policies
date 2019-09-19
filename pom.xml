@@ -28,7 +28,7 @@
 		<testcontainer.version>1.12.0</testcontainer.version>
 		<prometheus.version>0.6.0</prometheus.version>
 		<confluent.version>5.3.0</confluent.version>
-		<avro.version>1.9.1</avro.version>
+		<avro.version>1.8.2</avro.version>
 		<azure.version>2.1.7</azure.version>
 
 		<!-- Test -->

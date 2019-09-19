@@ -35,8 +35,8 @@ public class BehandlingsgrunnlagIT extends IntegrationTestBase {
         ConsumerRecord<String, Behandlingsgrunnlag> singleRecord = KafkaTestUtils.getSingleRecord(behandlingsgrunnlagConsumer(), topicProperties.getBehandlingsgrunnlag());
 
         assertThat(singleRecord.key(), is(purpose));
-        assertThat(singleRecord.value().getPurpose().toString(), is(purpose));
+        assertThat(singleRecord.value().getPurpose(), is(purpose));
         assertThat(singleRecord.value().getDatasets(), hasSize(1));
-        assertThat(singleRecord.value().getDatasets().get(0).toString(), is("title"));
+        assertThat(singleRecord.value().getDatasets().get(0), is("title"));
     }
 }

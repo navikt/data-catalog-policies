@@ -18,4 +18,37 @@
         <module>data-catalog-policies-test-component</module>
         <module>data-catalog-policies-test-integration</module>
     </modules>
+
+    <properties>
+        <!-- Wiremock funker ikke med tomcat 9 >_> -->
+        <tomcat.version>8.5.45</tomcat.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.data</groupId>
+            <artifactId>data-catalog-policies-app</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${testcontainer.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>${awaitability.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>
