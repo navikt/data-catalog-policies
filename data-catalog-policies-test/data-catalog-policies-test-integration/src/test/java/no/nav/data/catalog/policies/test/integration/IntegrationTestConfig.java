@@ -1,7 +1,7 @@
 package no.nav.data.catalog.policies.test.integration;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
-import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
@@ -12,7 +12,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 
 public class IntegrationTestConfig {
 
-    public static void mockDataCatalogBackend(WireMockClassRule wiremock) {
+    public static void mockDataCatalogBackend(WireMockServer wiremock) {
         wiremock.stubFor(get(urlMatching("/backend/codelist/(.*?)/NOTFOUND"))
                 .atPriority(1)
                 .willReturn(aResponse().withStatus(HttpStatus.NOT_FOUND.value())

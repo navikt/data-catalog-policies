@@ -9,17 +9,14 @@ import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
 import no.nav.data.catalog.policies.test.component.ComponentTestConfig;
-import no.nav.data.catalog.policies.test.component.PolicyTestContainer;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -28,10 +25,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ComponentTestConfig.class)
 @ActiveProfiles("test")
-public class PolicyMapperTest {
+class PolicyMapperTest {
 
     @Mock
     private CodelistConsumer codelistConsumer;
@@ -44,14 +41,8 @@ public class PolicyMapperTest {
     private static final String DATASET_TITLE_1 = "DatasetTitle 1";
     private static final String DATASET_ID_1 = "cd7f037e-374e-4e68-b705-55b61966b2fc";
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
-    @ClassRule
-    public static PolicyTestContainer postgreSQLContainer = PolicyTestContainer.getInstance();
-
     @Test
-    public void shouldMapToPolicy() {
+    void shouldMapToPolicy() {
         Dataset dataset = createBasicTestdata(DATASET_TITLE_1);
         PolicyRequest request = new PolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, dataset.getTitle());
         request.setDatasetId(DATASET_ID_1);
@@ -63,7 +54,7 @@ public class PolicyMapperTest {
     }
 
     @Test
-    public void shouldMapToPolicyResponse() {
+    void shouldMapToPolicyResponse() {
         Dataset dataset = createBasicTestdata(DATASET_TITLE_1);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenReturn(PURPOSE_DESCRIPTION1);
         Policy policy = new Policy(1L, dataset.getId(), dataset.getTitle(), PURPOSE_CODE1, LEGAL_BASIS_DESCRIPTION1);
@@ -76,12 +67,11 @@ public class PolicyMapperTest {
     }
 
     @Test
-    public void shouldThrowPurposeNotFoundExceptionResponse() {
-        expectedException.expect(DataCatalogPoliciesNotFoundException.class);
+    void shouldThrowPurposeNotFoundExceptionResponse() {
         Dataset dataset = createBasicTestdata(DATASET_TITLE_1);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenThrow(new DataCatalogPoliciesNotFoundException("codelist not found"));
         Policy policy = new Policy(1L, dataset.getId(), dataset.getTitle(), PURPOSE_CODE1, LEGAL_BASIS_DESCRIPTION1);
-        mapper.mapPolicyToResponse(policy);
+        Assertions.assertThrows(DataCatalogPoliciesNotFoundException.class, () -> mapper.mapPolicyToResponse(policy));
     }
 
     private Dataset createBasicTestdata(String datasetTitle) {

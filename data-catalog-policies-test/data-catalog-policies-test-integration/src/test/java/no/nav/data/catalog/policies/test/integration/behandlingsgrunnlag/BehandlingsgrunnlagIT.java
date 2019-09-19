@@ -6,16 +6,16 @@ import no.nav.data.catalog.policies.app.behandlingsgrunnlag.BehandlingsgrunnlagS
 import no.nav.data.catalog.policies.test.integration.IntegrationTestBase;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.awaitility.Duration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 
-import static org.awaitility.Awaitility.await;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import java.util.List;
 
-public class BehandlingsgrunnlagIT extends IntegrationTestBase {
+import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class BehandlingsgrunnlagIT extends IntegrationTestBase {
 
     @Autowired
     private BehandlingsgrunnlagService behandlingsgrunnlagService;
@@ -23,20 +23,19 @@ public class BehandlingsgrunnlagIT extends IntegrationTestBase {
     private BehandlingsgrunnlagDistributionRepository repository;
 
     @Test
-    public void produserBehandlingsgrunnlag() {
+    void produserBehandlingsgrunnlag() {
         String purpose = "PURPOSE";
         createPolicy("desc", purpose, 1);
 
         behandlingsgrunnlagService.scheduleDistributeForPurpose(purpose);
         behandlingsgrunnlagService.distributeAll();
 
-        await().atMost(Duration.TEN_SECONDS).untilAsserted(() -> assertThat(repository.count(), is(0L)));
+        await().atMost(Duration.TEN_SECONDS).untilAsserted(() -> assertEquals(0L, repository.count()));
 
         ConsumerRecord<String, Behandlingsgrunnlag> singleRecord = KafkaTestUtils.getSingleRecord(behandlingsgrunnlagConsumer(), topicProperties.getBehandlingsgrunnlag());
 
-        assertThat(singleRecord.key(), is(purpose));
-        assertThat(singleRecord.value().getPurpose(), is(purpose));
-        assertThat(singleRecord.value().getDatasets(), hasSize(1));
-        assertThat(singleRecord.value().getDatasets().get(0), is("title"));
+        assertEquals(purpose, singleRecord.key());
+        assertEquals(purpose, singleRecord.value().getPurpose());
+        assertEquals(List.of("title"), singleRecord.value().getDatasets());
     }
 }

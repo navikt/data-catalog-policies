@@ -9,27 +9,25 @@ import no.nav.data.catalog.policies.app.policy.domain.Dataset;
 import no.nav.data.catalog.policies.app.policy.domain.ListName;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ComponentTestConfig.class)
 @ActiveProfiles("test")
-public class PolicyServiceTest {
+class PolicyServiceTest {
 
     private static final String DATASET_TITLE = "Personalia";
     private static final String LEGALBASISDESCRIPTION = "LegalBasis";
@@ -48,11 +46,8 @@ public class PolicyServiceTest {
     @InjectMocks
     private PolicyService service;
 
-    @ClassRule
-    public static PolicyTestContainer postgreSQLContainer = PolicyTestContainer.getInstance();
-
     @Test
-    public void shouldValidateInsertRequest() {
+    void shouldValidateInsertRequest() {
         PolicyRequest request = PolicyRequest.builder()
                 .datasetTitle(DATASET_TITLE)
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
@@ -64,7 +59,7 @@ public class PolicyServiceTest {
     }
 
     @Test
-    public void shouldThrowAllNullValidationExceptionOnInsert() {
+    void shouldThrowAllNullValidationExceptionOnInsert() {
         PolicyRequest request = PolicyRequest.builder()
                 .datasetTitle(DATASET_TITLE)
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
@@ -75,15 +70,15 @@ public class PolicyServiceTest {
         try {
             service.validateRequests(List.of(request));
         } catch (ValidationException e) {
-            assertThat(e.get().get(DATASET_TITLE + "/" + PURPOSECODE).size(), is(3));
-            assertThat(e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("datasetTitle"), is("datasetTitle cannot be null"));
-            assertThat(e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("purposeCode"), is("purposeCode cannot be null"));
-            assertThat(e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("legalBasisDescription"), is("legalBasisDescription cannot be null"));
+            assertEquals(3, e.get().get(DATASET_TITLE + "/" + PURPOSECODE).size());
+            assertEquals("datasetTitle cannot be null", e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("datasetTitle"));
+            assertEquals("purposeCode cannot be null", e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("purposeCode"));
+            assertEquals("legalBasisDescription cannot be null", e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("legalBasisDescription"));
         }
     }
 
     @Test
-    public void shouldThrowNotFoundValidationExceptionOnInsert() {
+    void shouldThrowNotFoundValidationExceptionOnInsert() {
         PolicyRequest request = PolicyRequest.builder()
                 .datasetTitle(DATASET_TITLE)
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
@@ -95,14 +90,14 @@ public class PolicyServiceTest {
         try {
             service.validateRequests(List.of(request));
         } catch (ValidationException e) {
-            assertThat(e.get().get(DATASET_TITLE + "/" + PURPOSECODE).size(), is(2));
-            assertThat(e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("purposeCode"), is("The purposeCode AAP was not found in the PURPOSE codelist."));
-            assertThat(e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("datasetTitle"), is("A dataset with title " + DATASET_TITLE + " does not exist"));
+            assertEquals(2, e.get().get(DATASET_TITLE + "/" + PURPOSECODE).size());
+            assertEquals("The purposeCode AAP was not found in the PURPOSE codelist.", e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("purposeCode"));
+            assertEquals("A dataset with title " + DATASET_TITLE + " does not exist", e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("datasetTitle"));
         }
     }
 
     @Test
-    public void shouldThrowAlreadyExistsValidationExceptionOnInsert() {
+    void shouldThrowAlreadyExistsValidationExceptionOnInsert() {
         PolicyRequest request = PolicyRequest.builder()
                 .datasetTitle(DATASET_TITLE)
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
@@ -114,13 +109,13 @@ public class PolicyServiceTest {
         try {
             service.validateRequests(List.of(request));
         } catch (ValidationException e) {
-            assertThat(e.get().get(DATASET_TITLE + "/" + PURPOSECODE).size(), is(1));
-            assertThat(e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("datasetAndPurpose"), is("A policy combining Dataset Personalia and Purpose AAP already exists"));
+            assertEquals(1, e.get().get(DATASET_TITLE + "/" + PURPOSECODE).size());
+            assertEquals("A policy combining Dataset Personalia and Purpose AAP already exists", e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("datasetAndPurpose"));
         }
     }
 
     @Test
-    public void shouldThrowAllNullValidationExceptionOnUpdate() {
+    void shouldThrowAllNullValidationExceptionOnUpdate() {
         PolicyRequest request = PolicyRequest.builder()
                 .datasetTitle(DATASET_TITLE)
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
@@ -131,15 +126,15 @@ public class PolicyServiceTest {
         try {
             service.validateRequests(List.of(request));
         } catch (ValidationException e) {
-            assertThat(e.get().get(DATASET_TITLE + "/" + PURPOSECODE).size(), is(3));
-            assertThat(e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("datasetTitle"), is("datasetTitle cannot be null"));
-            assertThat(e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("purposeCode"), is("purposeCode cannot be null"));
-            assertThat(e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("legalBasisDescription"), is("legalBasisDescription cannot be null"));
+            assertEquals(3, e.get().get(DATASET_TITLE + "/" + PURPOSECODE).size());
+            assertEquals("datasetTitle cannot be null", e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("datasetTitle"));
+            assertEquals("purposeCode cannot be null", e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("purposeCode"));
+            assertEquals("legalBasisDescription cannot be null", e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("legalBasisDescription"));
         }
     }
 
     @Test
-    public void shouldThrowNotFoundValidationExceptionOnUpdate() {
+    void shouldThrowNotFoundValidationExceptionOnUpdate() {
         PolicyRequest request = PolicyRequest.builder()
                 .datasetTitle(DATASET_TITLE)
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
@@ -151,14 +146,14 @@ public class PolicyServiceTest {
         try {
             service.validateRequests(List.of(request));
         } catch (ValidationException e) {
-            assertThat(e.get().get(DATASET_TITLE + "/" + PURPOSECODE).size(), is(2));
-            assertThat(e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("purposeCode"), is("The purposeCode AAP was not found in the PURPOSE codelist."));
-            assertThat(e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("datasetTitle"), is("A dataset with title " + DATASET_TITLE + " does not exist"));
+            assertEquals(2, e.get().get(DATASET_TITLE + "/" + PURPOSECODE).size());
+            assertEquals("The purposeCode AAP was not found in the PURPOSE codelist.", e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("purposeCode"));
+            assertEquals("A dataset with title " + DATASET_TITLE + " does not exist", e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("datasetTitle"));
         }
     }
 
     @Test
-    public void shouldNOTThrowAlreadyExistsValidationExceptionOnInsert() {
+    void shouldNOTThrowAlreadyExistsValidationExceptionOnInsert() {
         PolicyRequest request = PolicyRequest.builder()
                 .datasetTitle(DATASET_TITLE)
                 .legalBasisDescription(LEGALBASISDESCRIPTION)

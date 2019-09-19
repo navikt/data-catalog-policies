@@ -5,12 +5,10 @@ import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesTec
 import no.nav.data.catalog.policies.app.consumer.DatasetConsumer;
 import no.nav.data.catalog.policies.app.policy.domain.Dataset;
 import no.nav.data.catalog.policies.app.policy.domain.DatasetResponse;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,16 +19,16 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.UUID;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
-public class DatasetConsumerTest {
+class DatasetConsumerTest {
 
     private static final String TITLE = "Dataset title";
     private static final String DATASET_ID_1 = "cd7f037e-374e-4e68-b705-55b61966b2fc";
@@ -38,14 +36,11 @@ public class DatasetConsumerTest {
     @MockBean
     private RestTemplate restTemplate = mock(RestTemplate.class);
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     @InjectMocks
     private DatasetConsumer consumer;
 
     @Test
-    public void getDatasetById() {
+    void getDatasetById() {
         DatasetResponse response = DatasetResponse.builder().title(TITLE).id(UUID.randomUUID().toString()).build();
         when(restTemplate.getForEntity(anyString(), eq(DatasetResponse.class))).thenReturn(new ResponseEntity<>(response, HttpStatus.OK));
         Dataset dataset = consumer.getDatasetById(DATASET_ID_1);
@@ -53,23 +48,25 @@ public class DatasetConsumerTest {
     }
 
     @Test
-    public void getByIdThrowNotFound() {
-        expectedException.expect(DataCatalogPoliciesNotFoundException.class);
-        expectedException.expectMessage("Dataset with id=cd7f037e-374e-4e68-b705-55b61966b2fc does not exist");
+    void getByIdThrowNotFound() {
         when(restTemplate.getForEntity(anyString(), eq(DatasetResponse.class))).thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
-        consumer.getDatasetById(DATASET_ID_1);
+
+        var exception = assertThrows(DataCatalogPoliciesNotFoundException.class,
+                () -> consumer.getDatasetById(DATASET_ID_1));
+        assertEquals("Dataset with id=cd7f037e-374e-4e68-b705-55b61966b2fc does not exist", exception.getMessage());
     }
 
     @Test
-    public void getByIdThrowInternalServerError() {
-        expectedException.expect(DataCatalogPoliciesTechnicalException.class);
-        expectedException.expectMessage("Getting Dataset with id=cd7f037e-374e-4e68-b705-55b61966b2fc failed with status=500 INTERNAL_SERVER_ERROR");
+    void getByIdThrowInternalServerError() {
         when(restTemplate.getForEntity(anyString(), eq(DatasetResponse.class))).thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
-        consumer.getDatasetById(DATASET_ID_1);
+
+        var exception = assertThrows(DataCatalogPoliciesTechnicalException.class,
+                () -> consumer.getDatasetById(DATASET_ID_1));
+        assertEquals("Getting Dataset with id=cd7f037e-374e-4e68-b705-55b61966b2fc failed with status=500 INTERNAL_SERVER_ERROR message=", exception.getMessage());
     }
 
     @Test
-    public void getDatasetByTitle() {
+    void getDatasetByTitle() {
         DatasetResponse response = DatasetResponse.builder().title(TITLE).id(UUID.randomUUID().toString()).build();
         when(restTemplate.getForEntity(anyString(), eq(DatasetResponse.class))).thenReturn(new ResponseEntity<>(response, HttpStatus.OK));
         Dataset dataset = consumer.getDatasetByTitle(TITLE);
@@ -77,22 +74,24 @@ public class DatasetConsumerTest {
     }
 
     @Test
-    public void getByTitleThrowNotFound() {
-        expectedException.expect(DataCatalogPoliciesNotFoundException.class);
-        expectedException.expectMessage("Dataset with title=Dataset title does not exist");
+    void getByTitleThrowNotFound() {
         when(restTemplate.getForEntity(anyString(), eq(DatasetResponse.class))).thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
-        consumer.getDatasetByTitle(TITLE);
+
+        var exception = assertThrows(DataCatalogPoliciesNotFoundException.class,
+                () -> consumer.getDatasetByTitle(TITLE));
+        assertEquals("Dataset with title=Dataset title does not exist", exception.getMessage());
     }
 
     @Test
-    public void getByTitleThrowInternalServerError() {
-        expectedException.expect(DataCatalogPoliciesTechnicalException.class);
-        expectedException.expectMessage("Getting Dataset with title=Dataset title failed with status=500 INTERNAL_SERVER_ERROR");
+    void getByTitleThrowInternalServerError() {
         when(restTemplate.getForEntity(anyString(), eq(DatasetResponse.class))).thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
-        consumer.getDatasetByTitle(TITLE);
+
+        var exception = assertThrows(DataCatalogPoliciesTechnicalException.class,
+                () -> consumer.getDatasetByTitle(TITLE));
+        assertEquals("Getting Dataset with title=Dataset title failed with status=500 INTERNAL_SERVER_ERROR message=", exception.getMessage());
     }
 
     private void assertDataset(Dataset dataset) {
-        assertThat(dataset.getTitle(), is(TITLE));
+        assertEquals(TITLE, dataset.getTitle());
     }
 }

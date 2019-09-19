@@ -1,7 +1,7 @@
 package no.nav.data.catalog.policies.test.integration;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import io.prometheus.client.CollectorRegistry;
 import no.nav.data.catalog.Behandlingsgrunnlag;
@@ -18,10 +18,9 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -32,8 +31,10 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.TestcontainersExtensionImpl;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,24 +44,26 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 
+/**
+ * Extension order is important and SpringBootTest contains the spring extension
+ */
 @ActiveProfiles("test")
-@RunWith(SpringRunner.class)
+@ExtendWith({TestcontainersExtensionImpl.class, WiremockExtension.class})
 @SpringBootTest(classes = {AppStarter.class}, webEnvironment = WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(initializers = {Initializer.class, PolicyTestContainer.Initializer.class})
+@ContextConfiguration(initializers = {Initializer.class})
 public abstract class IntegrationTestBase {
 
     protected static final String DATASET_ID_1 = "0702e097-0800-47e1-9fc9-da9fa935c76d";
 
     private static final String CONFLUENT_VERSION = "5.3.0";
 
-    @ClassRule
-    public static PolicyTestContainer postgreSQLContainer = PolicyTestContainer.getInstance();
-    @ClassRule
-    public static KafkaContainer kafkaContainer = new KafkaContainer(CONFLUENT_VERSION);
-    @ClassRule
-    public static SchemaRegistryContainer schemaRegistryContainer = new SchemaRegistryContainer(CONFLUENT_VERSION, kafkaContainer);
-    @ClassRule
-    public static WireMockClassRule wiremock = new WireMockClassRule(
+    @Container
+    private static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer("postgres:10.4");
+    @Container
+    private static KafkaContainer kafkaContainer = new KafkaContainer(CONFLUENT_VERSION);
+    @Container
+    private static SchemaRegistryContainer schemaRegistryContainer = new SchemaRegistryContainer(CONFLUENT_VERSION, kafkaContainer);
+    static WireMockServer wiremock = new WireMockServer(
             WireMockConfiguration.wireMockConfig()
                     .dynamicPort()
                     .extensions(new WiremockResponseTransformer())
@@ -71,14 +74,14 @@ public abstract class IntegrationTestBase {
     @Autowired
     protected KafkaTopicProperties topicProperties;
 
-    @Before
+    @BeforeEach
     public void setUpAbstract() {
         wiremock.stubFor(get("/elector").willReturn(okJson(JsonUtils.toJson(LeaderElectionService.getHostInfo()))));
         IntegrationTestConfig.mockDataCatalogBackend(wiremock);
         policyRepository.deleteAll();
     }
 
-    @After
+    @AfterEach
     public void cleanUpAbstract() {
         policyRepository.deleteAll();
         CollectorRegistry.defaultRegistry.clear();
@@ -113,6 +116,9 @@ public abstract class IntegrationTestBase {
 
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
             TestPropertyValues.of(
+                    "spring.datasource.url=" + postgreSQLContainer.getJdbcUrl(),
+                    "spring.datasource.username=" + postgreSQLContainer.getUsername(),
+                    "spring.datasource.password=" + postgreSQLContainer.getPassword(),
                     "wiremock.server.port=" + wiremock.port(),
                     "KAFKA_BOOTSTRAP_SERVERS=" + kafkaContainer.getBootstrapServers(),
                     "KAFKA_SCHEMA_REGISTRY_URL=" + schemaRegistryContainer.getAddress()

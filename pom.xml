@@ -25,7 +25,6 @@
 		<springfox.version>2.9.2</springfox.version>
 		<swagger.version>1.5.23</swagger.version>
 		<spring-cloud-dependencies.version>Greenwich.SR2</spring-cloud-dependencies.version>
-		<testcontainer.version>1.12.0</testcontainer.version>
 		<prometheus.version>0.6.0</prometheus.version>
 		<confluent.version>5.3.0</confluent.version>
 		<avro.version>1.8.2</avro.version>
@@ -33,7 +32,7 @@
 
 		<!-- Test -->
 		<awaitability.version>3.1.6</awaitability.version>
-		<testcontainer.version>1.12.0</testcontainer.version>
+		<testcontainer.version>1.12.1</testcontainer.version>
 	</properties>
 
 	<dependencies>
