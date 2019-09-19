@@ -20,6 +20,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -69,6 +70,7 @@ class PolicyServiceTest {
         when(policyRepository.existsByDatasetIdAndPurposeCode(any(String.class), anyString())).thenReturn(false);
         try {
             service.validateRequests(List.of(request));
+            fail();
         } catch (ValidationException e) {
             assertEquals(3, e.get().get(DATASET_TITLE + "/" + PURPOSECODE).size());
             assertEquals("datasetTitle cannot be null", e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("datasetTitle"));
@@ -89,6 +91,7 @@ class PolicyServiceTest {
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenThrow(new DataCatalogPoliciesNotFoundException(""));
         try {
             service.validateRequests(List.of(request));
+            fail();
         } catch (ValidationException e) {
             assertEquals(2, e.get().get(DATASET_TITLE + "/" + PURPOSECODE).size());
             assertEquals("The purposeCode AAP was not found in the PURPOSE codelist.", e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("purposeCode"));
@@ -108,6 +111,7 @@ class PolicyServiceTest {
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenReturn("purpose");
         try {
             service.validateRequests(List.of(request));
+            fail();
         } catch (ValidationException e) {
             assertEquals(1, e.get().get(DATASET_TITLE + "/" + PURPOSECODE).size());
             assertEquals("A policy combining Dataset Personalia and Purpose AAP already exists", e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("datasetAndPurpose"));
@@ -125,6 +129,7 @@ class PolicyServiceTest {
         when(policyRepository.existsByDatasetIdAndPurposeCode(any(String.class), anyString())).thenReturn(false);
         try {
             service.validateRequests(List.of(request));
+            fail();
         } catch (ValidationException e) {
             assertEquals(3, e.get().get(DATASET_TITLE + "/" + PURPOSECODE).size());
             assertEquals("datasetTitle cannot be null", e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("datasetTitle"));
@@ -145,6 +150,7 @@ class PolicyServiceTest {
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenThrow(new DataCatalogPoliciesNotFoundException(""));
         try {
             service.validateRequests(List.of(request));
+            fail();
         } catch (ValidationException e) {
             assertEquals(2, e.get().get(DATASET_TITLE + "/" + PURPOSECODE).size());
             assertEquals("The purposeCode AAP was not found in the PURPOSE codelist.", e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("purposeCode"));
