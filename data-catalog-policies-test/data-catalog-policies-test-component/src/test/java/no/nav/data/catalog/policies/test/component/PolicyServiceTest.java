@@ -13,9 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
@@ -25,8 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = ComponentTestConfig.class)
+@ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 class PolicyServiceTest {
 
@@ -62,8 +60,6 @@ class PolicyServiceTest {
     @Test
     void shouldThrowAllNullValidationExceptionOnInsert() {
         PolicyRequest request = PolicyRequest.builder().build();
-        when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().id(DATASET_ID_1).build());
-        when(policyRepository.existsByDatasetIdAndPurposeCode(any(String.class), anyString())).thenReturn(false);
         try {
             service.validateRequests(List.of(request));
             fail();
@@ -83,7 +79,6 @@ class PolicyServiceTest {
                 .purposeCode(PURPOSECODE)
                 .build();
         when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenThrow(new DataCatalogPoliciesNotFoundException(""));
-        when(policyRepository.existsByDatasetIdAndPurposeCode(any(String.class), anyString())).thenReturn(false);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenThrow(new DataCatalogPoliciesNotFoundException(""));
         try {
             service.validateRequests(List.of(request));
@@ -117,8 +112,6 @@ class PolicyServiceTest {
     @Test
     void shouldThrowAllNullValidationExceptionOnUpdate() {
         PolicyRequest request = PolicyRequest.builder().build();
-        when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().id(DATASET_ID_1).build());
-        when(policyRepository.existsByDatasetIdAndPurposeCode(any(String.class), anyString())).thenReturn(false);
         try {
             service.validateRequests(List.of(request));
             fail();
@@ -138,7 +131,6 @@ class PolicyServiceTest {
                 .purposeCode(PURPOSECODE)
                 .build();
         when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenThrow(new DataCatalogPoliciesNotFoundException(""));
-        when(policyRepository.existsByDatasetIdAndPurposeCode(any(String.class), anyString())).thenReturn(false);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenThrow(new DataCatalogPoliciesNotFoundException(""));
         try {
             service.validateRequests(List.of(request));
@@ -159,7 +151,6 @@ class PolicyServiceTest {
                 .id(1L)
                 .build();
         when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().id(DATASET_ID_1).build());
-        when(policyRepository.existsByDatasetIdAndPurposeCode(any(String.class), anyString())).thenReturn(true);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenReturn("purpose");
         service.validateRequests(List.of(request));
     }

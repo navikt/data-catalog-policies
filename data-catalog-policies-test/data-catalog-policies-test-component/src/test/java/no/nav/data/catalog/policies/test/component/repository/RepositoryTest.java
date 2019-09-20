@@ -1,9 +1,9 @@
 package no.nav.data.catalog.policies.test.component.repository;
 
+import no.nav.data.catalog.policies.app.AppStarter;
 import no.nav.data.catalog.policies.app.policy.domain.Dataset;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
-import no.nav.data.catalog.policies.test.component.ComponentTestConfig;
 import no.nav.data.catalog.policies.test.component.PolicyTestContainer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 @Testcontainers
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = ComponentTestConfig.class)
+@SpringBootTest(classes = AppStarter.class)
 @ActiveProfiles("test")
 class RepositoryTest {
 

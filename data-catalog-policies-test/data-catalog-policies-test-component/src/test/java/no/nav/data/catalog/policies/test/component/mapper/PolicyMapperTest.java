@@ -8,15 +8,13 @@ import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.mapper.PolicyMapper;
-import no.nav.data.catalog.policies.test.component.ComponentTestConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -25,8 +23,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = ComponentTestConfig.class)
+@ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 class PolicyMapperTest {
 
