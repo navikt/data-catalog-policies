@@ -3,7 +3,7 @@ package no.nav.data.catalog.policies.test.integration.behandlingsgrunnlag;
 import no.nav.data.catalog.Behandlingsgrunnlag;
 import no.nav.data.catalog.policies.app.behandlingsgrunnlag.BehandlingsgrunnlagDistributionRepository;
 import no.nav.data.catalog.policies.app.behandlingsgrunnlag.BehandlingsgrunnlagService;
-import no.nav.data.catalog.policies.test.integration.IntegrationTestBase;
+import no.nav.data.catalog.policies.test.integration.KafkaIntegrationTestBase;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.awaitility.Duration;
@@ -17,7 +17,7 @@ import java.util.List;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class BehandlingsgrunnlagIT extends IntegrationTestBase {
+class BehandlingsgrunnlagIT extends KafkaIntegrationTestBase {
 
     @Autowired
     private BehandlingsgrunnlagService behandlingsgrunnlagService;
