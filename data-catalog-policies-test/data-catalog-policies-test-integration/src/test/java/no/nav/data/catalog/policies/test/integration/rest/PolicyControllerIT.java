@@ -1,11 +1,13 @@
 package no.nav.data.catalog.policies.test.integration.rest;
 
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import no.nav.data.catalog.policies.app.behandlingsgrunnlag.BehandlingsgrunnlagDistribution;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.rest.RestResponsePage;
 import no.nav.data.catalog.policies.test.integration.IntegrationTestBase;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -21,9 +23,8 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 class PolicyControllerIT extends IntegrationTestBase {
 
@@ -36,6 +37,11 @@ class PolicyControllerIT extends IntegrationTestBase {
     @Autowired
     protected TestRestTemplate restTemplate;
 
+    @BeforeEach
+    void setUp() {
+        behandlingsgrunnlagDistributionRepository.deleteAll();
+    }
+
     @Test
     void createPolicy() {
         List<PolicyRequest> requestList = List.of(createPolicyRequest(DATASET_TITLE));
@@ -45,7 +51,7 @@ class PolicyControllerIT extends IntegrationTestBase {
         assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
         assertThat(policyRepository.count(), is(1L));
         assertPolicy(createEntity.getBody().get(0), LEGAL_BASIS_DESCRIPTION1);
-        verify(behandlingsgrunnlagService).scheduleDistributeForPurpose(PURPOSE_CODE1);
+        assertBehandlingsgrunnlagDistribusjon(1);
     }
 
     @Test
@@ -130,7 +136,7 @@ class PolicyControllerIT extends IntegrationTestBase {
                 POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), new ParameterizedTypeReference<List<PolicyResponse>>() {
                 });
         assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
-        verify(behandlingsgrunnlagService).scheduleDistributeForPurpose(PURPOSE_CODE1);
+        assertBehandlingsgrunnlagDistribusjon(1);
 
         PolicyRequest request = requestList.get(0);
         request.setId(createEntity.getBody().get(0).getPolicyId());
@@ -140,7 +146,7 @@ class PolicyControllerIT extends IntegrationTestBase {
         assertThat(updateEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(policyRepository.count(), is(1L));
         assertPolicy(updateEntity.getBody(), "UPDATED");
-        verify(behandlingsgrunnlagService, times(2)).scheduleDistributeForPurpose(PURPOSE_CODE1);
+        assertBehandlingsgrunnlagDistribusjon(2);
     }
 
     @Test
@@ -183,7 +189,7 @@ class PolicyControllerIT extends IntegrationTestBase {
         assertPolicy(updateEntity.getBody().get(0), "UPDATED");
         assertThat(updateEntity.getBody().get(1).getLegalBasisDescription(), is("UPDATED"));
         assertThat(policyRepository.count(), is(2L));
-        verify(behandlingsgrunnlagService, times(2)).scheduleDistributeForPurpose(PURPOSE_CODE1);
+        assertBehandlingsgrunnlagDistribusjon(2);
     }
 
     @Test
@@ -231,13 +237,19 @@ class PolicyControllerIT extends IntegrationTestBase {
                 POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), new ParameterizedTypeReference<List<Policy>>() {
                 });
         assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
-        verify(behandlingsgrunnlagService).scheduleDistributeForPurpose(PURPOSE_CODE1);
+        assertBehandlingsgrunnlagDistribusjon(1);
 
         ResponseEntity<String> deleteEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT + createEntity.getBody().get(0).getPolicyId(), HttpMethod.DELETE, new HttpEntity<>(new HttpHeaders()), String.class);
         assertThat(deleteEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(policyRepository.count(), is(0L));
-        verify(behandlingsgrunnlagService, times(2)).scheduleDistributeForPurpose(PURPOSE_CODE1);
+        assertBehandlingsgrunnlagDistribusjon(2);
+    }
+
+    private void assertBehandlingsgrunnlagDistribusjon(int count) {
+        List<BehandlingsgrunnlagDistribution> all = behandlingsgrunnlagDistributionRepository.findAll();
+        assertThat(all, hasSize(count));
+        assertThat(all.get(0).getPurpose(), is(PURPOSE_CODE1));
     }
 
     @Test

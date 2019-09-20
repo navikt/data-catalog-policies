@@ -27,6 +27,7 @@ class BehandlingsgrunnlagIT extends IntegrationTestBase {
 
     @BeforeEach
     void setUp() {
+        repository.deleteAll();
         consumer = behandlingsgrunnlagConsumer();
         // Clean out topic
         KafkaTestUtils.getRecords(consumer, 0L);

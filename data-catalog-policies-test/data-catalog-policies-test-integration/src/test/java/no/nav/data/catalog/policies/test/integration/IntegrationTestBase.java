@@ -1,18 +1,15 @@
 package no.nav.data.catalog.policies.test.integration;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import io.prometheus.client.CollectorRegistry;
 import no.nav.data.catalog.Behandlingsgrunnlag;
 import no.nav.data.catalog.policies.app.AppStarter;
-import no.nav.data.catalog.policies.app.behandlingsgrunnlag.BehandlingsgrunnlagService;
+import no.nav.data.catalog.policies.app.behandlingsgrunnlag.BehandlingsgrunnlagDistributionRepository;
 import no.nav.data.catalog.policies.app.kafka.KafkaTopicProperties;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import no.nav.data.catalog.policies.test.integration.IntegrationTestBase.Initializer;
 import no.nav.data.catalog.policies.test.integration.kafka.SchemaRegistryContainer;
-import no.nav.data.catalog.policies.test.integration.util.WiremockResponseTransformer;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Deserializer;
@@ -23,7 +20,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -68,8 +64,8 @@ public abstract class IntegrationTestBase {
     protected PolicyRepository policyRepository;
     @Autowired
     protected KafkaTopicProperties topicProperties;
-    @SpyBean
-    protected BehandlingsgrunnlagService behandlingsgrunnlagService;
+    @Autowired
+    protected BehandlingsgrunnlagDistributionRepository behandlingsgrunnlagDistributionRepository;
 
     @BeforeEach
     public void setUpAbstract() {
