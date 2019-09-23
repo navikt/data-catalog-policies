@@ -1,9 +1,10 @@
-package no.nav.data.catalog.policies.app.kafka;
+package no.nav.data.catalog.policies.app.behandlingsgrunnlag;
 
 import io.prometheus.client.Collector;
 import io.prometheus.client.Counter;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.data.catalog.Behandlingsgrunnlag;
+import no.nav.data.catalog.policies.app.kafka.KafkaTopicProperties;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 

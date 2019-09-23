@@ -1,7 +1,6 @@
 package no.nav.data.catalog.policies.app.behandlingsgrunnlag;
 
 import no.nav.data.catalog.policies.app.common.nais.LeaderElectionService;
-import no.nav.data.catalog.policies.app.kafka.BehandlingsgrunnlagProducer;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -11,6 +10,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+
+import static java.util.stream.Collectors.groupingBy;
 
 @Service
 public class BehandlingsgrunnlagService {
@@ -39,13 +40,13 @@ public class BehandlingsgrunnlagService {
         if (!leaderElectionService.isLeader()) {
             return;
         }
-        distributionRepository.findAll().forEach(this::distribute);
+        distributionRepository.findAll().stream().collect(groupingBy(BehandlingsgrunnlagDistribution::getPurpose)).forEach(this::distribute);
     }
 
-    private void distribute(BehandlingsgrunnlagDistribution distribution) {
-        List<String> datasets = policyRepository.selectDatasetTitleByPurposeCode(distribution.getPurpose());
-        if (behandlingsgrunnlagProducer.sendBehandlingsgrunnlag(distribution.getPurpose(), datasets)) {
-            distributionRepository.deleteById(distribution.getId());
+    private void distribute(String purpose, List<BehandlingsgrunnlagDistribution> behandlingsgrunnlagDistributions) {
+        List<String> datasets = policyRepository.selectDatasetTitleByPurposeCode(purpose);
+        if (behandlingsgrunnlagProducer.sendBehandlingsgrunnlag(purpose, datasets)) {
+            behandlingsgrunnlagDistributions.forEach(bd -> distributionRepository.deleteById(bd.getId()));
         }
     }
 
