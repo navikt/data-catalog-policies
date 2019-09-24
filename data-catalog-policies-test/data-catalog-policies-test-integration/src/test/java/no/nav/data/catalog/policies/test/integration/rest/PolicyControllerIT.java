@@ -16,7 +16,9 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,11 +30,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class PolicyControllerIT extends IntegrationTestBase {
 
-    private static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
-    private static final String PURPOSE_CODE1 = "TEST1";
-    private static final String DATASET_TITLE = "Sivilstand";
-
     private static final String POLICY_REST_ENDPOINT = "/policy/";
+
+    private static final ParameterizedTypeReference<List<PolicyResponse>> POLICY_LIST = new ParameterizedTypeReference<>() {
+    };
 
     @Autowired
     protected TestRestTemplate restTemplate;
@@ -46,8 +47,7 @@ class PolicyControllerIT extends IntegrationTestBase {
     void createPolicy() {
         List<PolicyRequest> requestList = List.of(createPolicyRequest(DATASET_TITLE));
         ResponseEntity<List<PolicyResponse>> createEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), new ParameterizedTypeReference<>() {
-                });
+                POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), POLICY_LIST);
         assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
         assertThat(policyRepository.count(), is(1L));
         assertPolicy(createEntity.getBody().get(0), LEGAL_BASIS_DESCRIPTION1);
@@ -57,8 +57,7 @@ class PolicyControllerIT extends IntegrationTestBase {
     @Test
     void createPolicyThrowNullableValidationException() {
         List<PolicyRequest> requestList = List.of(PolicyRequest.builder().build());
-        ResponseEntity<String> createEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), String.class);
+        ResponseEntity<String> createEntity = restTemplate.exchange(POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), String.class);
         assertThat(createEntity.getStatusCode(), is(HttpStatus.BAD_REQUEST));
         assertThat(createEntity.getBody(), containsString("purposeCode=purposeCode cannot be null"));
         assertThat(createEntity.getBody(), containsString("datasetTitle=datasetTitle cannot be null"));
@@ -69,8 +68,7 @@ class PolicyControllerIT extends IntegrationTestBase {
     @Test
     void createPolicyThrowAlreadyExistsValidationException() {
         List<PolicyRequest> requestList = List.of(createPolicyRequest(DATASET_TITLE));
-        ResponseEntity<String> createEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), String.class);
+        ResponseEntity<String> createEntity = restTemplate.exchange(POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), String.class);
         assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
         assertThat(policyRepository.count(), is(1L));
 
@@ -84,9 +82,7 @@ class PolicyControllerIT extends IntegrationTestBase {
 
     @Test
     void createPolicyThrowDuplcateValidationException() {
-        List<PolicyRequest> requestList = Arrays
-                .asList(createPolicyRequest(DATASET_TITLE), createPolicyRequest(
-                        DATASET_TITLE));
+        List<PolicyRequest> requestList = Arrays.asList(createPolicyRequest(DATASET_TITLE), createPolicyRequest(DATASET_TITLE));
         ResponseEntity<String> createEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), String.class);
         assertThat(createEntity.getStatusCode(), is(HttpStatus.BAD_REQUEST));
@@ -110,9 +106,7 @@ class PolicyControllerIT extends IntegrationTestBase {
     @Test
     void getOnePolicy() {
         List<PolicyRequest> requestList = List.of(createPolicyRequest(DATASET_TITLE));
-        ResponseEntity<List<PolicyResponse>> createEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), new ParameterizedTypeReference<List<PolicyResponse>>() {
-                });
+        ResponseEntity<List<PolicyResponse>> createEntity = restTemplate.exchange(POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), POLICY_LIST);
         assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
 
         ResponseEntity<PolicyResponse> getEntity = restTemplate.exchange(
@@ -124,8 +118,7 @@ class PolicyControllerIT extends IntegrationTestBase {
 
     @Test
     void getNotExistingPolicy() {
-        ResponseEntity<Policy> createEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT + "-1", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), Policy.class);
+        ResponseEntity<PolicyResponse> createEntity = restTemplate.exchange(POLICY_REST_ENDPOINT + "-1", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), PolicyResponse.class);
         assertThat(createEntity.getStatusCode(), is(HttpStatus.NOT_FOUND));
     }
 
@@ -133,16 +126,15 @@ class PolicyControllerIT extends IntegrationTestBase {
     void updateOnePolicy() {
         List<PolicyRequest> requestList = List.of(createPolicyRequest(DATASET_TITLE));
         ResponseEntity<List<PolicyResponse>> createEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), new ParameterizedTypeReference<List<PolicyResponse>>() {
-                });
+                POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), POLICY_LIST);
         assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
         assertBehandlingsgrunnlagDistribusjon(1);
 
         PolicyRequest request = requestList.get(0);
         request.setId(createEntity.getBody().get(0).getPolicyId());
         request.setLegalBasisDescription("UPDATED");
-        ResponseEntity<PolicyResponse> updateEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT + createEntity.getBody().get(0).getPolicyId(), HttpMethod.PUT, new HttpEntity<>(request), PolicyResponse.class);
+        ResponseEntity<PolicyResponse> updateEntity = restTemplate
+                .exchange(POLICY_REST_ENDPOINT + createEntity.getBody().get(0).getPolicyId(), HttpMethod.PUT, new HttpEntity<>(request), PolicyResponse.class);
         assertThat(updateEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(policyRepository.count(), is(1L));
         assertPolicy(updateEntity.getBody(), "UPDATED");
@@ -152,9 +144,7 @@ class PolicyControllerIT extends IntegrationTestBase {
     @Test
     void updateOnePolicyThrowValidationExeption() {
         List<PolicyRequest> requestList = List.of(createPolicyRequest(DATASET_TITLE));
-        ResponseEntity<List<PolicyResponse>> createEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), new ParameterizedTypeReference<List<PolicyResponse>>() {
-                });
+        ResponseEntity<List<PolicyResponse>> createEntity = restTemplate.exchange(POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), POLICY_LIST);
         assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
 
         PolicyRequest request = requestList.get(0);
@@ -170,9 +160,7 @@ class PolicyControllerIT extends IntegrationTestBase {
     void updateTwoPolices() {
         List<PolicyRequest> requestList = Arrays
                 .asList(createPolicyRequest(DATASET_TITLE), createPolicyRequest("Postadresse"));
-        ResponseEntity<List<PolicyResponse>> createEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), new ParameterizedTypeReference<List<PolicyResponse>>() {
-                });
+        ResponseEntity<List<PolicyResponse>> createEntity = restTemplate.exchange(POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), POLICY_LIST);
         assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
         assertThat(createEntity.getBody().size(), is(2));
         assertThat(policyRepository.count(), is(2L));
@@ -181,9 +169,7 @@ class PolicyControllerIT extends IntegrationTestBase {
         requestList.get(0).setId(createEntity.getBody().get(0).getPolicyId());
         requestList.get(1).setId(createEntity.getBody().get(1).getPolicyId());
 
-        ResponseEntity<List<PolicyResponse>> updateEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT, HttpMethod.PUT, new HttpEntity<>(requestList), new ParameterizedTypeReference<List<PolicyResponse>>() {
-                });
+        ResponseEntity<List<PolicyResponse>> updateEntity = restTemplate.exchange(POLICY_REST_ENDPOINT, HttpMethod.PUT, new HttpEntity<>(requestList), POLICY_LIST);
         assertThat(updateEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(updateEntity.getBody().size(), is(2));
         assertPolicy(updateEntity.getBody().get(0), "UPDATED");
@@ -199,9 +185,7 @@ class PolicyControllerIT extends IntegrationTestBase {
                 createPolicyRequest("Postadresse"),
                 createPolicyRequest("Arbeidsforhold")
         );
-        ResponseEntity<List<PolicyResponse>> createEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), new ParameterizedTypeReference<List<PolicyResponse>>() {
-                });
+        ResponseEntity<List<PolicyResponse>> createEntity = restTemplate.exchange(POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), POLICY_LIST);
         assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
         assertThat(createEntity.getBody().size(), is(3));
 
@@ -233,9 +217,8 @@ class PolicyControllerIT extends IntegrationTestBase {
     @Test
     void deletePolicy() {
         List<PolicyRequest> requestList = List.of(createPolicyRequest(DATASET_TITLE));
-        ResponseEntity<List<Policy>> createEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), new ParameterizedTypeReference<List<Policy>>() {
-                });
+        ResponseEntity<List<PolicyResponse>> createEntity = restTemplate.exchange(
+                POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), POLICY_LIST);
         assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
         assertBehandlingsgrunnlagDistribusjon(1);
 
@@ -253,6 +236,18 @@ class PolicyControllerIT extends IntegrationTestBase {
     }
 
     @Test
+    public void deletePoliciesByDatasetId() {
+        List<PolicyRequest> requestList = List.of(createPolicyRequest(DATASET_TITLE));
+        ResponseEntity<List<PolicyResponse>> createEntity = restTemplate.exchange(POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), POLICY_LIST);
+        assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
+
+        URI uri = UriComponentsBuilder.fromPath(POLICY_REST_ENDPOINT).queryParam("datasetId", DATASET_ID_1).build().toUri();
+        ResponseEntity deleteEntity = restTemplate.exchange(uri, HttpMethod.DELETE, new HttpEntity<>(null), Void.class);
+        assertThat(deleteEntity.getStatusCode(), is(HttpStatus.OK));
+        assertThat(policyRepository.count(), is(0L));
+    }
+
+    @Test
     void deleteNotExistingPolicy() {
         ResponseEntity<String> deleteEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT + "-1", HttpMethod.DELETE, new HttpEntity<>(new HttpHeaders()), String.class);
@@ -262,7 +257,7 @@ class PolicyControllerIT extends IntegrationTestBase {
 
     @Test
     void get20FirstPolicies() {
-        createPolicy(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
+        createPolicy(100);
 
         ResponseEntity<RestResponsePage<PolicyResponse>> responseEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT, HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), new ParameterizedTypeReference<RestResponsePage<PolicyResponse>>() {
@@ -276,7 +271,7 @@ class PolicyControllerIT extends IntegrationTestBase {
 
     @Test
     void get100Policies() {
-        createPolicy(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
+        createPolicy(100);
 
         ResponseEntity<RestResponsePage<PolicyResponse>> responseEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT + "?pageNumber=0&pageSize=100", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()),
@@ -291,7 +286,7 @@ class PolicyControllerIT extends IntegrationTestBase {
 
     @Test
     void countPolicies() {
-        createPolicy(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
+        createPolicy(100);
 
         ResponseEntity<Long> responseEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT + "count", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), Long.class);
@@ -301,7 +296,7 @@ class PolicyControllerIT extends IntegrationTestBase {
 
     @Test
     void getPoliciesPageBeyondMax() {
-        createPolicy(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
+        createPolicy(100);
 
         ResponseEntity<RestResponsePage<PolicyResponse>> responseEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT + "?pageNumber=1&pageSize=100", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()),
@@ -314,7 +309,7 @@ class PolicyControllerIT extends IntegrationTestBase {
 
     @Test
     void getPolicyForDataset1() {
-        createPolicy(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
+        createPolicy(100);
 
         ResponseEntity<RestResponsePage<PolicyResponse>> responseEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT + "?datasetId={id}", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()),
@@ -327,7 +322,7 @@ class PolicyControllerIT extends IntegrationTestBase {
 
     @Test
     void countPolicyForDataset1() {
-        createPolicy(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, 100);
+        createPolicy(100);
 
         ResponseEntity<Long> responseEntity = restTemplate.exchange(
                 POLICY_REST_ENDPOINT + "count?datasetId={id}", HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), Long.class, DATASET_ID_1);
@@ -336,7 +331,7 @@ class PolicyControllerIT extends IntegrationTestBase {
     }
 
     private PolicyRequest createPolicyRequest(String datasetTitle) {
-        return PolicyRequest.builder().datasetTitle(datasetTitle).legalBasisDescription(LEGAL_BASIS_DESCRIPTION1).purposeCode(PURPOSE_CODE1).build();
+        return PolicyRequest.builder().datasetTitle(datasetTitle).datasetId(DATASET_ID_1).legalBasisDescription(LEGAL_BASIS_DESCRIPTION1).purposeCode(PURPOSE_CODE1).build();
     }
 
     private void assertPolicy(PolicyResponse policy, String legalBasisDescription) {

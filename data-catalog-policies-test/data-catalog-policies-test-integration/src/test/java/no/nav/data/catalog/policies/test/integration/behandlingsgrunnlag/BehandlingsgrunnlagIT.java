@@ -35,17 +35,17 @@ class BehandlingsgrunnlagIT extends KafkaIntegrationTestBase {
 
     @Test
     void produserBehandlingsgrunnlag() {
-        createPolicy("desc", "PURPOSE", 1);
+        createPolicy( 1);
 
-        behandlingsgrunnlagService.scheduleDistributeForPurpose("PURPOSE");
+        behandlingsgrunnlagService.scheduleDistributeForPurpose(PURPOSE_CODE1);
         behandlingsgrunnlagService.distributeAll();
 
         await().atMost(Duration.TEN_SECONDS).untilAsserted(() -> assertEquals(0L, repository.count()));
 
         ConsumerRecord<String, Behandlingsgrunnlag> singleRecord = KafkaTestUtils.getSingleRecord(consumer, topicProperties.getBehandlingsgrunnlag());
 
-        assertEquals("PURPOSE", singleRecord.key());
-        assertEquals("PURPOSE", singleRecord.value().getPurpose());
-        assertEquals(List.of("title"), singleRecord.value().getDatasets());
+        assertEquals(PURPOSE_CODE1, singleRecord.key());
+        assertEquals(PURPOSE_CODE1, singleRecord.value().getPurpose());
+        assertEquals(List.of(DATASET_TITLE), singleRecord.value().getDatasets());
     }
 }

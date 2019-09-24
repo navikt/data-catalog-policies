@@ -34,6 +34,9 @@ import java.util.UUID;
 public abstract class IntegrationTestBase {
 
     protected static final String DATASET_ID_1 = "0702e097-0800-47e1-9fc9-da9fa935c76d";
+    protected static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
+    protected static final String PURPOSE_CODE1 = "TEST1";
+    protected static final String DATASET_TITLE = "Sivilstand";
 
     private static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer("postgres:10.4");
 
@@ -61,14 +64,14 @@ public abstract class IntegrationTestBase {
         CollectorRegistry.defaultRegistry.clear();
     }
 
-    protected void createPolicy(String legalBasisDescription, String purposeCode, int rows) {
+    protected void createPolicy(int rows) {
         int i = 0;
         while (i++ < rows) {
             Policy policy = new Policy();
             policy.setDatasetId(i == 1 ? DATASET_ID_1 : UUID.randomUUID().toString());
-            policy.setDatasetTitle("title");
-            policy.setLegalBasisDescription(legalBasisDescription);
-            policy.setPurposeCode(purposeCode);
+            policy.setDatasetTitle(DATASET_TITLE);
+            policy.setLegalBasisDescription(LEGAL_BASIS_DESCRIPTION1);
+            policy.setPurposeCode(PURPOSE_CODE1);
             policyRepository.save(policy);
         }
     }

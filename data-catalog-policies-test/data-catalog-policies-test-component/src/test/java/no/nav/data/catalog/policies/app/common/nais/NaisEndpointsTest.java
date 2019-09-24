@@ -5,14 +5,14 @@ import no.nav.data.catalog.policies.app.AppStarter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -27,7 +27,7 @@ public class NaisEndpointsTest {
     @MockBean
     private MeterRegistry meterRegistry;
     @MockBean
-    private HealthIndicator dbHealthIndicator;
+    private PolicyRepository repository;
     @Autowired
     private MockMvc mvc;
 
@@ -40,7 +40,7 @@ public class NaisEndpointsTest {
 
     @Test
     public void naisIsAlive() throws Exception {
-        when(dbHealthIndicator.health()).thenReturn(Health.up().build());
+        when(repository.count()).thenReturn(4L);
         String urlIsAlive = "/internal/isAlive";
         mvc.perform(get(urlIsAlive))
                 .andExpect(status().isOk());
@@ -48,7 +48,7 @@ public class NaisEndpointsTest {
 
     @Test
     public void naisIsDead() throws Exception {
-        when(dbHealthIndicator.health()).thenReturn(Health.down().build());
+        when(repository.count()).thenThrow(new InvalidDataAccessApiUsageException("permission denied"));
         String urlIsAlive = "/internal/isAlive";
         mvc.perform(get(urlIsAlive))
                 .andExpect(status().isInternalServerError());
