@@ -27,8 +27,9 @@
 		<spring-cloud-dependencies.version>Greenwich.SR3</spring-cloud-dependencies.version>
 		<prometheus.version>0.6.0</prometheus.version>
 		<confluent.version>5.3.0</confluent.version>
-		<avro.version>1.8.2</avro.version>
 		<azure.version>2.1.7</azure.version>
+		<!-- From io.confluent:common-parent kafka-avro-serializer -->
+		<avro.version>1.8.1</avro.version>
 
 		<!-- Test -->
 		<awaitability.version>3.1.6</awaitability.version>
@@ -65,29 +66,31 @@
 				<artifactId>simpleclient_common</artifactId>
 				<version>${prometheus.version}</version>
 			</dependency>
-            <dependency>
+
+			<dependency>
+				<groupId>io.confluent</groupId>
+				<artifactId>kafka-avro-serializer</artifactId>
+				<version>${confluent.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.apache.zookeeper</groupId>
+						<artifactId>zookeeper</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
                 <groupId>org.apache.avro</groupId>
                 <artifactId>avro</artifactId>
-                <version>${avro.version}</version>
-            </dependency>
-
-			<!-- kafka-avro-serializer har dependency krøll -->
-			<dependency>
-				<groupId>org.apache.zookeeper</groupId>
-				<artifactId>zookeeper</artifactId>
-				<version>3.4.14</version>
-			</dependency>
-			<dependency>
-				<groupId>org.xerial.snappy</groupId>
-				<artifactId>snappy-java</artifactId>
-				<version>1.1.7.1</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.commons</groupId>
-				<artifactId>commons-compress</artifactId>
-				<version>1.18</version>
+				<version>${avro.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.xerial.snappy</groupId>
+						<artifactId>snappy-java</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 
+			<!-- springfox uses old version -->
 			<dependency>
 				<groupId>io.swagger</groupId>
 				<artifactId>swagger-annotations</artifactId>
