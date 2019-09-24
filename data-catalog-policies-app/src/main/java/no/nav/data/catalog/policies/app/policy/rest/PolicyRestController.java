@@ -117,7 +117,7 @@ public class PolicyRestController {
         service.validateRequests(policyRequests);
         List<Policy> policies = policyRequests.stream().map(policy -> mapper.mapRequestToPolicy(policy, null)).collect(toList());
         onChange(policies);
-        return new ResponseEntity<>(policyRepository.saveAll(policies).stream().map(mapper::mapPolicyToResponse).collect(Collectors.toList()));
+        return new ResponseEntity<>(policyRepository.saveAll(policies).stream().map(mapper::mapPolicyToResponse).collect(Collectors.toList()), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "Get Policy", tags = {"Policies"})
