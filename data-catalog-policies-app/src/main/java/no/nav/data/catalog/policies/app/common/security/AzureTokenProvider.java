@@ -46,7 +46,9 @@ public class AzureTokenProvider {
 
     private void refresh() {
         try {
-            AuthenticationContext context = new AuthenticationContext(serviceEndpoints.getAadSigninUri() + aadAuthProps.getTenantId() + "/", true, service);
+            String uri = serviceEndpoints.getAadSigninUri() + aadAuthProps.getTenantId() + "/";
+            log.debug("Refreshing azure token authority={}", uri);
+            AuthenticationContext context = new AuthenticationContext(uri, true, service);
             AuthenticationResult authenticationResult = context
                     .acquireToken(appIdUrl, aadAuthProps.getClientId(), policiesUserProperties.getUser(), policiesUserProperties.getPwd(), null).get();
             expires = authenticationResult.getExpiresOnDate().toInstant().minusSeconds(60);
