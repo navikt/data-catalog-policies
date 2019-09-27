@@ -204,7 +204,7 @@ public class PolicyRestController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Cache evict", response = String.class),
             @ApiResponse(code = 500, message = "Internal server error")})
-    @GetMapping("/clearcache")
+    @PostMapping("/clearcache")
     public ResponseEntity clearCache() {
         cachemanager.getCache(CODELIST_CACHE).clear();
         cachemanager.getCache(DATASET_BY_TITLE_CACHE).clear();

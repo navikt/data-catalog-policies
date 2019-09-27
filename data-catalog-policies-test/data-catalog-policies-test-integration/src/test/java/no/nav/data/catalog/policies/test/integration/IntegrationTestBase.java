@@ -3,6 +3,7 @@ package no.nav.data.catalog.policies.test.integration;
 import io.prometheus.client.CollectorRegistry;
 import no.nav.data.catalog.policies.app.AppStarter;
 import no.nav.data.catalog.policies.app.behandlingsgrunnlag.BehandlingsgrunnlagDistributionRepository;
+import no.nav.data.catalog.policies.app.common.security.AzureTokenProvider;
 import no.nav.data.catalog.policies.app.kafka.KafkaTopicProperties;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -23,6 +25,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.util.UUID;
+
+import static org.mockito.Mockito.when;
 
 /**
  * Extension order is important and SpringBootTest contains the spring extension
@@ -51,10 +55,13 @@ public abstract class IntegrationTestBase {
     protected KafkaTopicProperties topicProperties;
     @Autowired
     protected BehandlingsgrunnlagDistributionRepository behandlingsgrunnlagDistributionRepository;
+    @MockBean
+    private AzureTokenProvider azureTokenProvider;
 
     @BeforeEach
     public void setUpAbstract() {
         IntegrationTestConfig.mockDataCatalogBackend();
+        when(azureTokenProvider.getToken()).thenReturn("token");
         policyRepository.deleteAll();
     }
 
