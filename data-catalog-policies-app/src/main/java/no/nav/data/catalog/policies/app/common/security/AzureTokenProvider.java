@@ -22,21 +22,23 @@ public class AzureTokenProvider {
     private final ServiceEndpoints serviceEndpoints;
     private final PoliciesUserProperties policiesUserProperties;
     private final String appIdUrl;
+    private final boolean enable;
 
     private final ExecutorService service = Executors.newFixedThreadPool(1);
-    private String token;
+    private String token = "";
     private Instant expires = Instant.MIN;
 
     public AzureTokenProvider(AADAuthenticationProperties aadAuthProps, ServiceEndpointsProperties serviceEndpointsProps,
-            PoliciesUserProperties policiesUserProperties, @Value("${azure.app.id.uri}") String appIdUrl) {
+            PoliciesUserProperties policiesUserProperties, @Value("${azure.app.id.uri}") String appIdUrl, @Value("${security.enabled:true}") boolean enable) {
         this.aadAuthProps = aadAuthProps;
         this.serviceEndpoints = serviceEndpointsProps.getServiceEndpoints(aadAuthProps.getEnvironment());
         this.policiesUserProperties = policiesUserProperties;
         this.appIdUrl = appIdUrl;
+        this.enable = enable;
     }
 
     public String getToken() {
-        if (expires.isBefore(Instant.now())) {
+        if (enable && expires.isBefore(Instant.now())) {
             refresh();
         }
         return token;
