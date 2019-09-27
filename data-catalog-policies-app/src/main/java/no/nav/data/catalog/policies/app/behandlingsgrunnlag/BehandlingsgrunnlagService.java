@@ -10,6 +10,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -44,7 +46,8 @@ public class BehandlingsgrunnlagService {
     }
 
     private void distribute(String purpose, List<BehandlingsgrunnlagDistribution> behandlingsgrunnlagDistributions) {
-        List<String> datasets = policyRepository.selectDatasetTitleByPurposeCode(purpose);
+        // Filter nonnull untill database is populated with titles in preprod
+        List<String> datasets = policyRepository.selectDatasetTitleByPurposeCode(purpose).stream().filter(Objects::nonNull).collect(Collectors.toList());
         if (behandlingsgrunnlagProducer.sendBehandlingsgrunnlag(purpose, datasets)) {
             behandlingsgrunnlagDistributions.forEach(bd -> distributionRepository.deleteById(bd.getId()));
         }
