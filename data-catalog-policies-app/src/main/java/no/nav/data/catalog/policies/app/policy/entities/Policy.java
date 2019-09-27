@@ -1,6 +1,7 @@
 package no.nav.data.catalog.policies.app.policy.entities;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import no.nav.data.catalog.policies.app.common.auditing.Auditable;
@@ -18,6 +19,7 @@ import javax.validation.constraints.NotNull;
 @Entity
 @Table(name = "POLICY")
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Policy extends Auditable<String> {

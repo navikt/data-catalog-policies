@@ -177,7 +177,7 @@ public class PolicyRestControllerTest {
     @Test
     public void updatePolicy() throws Exception {
         Policy policy1 = createPolicyTestdata(DATASET_ID_1);
-        PolicyRequest request = new PolicyRequest();
+        PolicyRequest request = PolicyRequest.builder().id(1L).build();
         PolicyResponse response = new PolicyResponse(1L, new Dataset(), "Description", null);
 
         given(mapper.mapRequestToPolicy(request, 1L)).willReturn(policy1);
@@ -214,20 +214,6 @@ public class PolicyRestControllerTest {
                 .andExpect(jsonPath("$.*", hasSize(2)));
 
         verify(datasetConsumer).syncDatasetById(List.of(policy1.getDatasetId(), policy2.getDatasetId()));
-    }
-
-    @Test
-    public void updateNotExistingPolicy() throws Exception {
-        Policy policy1 = createPolicyTestdata(DATASET_ID_1);
-        PolicyRequest request = new PolicyRequest();
-
-        given(mapper.mapRequestToPolicy(request, 1L)).willReturn(policy1);
-        given(policyRepository.findById(1L)).willReturn(Optional.ofNullable(null));
-
-        mvc.perform(put("/policy/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(request)))
-                .andExpect(status().isNotFound());
     }
 
     @Test

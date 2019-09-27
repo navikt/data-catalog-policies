@@ -2,12 +2,14 @@ package no.nav.data.catalog.policies.test.component;
 
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.common.exceptions.ValidationException;
+import no.nav.data.catalog.policies.app.common.util.JsonUtils;
 import no.nav.data.catalog.policies.app.consumer.CodelistConsumer;
 import no.nav.data.catalog.policies.app.consumer.DatasetConsumer;
 import no.nav.data.catalog.policies.app.policy.PolicyService;
 import no.nav.data.catalog.policies.app.policy.domain.Dataset;
 import no.nav.data.catalog.policies.app.policy.domain.ListName;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
+import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +19,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -54,14 +58,14 @@ class PolicyServiceTest {
                 .build();
         when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().id(DATASET_ID_1).build());
         when(policyRepository.existsByDatasetIdAndPurposeCode(any(String.class), anyString())).thenReturn(false);
-        service.validateRequests(List.of(request));
+        service.validateRequests(List.of(request), false);
     }
 
     @Test
     void shouldThrowAllNullValidationExceptionOnInsert() {
         PolicyRequest request = PolicyRequest.builder().build();
         try {
-            service.validateRequests(List.of(request));
+            service.validateRequests(List.of(request), false);
             fail();
         } catch (ValidationException e) {
             assertEquals(3, e.get().get("Request nr:1").size());
@@ -81,7 +85,7 @@ class PolicyServiceTest {
         when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenThrow(new DataCatalogPoliciesNotFoundException(""));
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenThrow(new DataCatalogPoliciesNotFoundException(""));
         try {
-            service.validateRequests(List.of(request));
+            service.validateRequests(List.of(request), false);
             fail();
         } catch (ValidationException e) {
             assertEquals(2, e.get().get(DATASET_TITLE + "/" + PURPOSECODE).size());
@@ -101,7 +105,7 @@ class PolicyServiceTest {
         when(policyRepository.existsByDatasetIdAndPurposeCode(any(String.class), anyString())).thenReturn(true);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenReturn("purpose");
         try {
-            service.validateRequests(List.of(request));
+            service.validateRequests(List.of(request), false);
             fail();
         } catch (ValidationException e) {
             assertEquals(1, e.get().get(DATASET_TITLE + "/" + PURPOSECODE).size());
@@ -113,10 +117,11 @@ class PolicyServiceTest {
     void shouldThrowAllNullValidationExceptionOnUpdate() {
         PolicyRequest request = PolicyRequest.builder().build();
         try {
-            service.validateRequests(List.of(request));
+            service.validateRequests(List.of(request), true);
             fail();
         } catch (ValidationException e) {
-            assertEquals(3, e.get().get("Request nr:1").size());
+            assertEquals(4, e.get().get("Request nr:1").size());
+            assertEquals("Id is missing for update", e.get().get("Request nr:1").get("missingIdForUpdate"));
             assertEquals("datasetTitle cannot be null", e.get().get("Request nr:1").get("datasetTitle"));
             assertEquals("purposeCode cannot be null", e.get().get("Request nr:1").get("purposeCode"));
             assertEquals("legalBasisDescription cannot be null", e.get().get("Request nr:1").get("legalBasisDescription"));
@@ -126,24 +131,47 @@ class PolicyServiceTest {
     @Test
     void shouldThrowNotFoundValidationExceptionOnUpdate() {
         PolicyRequest request = PolicyRequest.builder()
+                .id(152L)
                 .datasetTitle(DATASET_TITLE)
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
                 .purposeCode(PURPOSECODE)
                 .build();
         when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenThrow(new DataCatalogPoliciesNotFoundException(""));
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenThrow(new DataCatalogPoliciesNotFoundException(""));
+        when(policyRepository.findById(152L)).thenReturn(Optional.of(Policy.builder().purposeCode(PURPOSECODE).build()));
         try {
-            service.validateRequests(List.of(request));
+            service.validateRequests(List.of(request), true);
             fail();
         } catch (ValidationException e) {
-            assertEquals(2, e.get().get(DATASET_TITLE + "/" + PURPOSECODE).size());
-            assertEquals("The purposeCode AAP was not found in the PURPOSE codelist.", e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("purposeCode"));
-            assertEquals("A dataset with title " + DATASET_TITLE + " does not exist", e.get().get(DATASET_TITLE + "/" + PURPOSECODE).get("datasetTitle"));
+            Map<String, String> map = e.get().get(DATASET_TITLE + "/" + PURPOSECODE);
+            assertEquals(2, map.size(), JsonUtils.toJson(map));
+            assertEquals("The purposeCode AAP was not found in the PURPOSE codelist.", map.get("purposeCode"));
+            assertEquals("A dataset with title " + DATASET_TITLE + " does not exist", map.get("datasetTitle"));
         }
     }
 
     @Test
-    void shouldNOTThrowAlreadyExistsValidationExceptionOnInsert() {
+    void shouldThrowWrongPurposecodeOnUpdate() {
+        PolicyRequest request = PolicyRequest.builder()
+                .id(152L)
+                .datasetTitle(DATASET_TITLE)
+                .legalBasisDescription(LEGALBASISDESCRIPTION)
+                .purposeCode(PURPOSECODE)
+                .build();
+        when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenReturn("purpose");
+        when(policyRepository.findById(152L)).thenReturn(Optional.of(Policy.builder().purposeCode("otherpurpose").build()));
+        try {
+            service.validateRequests(List.of(request), true);
+            fail();
+        } catch (ValidationException e) {
+            Map<String, String> map = e.get().get(DATASET_TITLE + "/" + PURPOSECODE);
+            assertEquals(1, map.size(), JsonUtils.toJson(map));
+            assertEquals("Cannot change purpose from otherpurpose to AAP for policy 152", map.get("cannotChangePurpose"));
+        }
+    }
+
+    @Test
+    void shouldNotThrowAlreadyExistsValidationExceptionOnInsert() {
         PolicyRequest request = PolicyRequest.builder()
                 .datasetTitle(DATASET_TITLE)
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
@@ -152,6 +180,6 @@ class PolicyServiceTest {
                 .build();
         when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().id(DATASET_ID_1).build());
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenReturn("purpose");
-        service.validateRequests(List.of(request));
+        service.validateRequests(List.of(request), false);
     }
 }

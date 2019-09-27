@@ -32,8 +32,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
@@ -114,7 +114,7 @@ public class PolicyRestController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<List<PolicyResponse>> createPolicy(@Valid @RequestBody List<PolicyRequest> policyRequests) {
         log.debug("Received request to create Policies");
-        service.validateRequests(policyRequests);
+        service.validateRequests(policyRequests, false);
         List<Policy> policies = policyRequests.stream().map(policy -> mapper.mapRequestToPolicy(policy, null)).collect(toList());
         onChange(policies);
         return new ResponseEntity<>(policyRepository.saveAll(policies).stream().map(mapper::mapPolicyToResponse).collect(Collectors.toList()), HttpStatus.CREATED);
@@ -174,15 +174,14 @@ public class PolicyRestController {
     @PutMapping("/{id}")
     public ResponseEntity<PolicyResponse> updatePolicy(@PathVariable Long id, @Valid @RequestBody PolicyRequest policyRequest) {
         log.debug("Received request to update Policy with id={}", id);
-        service.validateRequests(List.of(policyRequest));
-        Optional<Policy> optionalPolicy = policyRepository.findById(id);
-        if (optionalPolicy.isEmpty()) {
+        if (policyRepository.findById(id).isEmpty()) {
             return notFoundError(id);
         }
-        Policy storedPolicy = optionalPolicy.get();
+        if (!Objects.equals(id, policyRequest.getId())) {
+            throw new ValidationException(String.format("id mismatch in request %d and path %d", policyRequest.getId(), id));
+        }
+        service.validateRequests(List.of(policyRequest), true);
         Policy policy = mapper.mapRequestToPolicy(policyRequest, id);
-        policy.setCreatedBy(storedPolicy.getCreatedBy());
-        policy.setCreatedDate(storedPolicy.getCreatedDate());
         onChange(List.of(policy));
         return ResponseEntity.ok(mapper.mapPolicyToResponse(policyRepository.save(policy)));
     }
@@ -195,20 +194,8 @@ public class PolicyRestController {
     @PutMapping
     public ResponseEntity<List<PolicyResponse>> updatePolicies(@Valid @RequestBody List<PolicyRequest> policyRequests) {
         log.debug("Received requests to update Policies");
-        service.validateRequests(policyRequests);
-        List<Policy> policies = new ArrayList<>();
-        policyRequests.forEach(policyRequest -> {
-                    Optional<Policy> optionalPolicy = policyRepository.findById(policyRequest.getId());
-                    if (optionalPolicy.isEmpty()) {
-                        notFoundError(policyRequest.getId());
-                    }
-                    Policy storedPolicy = optionalPolicy.get();
-                    Policy policy = mapper.mapRequestToPolicy(policyRequest, policyRequest.getId());
-                    policy.setCreatedBy(storedPolicy.getCreatedBy());
-                    policy.setCreatedDate(storedPolicy.getCreatedDate());
-                    policies.add(policy);
-                }
-        );
+        service.validateRequests(policyRequests, true);
+        List<Policy> policies = policyRequests.stream().map(policyRequest -> mapper.mapRequestToPolicy(policyRequest, policyRequest.getId())).collect(toList());
         onChange(policies);
         return ResponseEntity.ok(policyRepository.saveAll(policies).stream().map(mapper::mapPolicyToResponse).collect(Collectors.toList()));
     }

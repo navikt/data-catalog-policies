@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import no.nav.data.catalog.policies.app.policy.entities.Policy;
 
 @Data
 @Builder
@@ -20,6 +21,8 @@ public class PolicyRequest {
     private String datasetTitle;
     @JsonIgnore
     private String datasetId;
+    @JsonIgnore
+    private Policy existingPolicy;
 
     public PolicyRequest(String legalBasisDescription, String purposeCode, String datasetTitle) {
         this.legalBasisDescription = legalBasisDescription;

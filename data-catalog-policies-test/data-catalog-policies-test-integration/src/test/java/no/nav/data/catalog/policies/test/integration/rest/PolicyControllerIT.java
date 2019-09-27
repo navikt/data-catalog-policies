@@ -143,14 +143,14 @@ class PolicyControllerIT extends IntegrationTestBase {
 
     @Test
     void updateOnePolicyThrowValidationExeption() {
-        List<PolicyRequest> requestList = List.of(createPolicyRequest(DATASET_TITLE));
-        ResponseEntity<List<PolicyResponse>> createEntity = restTemplate.exchange(POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestList), POLICY_LIST);
+        PolicyRequest request = createPolicyRequest(DATASET_TITLE);
+        ResponseEntity<List<PolicyResponse>> createEntity = restTemplate.exchange(POLICY_REST_ENDPOINT, HttpMethod.POST, new HttpEntity<>(List.of(request)), POLICY_LIST);
         assertThat(createEntity.getStatusCode(), is(HttpStatus.CREATED));
 
-        PolicyRequest request = requestList.get(0);
+        request.setId(createEntity.getBody().get(0).getPolicyId());
         request.setLegalBasisDescription(null);
         ResponseEntity<String> updateEntity = restTemplate.exchange(
-                POLICY_REST_ENDPOINT + createEntity.getBody().get(0).getPolicyId(), HttpMethod.PUT, new HttpEntity<>(request), String.class);
+                POLICY_REST_ENDPOINT + request.getId(), HttpMethod.PUT, new HttpEntity<>(request), String.class);
         assertThat(updateEntity.getStatusCode(), is(HttpStatus.BAD_REQUEST));
         assertThat(updateEntity.getBody(), containsString("legalBasisDescription=legalBasisDescription cannot be null"));
         assertThat(policyRepository.count(), is(1L));

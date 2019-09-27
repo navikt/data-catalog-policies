@@ -27,6 +27,10 @@ public class PolicyMapper {
         if (id != null) {
             policy.setPolicyId(id);
         }
+        if (policyRequest.getExistingPolicy() != null) {
+            policy.setCreatedBy(policyRequest.getExistingPolicy().getCreatedBy());
+            policy.setCreatedDate(policyRequest.getExistingPolicy().getCreatedDate());
+        }
         return policy;
     }
 

@@ -8,8 +8,9 @@ import no.nav.data.catalog.policies.app.consumer.DatasetConsumer;
 import no.nav.data.catalog.policies.app.policy.domain.Dataset;
 import no.nav.data.catalog.policies.app.policy.domain.ListName;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
+import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -21,28 +22,31 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Service
 public class PolicyService {
 
-    @Autowired
-    private CodelistConsumer codelistConsumer;
+    private final CodelistConsumer codelistConsumer;
+    private final DatasetConsumer datasetConsumer;
+    private final PolicyRepository policyRepository;
 
-    @Autowired
-    private DatasetConsumer datasetConsumer;
+    public PolicyService(CodelistConsumer codelistConsumer, DatasetConsumer datasetConsumer, PolicyRepository policyRepository) {
+        this.codelistConsumer = codelistConsumer;
+        this.datasetConsumer = datasetConsumer;
+        this.policyRepository = policyRepository;
+    }
 
-    @Autowired
-    private PolicyRepository policyRepository;
-
-
-    public void validateRequests(List<PolicyRequest> requests) {
+    public void validateRequests(List<PolicyRequest> requests, boolean isUpdate) {
         Map<String, Map<String, String>> validationMap = new HashMap<>();
         Map<String, Integer> titlesUsedInRequest = new HashMap<>();
         final AtomicInteger i = new AtomicInteger(1);
         requests.forEach(request -> {
-            Map<String, String> requestMap = validatePolicyRequest(request, isUpdate(request.getId()));
+            Map<String, String> requestMap = validatePolicyRequest(request, isUpdate);
             if (titlesUsedInRequest.containsKey(request.getDatasetTitle() + request.getPurposeCode())) {
                 requestMap.put("combinationNotUniqueInThisRequest", String.format("A request combining Dataset: %s and Purpose: %s is not unique because " + "" +
                                 "it is already used in this request (see request nr:%s)",
                         request.getDatasetTitle(), request.getPurposeCode(), titlesUsedInRequest.get(request.getDatasetTitle() + request.getPurposeCode())));
             } else if (request.getDatasetTitle() != null && request.getPurposeCode() != null) {
                 titlesUsedInRequest.put(request.getDatasetTitle() + request.getPurposeCode(), i.intValue());
+            }
+            if (isUpdate) {
+                validateUpdate(request, requestMap);
             }
             if (!requestMap.isEmpty()) {
                 validationMap.put(request.getDatasetTitle() + "/" + request.getPurposeCode(), requestMap);
@@ -56,8 +60,20 @@ public class PolicyService {
         }
     }
 
-    private boolean isUpdate(Long id) {
-        return id != null;
+    private void validateUpdate(PolicyRequest request, Map<String, String> requestMap) {
+        if (request.getId() == null) {
+            requestMap.put("missingIdForUpdate", "Id is missing for update");
+            return;
+        }
+        Policy policy = policyRepository.findById(request.getId()).orElse(null);
+        if (policy == null) {
+            requestMap.put("notFound", String.format("A policy with id: %d was not found", request.getId()));
+        } else if (!StringUtils.equals(policy.getPurposeCode(), request.getPurposeCode())) {
+            requestMap.put("cannotChangePurpose",
+                    String.format("Cannot change purpose from %s to %s for policy %s", policy.getPurposeCode(), request.getPurposeCode(), request.getId()));
+        } else {
+            request.setExistingPolicy(policy);
+        }
     }
 
     private Map<String, String> validatePolicyRequest(PolicyRequest request, boolean isUpdate) {
