@@ -2,6 +2,7 @@ package no.nav.data.catalog.policies.app.common.security;
 
 import com.microsoft.aad.adal4j.AuthenticationContext;
 import com.microsoft.aad.adal4j.AuthenticationResult;
+import com.microsoft.aad.adal4j.ClientCredential;
 import com.microsoft.azure.spring.autoconfigure.aad.AADAuthenticationProperties;
 import com.microsoft.azure.spring.autoconfigure.aad.ServiceEndpoints;
 import com.microsoft.azure.spring.autoconfigure.aad.ServiceEndpointsProperties;
@@ -20,7 +21,6 @@ public class AzureTokenProvider {
 
     private final AADAuthenticationProperties aadAuthProps;
     private final ServiceEndpoints serviceEndpoints;
-    private final PoliciesUserProperties policiesUserProperties;
     private final String appIdUrl;
     private final boolean enable;
 
@@ -29,10 +29,9 @@ public class AzureTokenProvider {
     private Instant expires = Instant.MIN;
 
     public AzureTokenProvider(AADAuthenticationProperties aadAuthProps, ServiceEndpointsProperties serviceEndpointsProps,
-            PoliciesUserProperties policiesUserProperties, @Value("${azure.app.id.uri}") String appIdUrl, @Value("${security.enabled:true}") boolean enable) {
+            @Value("${azure.app.id.uri}") String appIdUrl, @Value("${security.enabled:true}") boolean enable) {
         this.aadAuthProps = aadAuthProps;
         this.serviceEndpoints = serviceEndpointsProps.getServiceEndpoints(aadAuthProps.getEnvironment());
-        this.policiesUserProperties = policiesUserProperties;
         this.appIdUrl = appIdUrl;
         this.enable = enable;
     }
@@ -50,7 +49,8 @@ public class AzureTokenProvider {
             log.debug("Refreshing azure token authority={}", uri);
             AuthenticationContext context = new AuthenticationContext(uri, true, service);
             AuthenticationResult authenticationResult = context
-                    .acquireToken(appIdUrl, aadAuthProps.getClientId(), policiesUserProperties.getUser(), policiesUserProperties.getPwd(), null).get();
+                    .acquireToken(appIdUrl, new ClientCredential(aadAuthProps.getClientId(), aadAuthProps.getClientSecret()), null)
+                    .get();
             expires = authenticationResult.getExpiresOnDate().toInstant().minusSeconds(60);
             token = authenticationResult.getAccessToken();
             log.info("Acquired new azure token, expires {}", expires);
