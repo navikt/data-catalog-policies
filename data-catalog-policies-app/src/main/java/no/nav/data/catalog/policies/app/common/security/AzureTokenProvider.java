@@ -7,10 +7,15 @@ import com.microsoft.azure.spring.autoconfigure.aad.AADAuthenticationProperties;
 import com.microsoft.azure.spring.autoconfigure.aad.ServiceEndpoints;
 import com.microsoft.azure.spring.autoconfigure.aad.ServiceEndpointsProperties;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.data.catalog.policies.app.common.NavProperties;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesTechnicalException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.Proxy;
+import java.net.Proxy.Type;
 import java.time.Instant;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,6 +25,7 @@ import java.util.concurrent.Executors;
 public class AzureTokenProvider {
 
     private final AADAuthenticationProperties aadAuthProps;
+    private final NavProperties navProperties;
     private final ServiceEndpoints serviceEndpoints;
     private final String appIdUrl;
     private final boolean enable;
@@ -29,8 +35,9 @@ public class AzureTokenProvider {
     private Instant expires = Instant.MIN;
 
     public AzureTokenProvider(AADAuthenticationProperties aadAuthProps, ServiceEndpointsProperties serviceEndpointsProps,
-            @Value("${azure.app.id.uri}") String appIdUrl, @Value("${security.enabled:true}") boolean enable) {
+            @Value("${azure.app.id.uri}") String appIdUrl, @Value("${security.enabled:true}") boolean enable, NavProperties navProperties) {
         this.aadAuthProps = aadAuthProps;
+        this.navProperties = navProperties;
         this.serviceEndpoints = serviceEndpointsProps.getServiceEndpoints(aadAuthProps.getEnvironment());
         this.appIdUrl = appIdUrl;
         this.enable = enable;
@@ -45,9 +52,7 @@ public class AzureTokenProvider {
 
     private void refresh() {
         try {
-            String uri = serviceEndpoints.getAadSigninUri() + aadAuthProps.getTenantId() + "/";
-            log.debug("Refreshing azure token authority={}", uri);
-            AuthenticationContext context = new AuthenticationContext(uri, true, service);
+            AuthenticationContext context = createContext();
             AuthenticationResult authenticationResult = context
                     .acquireToken(appIdUrl, new ClientCredential(aadAuthProps.getClientId(), aadAuthProps.getClientSecret()), null)
                     .get();
@@ -58,6 +63,14 @@ public class AzureTokenProvider {
             log.error("error refreshing azure token", e);
             throw new DataCatalogPoliciesTechnicalException("error refreshing azure token", e);
         }
+    }
+
+    private AuthenticationContext createContext() throws MalformedURLException {
+        String uri = serviceEndpoints.getAadSigninUri() + aadAuthProps.getTenantId() + "/";
+        log.debug("Refreshing azure token authority={}", uri);
+        AuthenticationContext context = new AuthenticationContext(uri, true, service);
+        context.setProxy(new Proxy(Type.HTTP, new InetSocketAddress(navProperties.getProxyHost(), navProperties.getProxyPort())));
+        return context;
     }
 
 }
