@@ -36,7 +36,7 @@ public class BehandlingsgrunnlagController {
             @ApiResponse(code = 200, message = "All Behandlingsgrunnlag fetched", response = BehandlingsgrunnlagResponse.class),
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping("/purpose/{purpose}")
-    public ResponseEntity<BehandlingsgrunnlagResponse> getPolicies(@PathVariable String purpose) {
+    public ResponseEntity<BehandlingsgrunnlagResponse> getBehandlingsgrunnlag(@PathVariable String purpose) {
         var datasets = policyRepository.findDatasetsByPurposeCode(purpose).stream().map(Dataset::convertToResponse).collect(toList());
         return ResponseEntity.ok(new BehandlingsgrunnlagResponse(purpose, datasets));
     }
