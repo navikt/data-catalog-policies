@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesTechnicalException;
 import no.nav.data.catalog.policies.app.common.security.AzureTokenProvider;
+import no.nav.data.catalog.policies.app.policy.domain.BackendDataset;
 import no.nav.data.catalog.policies.app.policy.domain.Dataset;
-import no.nav.data.catalog.policies.app.policy.domain.DatasetResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
@@ -41,13 +41,13 @@ public class DatasetConsumer {
     public Dataset getDatasetByTitle(String datasetTitle) {
         log.debug("DatasetConsumer: About to get Dataset by title={}", datasetTitle);
         try {
-            ResponseEntity<DatasetResponse> responseEntity = restTemplate.exchange(datasetEndpointUrl + "/title/{title}",
-                    HttpMethod.GET, new HttpEntity<>(authToken()), DatasetResponse.class, datasetTitle.trim());
-            DatasetResponse response = responseEntity.getBody();
+            ResponseEntity<BackendDataset> responseEntity = restTemplate.exchange(datasetEndpointUrl + "/title/{title}",
+                    HttpMethod.GET, new HttpEntity<>(authToken()), BackendDataset.class, datasetTitle.trim());
+            BackendDataset response = responseEntity.getBody();
             if (response == null || response.getId() == null) {
                 throw new DataCatalogPoliciesNotFoundException(String.format("Dataset with title=%s does not exist", datasetTitle.trim()));
             }
-            return new Dataset().convertToDataset(response);
+            return response.convertToDataset();
         } catch (
                 HttpClientErrorException e) {
             if (HttpStatus.NOT_FOUND.equals(e.getStatusCode())) {
@@ -66,13 +66,13 @@ public class DatasetConsumer {
     public Dataset getDatasetById(String datasetId) {
         log.debug("DatasetConsumer: About to get Dataset by id={}", datasetId);
         try {
-            ResponseEntity<DatasetResponse> responseEntity = restTemplate.exchange(datasetEndpointUrl + "/{datasetId}",
-                    HttpMethod.GET, new HttpEntity<>(authToken()), DatasetResponse.class, datasetId);
-            DatasetResponse response = responseEntity.getBody();
+            ResponseEntity<BackendDataset> responseEntity = restTemplate.exchange(datasetEndpointUrl + "/{datasetId}",
+                    HttpMethod.GET, new HttpEntity<>(authToken()), BackendDataset.class, datasetId);
+            BackendDataset response = responseEntity.getBody();
             if (response == null || response.getId() == null) {
                 throw new DataCatalogPoliciesNotFoundException(String.format("Dataset with id=%s does not exist", datasetId));
             }
-            return new Dataset().convertToDataset(response);
+            return response.convertToDataset();
         } catch (
                 HttpClientErrorException e) {
             if (HttpStatus.NOT_FOUND.equals(e.getStatusCode())) {

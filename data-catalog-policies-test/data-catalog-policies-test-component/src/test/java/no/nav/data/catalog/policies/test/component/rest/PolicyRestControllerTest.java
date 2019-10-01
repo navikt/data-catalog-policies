@@ -5,7 +5,7 @@ import no.nav.data.catalog.policies.app.AppStarter;
 import no.nav.data.catalog.policies.app.behandlingsgrunnlag.BehandlingsgrunnlagService;
 import no.nav.data.catalog.policies.app.consumer.DatasetConsumer;
 import no.nav.data.catalog.policies.app.policy.PolicyService;
-import no.nav.data.catalog.policies.app.policy.domain.Dataset;
+import no.nav.data.catalog.policies.app.policy.domain.DatasetResponse;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
@@ -51,7 +51,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(PolicyRestController.class)
 @ContextConfiguration(classes = AppStarter.class)
 @ActiveProfiles("test")
-public class PolicyRestControllerTest {
+class PolicyRestControllerTest {
 
     private static final String DATASET_ID_1 = "cd7f037e-374e-4e68-b705-55b61966b2fc";
     private static final String DATASET_ID_2 = "5992e0d0-1fc9-4d67-b825-d198be0827bf";
@@ -75,7 +75,7 @@ public class PolicyRestControllerTest {
     private BehandlingsgrunnlagService behandlingsgrunnlagService;
 
     @Test
-    public void getAllPolicies() throws Exception {
+    void getAllPolicies() throws Exception {
         Policy policy1 = createPolicyTestdata(DATASET_ID_1);
         Policy policy2 = createPolicyTestdata(DATASET_ID_2);
 
@@ -89,9 +89,9 @@ public class PolicyRestControllerTest {
     }
 
     @Test
-    public void getOnePolicy() throws Exception {
+    void getOnePolicy() throws Exception {
         Policy policy1 = createPolicyTestdata(DATASET_ID_1);
-        PolicyResponse response = new PolicyResponse(1L, new Dataset(), "Description", null);
+        PolicyResponse response = new PolicyResponse(1L, new DatasetResponse(), "Description", null);
 
         given(policyRepository.findById(1L)).willReturn(Optional.of(policy1));
         given(mapper.mapPolicyToResponse(policy1)).willReturn(response);
@@ -101,14 +101,14 @@ public class PolicyRestControllerTest {
     }
 
     @Test
-    public void getNotExistingPolicy() throws Exception {
+    void getNotExistingPolicy() throws Exception {
         given(policyRepository.findById(1L)).willReturn(Optional.ofNullable(null));
         mvc.perform(get("/policy/1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    public void getPoliciesForDataset() throws Exception {
+    void getPoliciesForDataset() throws Exception {
         Policy policy1 = createPolicyTestdata(DATASET_ID_1);
 
         List<Policy> policies = Collections.singletonList(policy1);
@@ -121,7 +121,7 @@ public class PolicyRestControllerTest {
     }
 
     @Test
-    public void countPoliciesForDataset() throws Exception {
+    void countPoliciesForDataset() throws Exception {
         given(policyRepository.countByDatasetId(DATASET_ID_1)).willReturn(1L);
         mvc.perform(get("/policy/count?datasetId=" + DATASET_ID_1).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -129,7 +129,7 @@ public class PolicyRestControllerTest {
     }
 
     @Test
-    public void countPolicies() throws Exception {
+    void countPolicies() throws Exception {
         given(policyRepository.count()).willReturn(1L);
         mvc.perform(get("/policy/count").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -138,7 +138,7 @@ public class PolicyRestControllerTest {
 
 
     @Test
-    public void createOnePolicy() throws Exception {
+    void createOnePolicy() throws Exception {
         Policy policy1 = createPolicyTestdata(DATASET_ID_1);
         List<PolicyRequest> request = Collections.singletonList(new PolicyRequest());
         List<Policy> policies = Collections.singletonList(policy1);
@@ -156,7 +156,7 @@ public class PolicyRestControllerTest {
     }
 
     @Test
-    public void createTwoPolicies() throws Exception {
+    void createTwoPolicies() throws Exception {
         Policy policy1 = createPolicyTestdata(DATASET_ID_1);
         Policy policy2 = createPolicyTestdata(DATASET_ID_2);
         List<PolicyRequest> request = Arrays.asList(new PolicyRequest("Desc1", "Code1", "Title1"), new PolicyRequest("Desc2", "Code2", "Title2"));
@@ -175,10 +175,10 @@ public class PolicyRestControllerTest {
     }
 
     @Test
-    public void updatePolicy() throws Exception {
+    void updatePolicy() throws Exception {
         Policy policy1 = createPolicyTestdata(DATASET_ID_1);
         PolicyRequest request = PolicyRequest.builder().id(1L).build();
-        PolicyResponse response = new PolicyResponse(1L, new Dataset(), "Description", null);
+        PolicyResponse response = new PolicyResponse(1L, new DatasetResponse(), "Description", null);
 
         given(mapper.mapRequestToPolicy(request, 1L)).willReturn(policy1);
         given(policyRepository.findById(1L)).willReturn(Optional.of(policy1));
@@ -195,7 +195,7 @@ public class PolicyRestControllerTest {
     }
 
     @Test
-    public void updateTwoPolicies() throws Exception {
+    void updateTwoPolicies() throws Exception {
         Policy policy1 = createPolicyTestdata(DATASET_ID_1);
         Policy policy2 = createPolicyTestdata(DATASET_ID_2);
         List<PolicyRequest> request = Arrays.asList(new PolicyRequest("Desc1", "Code1", "Title1"), new PolicyRequest("Desc2", "Code2", "Title2"));
@@ -217,7 +217,7 @@ public class PolicyRestControllerTest {
     }
 
     @Test
-    public void deletePolicy() throws Exception {
+    void deletePolicy() throws Exception {
         Policy policy1 = createPolicyTestdata(DATASET_ID_1);
         given(policyRepository.findById(1L)).willReturn(Optional.of(policy1));
 
@@ -228,19 +228,16 @@ public class PolicyRestControllerTest {
     }
 
     @Test
-    public void deleteNotExistsingPolicy() throws Exception {
+    void deleteNotExistsingPolicy() throws Exception {
         doThrow(new EmptyResultDataAccessException(1)).when(policyRepository).deleteById(1L);
         mvc.perform(delete("/policy/1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
-
     private Policy createPolicyTestdata(String datasetId) {
         Policy policy = new Policy();
-        Dataset dataset = new Dataset();
-        dataset.setId(datasetId);
-        policy.setDatasetId(dataset.getId());
+        policy.setDatasetId(datasetId);
         policy.setLegalBasisDescription("Description");
         return policy;
     }

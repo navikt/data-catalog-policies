@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class PolicyResponse {
 
     private Long policyId;
-    private Dataset dataset;
+    private DatasetResponse dataset;
     private String legalBasisDescription;
     private CodeResponse purpose;
 }

@@ -2,7 +2,7 @@ package no.nav.data.catalog.policies.test.component.mapper;
 
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.consumer.CodelistConsumer;
-import no.nav.data.catalog.policies.app.policy.domain.Dataset;
+import no.nav.data.catalog.policies.app.policy.domain.DatasetResponse;
 import no.nav.data.catalog.policies.app.policy.domain.ListName;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
@@ -40,7 +40,7 @@ class PolicyMapperTest {
 
     @Test
     void shouldMapToPolicy() {
-        Dataset dataset = createBasicTestdata(DATASET_TITLE_1);
+        DatasetResponse dataset = createBasicTestdata(DATASET_TITLE_1);
         PolicyRequest request = new PolicyRequest(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, dataset.getTitle());
         request.setDatasetId(DATASET_ID_1);
         Policy policy = mapper.mapRequestToPolicy(request, null);
@@ -52,7 +52,7 @@ class PolicyMapperTest {
 
     @Test
     void shouldMapToPolicyResponse() {
-        Dataset dataset = createBasicTestdata(DATASET_TITLE_1);
+        DatasetResponse dataset = createBasicTestdata(DATASET_TITLE_1);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenReturn(PURPOSE_DESCRIPTION1);
         Policy policy = new Policy(1L, dataset.getId(), dataset.getTitle(), PURPOSE_CODE1, LEGAL_BASIS_DESCRIPTION1);
         PolicyResponse policyResponse = mapper.mapPolicyToResponse(policy);
@@ -65,14 +65,14 @@ class PolicyMapperTest {
 
     @Test
     void shouldThrowPurposeNotFoundExceptionResponse() {
-        Dataset dataset = createBasicTestdata(DATASET_TITLE_1);
+        DatasetResponse dataset = createBasicTestdata(DATASET_TITLE_1);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenThrow(new DataCatalogPoliciesNotFoundException("codelist not found"));
         Policy policy = new Policy(1L, dataset.getId(), dataset.getTitle(), PURPOSE_CODE1, LEGAL_BASIS_DESCRIPTION1);
         Assertions.assertThrows(DataCatalogPoliciesNotFoundException.class, () -> mapper.mapPolicyToResponse(policy));
     }
 
-    private Dataset createBasicTestdata(String datasetTitle) {
-        return Dataset.builder()
+    private DatasetResponse createBasicTestdata(String datasetTitle) {
+        return DatasetResponse.builder()
                 .id(DATASET_ID_1)
                 .title(datasetTitle)
                 .build();

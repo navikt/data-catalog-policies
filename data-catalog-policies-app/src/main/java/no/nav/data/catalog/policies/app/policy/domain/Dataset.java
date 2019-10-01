@@ -6,17 +6,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
 @NoArgsConstructor
 public class Dataset {
 
-    private String id;
-    private String title;
+    private String datasetId;
+    private String datasetTitle;
 
-    public Dataset convertToDataset(DatasetResponse response) {
-        this.id = response.getId();
-        this.title = response.getTitle();
-        return this;
+    public DatasetResponse convertToResponse() {
+        return new DatasetResponse(getDatasetId(), getDatasetTitle());
     }
 }

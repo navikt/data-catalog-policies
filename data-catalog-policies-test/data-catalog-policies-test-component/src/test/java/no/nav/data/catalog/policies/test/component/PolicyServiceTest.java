@@ -56,7 +56,7 @@ class PolicyServiceTest {
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
                 .purposeCode(PURPOSECODE)
                 .build();
-        when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().id(DATASET_ID_1).build());
+        when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().datasetId(DATASET_ID_1).build());
         when(policyRepository.existsByDatasetIdAndPurposeCode(any(String.class), anyString())).thenReturn(false);
         service.validateRequests(List.of(request), false);
     }
@@ -101,7 +101,7 @@ class PolicyServiceTest {
                 .legalBasisDescription(LEGALBASISDESCRIPTION)
                 .purposeCode(PURPOSECODE)
                 .build();
-        when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().id(DATASET_ID_1).build());
+        when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().datasetId(DATASET_ID_1).build());
         when(policyRepository.existsByDatasetIdAndPurposeCode(any(String.class), anyString())).thenReturn(true);
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenReturn("purpose");
         try {
@@ -178,7 +178,7 @@ class PolicyServiceTest {
                 .purposeCode(PURPOSECODE)
                 .id(1L)
                 .build();
-        when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().id(DATASET_ID_1).build());
+        when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().datasetId(DATASET_ID_1).build());
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenReturn("purpose");
         service.validateRequests(List.of(request), false);
     }

@@ -3,7 +3,7 @@ package no.nav.data.catalog.policies.app.policy.mapper;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.data.catalog.policies.app.consumer.CodelistConsumer;
 import no.nav.data.catalog.policies.app.policy.domain.CodeResponse;
-import no.nav.data.catalog.policies.app.policy.domain.Dataset;
+import no.nav.data.catalog.policies.app.policy.domain.DatasetResponse;
 import no.nav.data.catalog.policies.app.policy.domain.ListName;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
@@ -38,7 +38,7 @@ public class PolicyMapper {
         PolicyResponse response = new PolicyResponse();
         response.setPolicyId(policy.getPolicyId());
         response.setLegalBasisDescription(policy.getLegalBasisDescription());
-        response.setDataset(new Dataset(policy.getDatasetId(), policy.getDatasetTitle()));
+        response.setDataset(new DatasetResponse(policy.getDatasetId(), policy.getDatasetTitle()));
         response.setPurpose(new CodeResponse(policy.getPurposeCode(), codelistConsumer.getCodelistDescription(ListName.PURPOSE, policy.getPurposeCode())));
         return response;
     }

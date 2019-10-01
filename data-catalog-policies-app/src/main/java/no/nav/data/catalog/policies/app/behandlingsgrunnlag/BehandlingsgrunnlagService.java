@@ -1,6 +1,7 @@
 package no.nav.data.catalog.policies.app.behandlingsgrunnlag;
 
 import no.nav.data.catalog.policies.app.common.nais.LeaderElectionService;
+import no.nav.data.catalog.policies.app.policy.domain.Dataset;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -46,9 +48,10 @@ public class BehandlingsgrunnlagService {
     }
 
     private void distribute(String purpose, List<BehandlingsgrunnlagDistribution> behandlingsgrunnlagDistributions) {
-        // Filter nonnull untill database is populated with titles in preprod
-        List<String> datasets = policyRepository.selectDatasetTitleByPurposeCode(purpose).stream().filter(Objects::nonNull).collect(Collectors.toList());
-        if (behandlingsgrunnlagProducer.sendBehandlingsgrunnlag(purpose, datasets)) {
+        Collection<Dataset> datasets = policyRepository.findDatasetsByPurposeCode(purpose);
+        // Filter nonnull titles untill database is populated with titles in preprod
+        List<String> datasetTitles = datasets.stream().map(Dataset::getDatasetTitle).filter(Objects::nonNull).collect(Collectors.toList());
+        if (behandlingsgrunnlagProducer.sendBehandlingsgrunnlag(purpose, datasetTitles)) {
             behandlingsgrunnlagDistributions.forEach(bd -> distributionRepository.deleteById(bd.getId()));
         }
     }
