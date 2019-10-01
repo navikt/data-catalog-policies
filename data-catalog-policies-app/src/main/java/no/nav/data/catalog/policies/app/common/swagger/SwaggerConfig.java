@@ -29,6 +29,7 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("no.nav.data.catalog.policies.app.policy.rest"))
+                .apis(RequestHandlerSelectors.basePackage("no.nav.data.catalog.policies.app.behandlingsgrunnlag"))
                 .paths(PathSelectors.any())
                 .build()
                 .securitySchemes(List.of(new ApiKey("Token Access", HttpHeaders.AUTHORIZATION, In.HEADER.name())))
