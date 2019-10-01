@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import springfox.documentation.builders.AuthorizationScopeBuilder;
 import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.ApiKey;
 import springfox.documentation.service.AuthorizationScope;
@@ -20,6 +19,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import java.util.Collections;
 import java.util.List;
 
+import static com.google.common.base.Predicates.or;
+import static springfox.documentation.builders.RequestHandlerSelectors.basePackage;
+
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {
@@ -28,8 +30,10 @@ public class SwaggerConfig {
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("no.nav.data.catalog.policies.app.policy.rest"))
-                .apis(RequestHandlerSelectors.basePackage("no.nav.data.catalog.policies.app.behandlingsgrunnlag"))
+                .apis(or(
+                        basePackage("no.nav.data.catalog.policies.app.policy.rest"),
+                        basePackage("no.nav.data.catalog.policies.app.behandlingsgrunnlag")
+                ))
                 .paths(PathSelectors.any())
                 .build()
                 .securitySchemes(List.of(new ApiKey("Token Access", HttpHeaders.AUTHORIZATION, In.HEADER.name())))
