@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import no.nav.data.catalog.policies.app.behandlingsgrunnlag.DatasetBehandlingsgrunnlagResponse;
 import no.nav.data.catalog.policies.app.common.auditing.Auditable;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
@@ -35,7 +36,7 @@ public class Policy extends Auditable<String> {
     @Column(name = "DATASET_ID", nullable = false)
     private String datasetId;
 
-    @Column(name="DATASET_TITLE")
+    @Column(name = "DATASET_TITLE")
     private String datasetTitle;
 
     @NotNull
@@ -45,4 +46,7 @@ public class Policy extends Auditable<String> {
     @Column(name = "LEGAL_BASIS_DESCRIPTION", length = 500)
     private String legalBasisDescription;
 
+    public DatasetBehandlingsgrunnlagResponse convertToDatasetBehandlingsgrunnlagResponse() {
+        return new DatasetBehandlingsgrunnlagResponse(datasetId, datasetTitle, legalBasisDescription);
+    }
 }

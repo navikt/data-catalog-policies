@@ -2,7 +2,6 @@ package no.nav.data.catalog.policies.app.behandlingsgrunnlag;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Value;
-import no.nav.data.catalog.policies.app.policy.domain.DatasetResponse;
 
 import java.util.List;
 
@@ -11,5 +10,5 @@ import java.util.List;
 public class BehandlingsgrunnlagResponse {
 
     private String purpose;
-    private List<DatasetResponse> datasets;
+    private List<DatasetBehandlingsgrunnlagResponse> datasets;
 }

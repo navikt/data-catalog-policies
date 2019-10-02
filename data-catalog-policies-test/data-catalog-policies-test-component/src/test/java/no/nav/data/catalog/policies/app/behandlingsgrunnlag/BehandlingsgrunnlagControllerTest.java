@@ -1,7 +1,7 @@
 package no.nav.data.catalog.policies.app.behandlingsgrunnlag;
 
 import no.nav.data.catalog.policies.app.AppStarter;
-import no.nav.data.catalog.policies.app.policy.domain.Dataset;
+import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,12 +34,14 @@ class BehandlingsgrunnlagControllerTest {
 
     @Test
     void hentBehandlingsgrunnlag() throws Exception {
-        given(policyRepository.findDatasetsByPurposeCode("the-purpose")).willReturn(List.of(new Dataset("id", "title")));
+        given(policyRepository.findByPurposeCode("the-purpose"))
+                .willReturn(List.of(Policy.builder().datasetId("id").datasetTitle("title").legalBasisDescription("legaldesc").build()));
 
         mvc.perform(get("/behandlingsgrunnlag/purpose/{purpose}", "the-purpose"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.purpose", is("the-purpose")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.datasets[0].id", is("id")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.datasets[0].title", is("title")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.datasets[0].title", is("title")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.datasets[0].legalBasisDescription", is("legaldesc")));
     }
 }

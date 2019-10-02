@@ -19,7 +19,4 @@ public class DatasetResponse {
     private String id;
     private String title;
 
-    public static DatasetResponse convertToDataset(BackendDataset response) {
-        return new DatasetResponse(response.getId(), response.getTitle());
-    }
 }

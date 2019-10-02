@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.data.catalog.policies.app.policy.domain.Dataset;
+import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -37,7 +37,7 @@ public class BehandlingsgrunnlagController {
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping("/purpose/{purpose}")
     public ResponseEntity<BehandlingsgrunnlagResponse> getBehandlingsgrunnlag(@PathVariable String purpose) {
-        var datasets = policyRepository.findDatasetsByPurposeCode(purpose).stream().map(Dataset::convertToResponse).collect(toList());
+        var datasets = policyRepository.findByPurposeCode(purpose).stream().map(Policy::convertToDatasetBehandlingsgrunnlagResponse).collect(toList());
         return ResponseEntity.ok(new BehandlingsgrunnlagResponse(purpose, datasets));
     }
 }
