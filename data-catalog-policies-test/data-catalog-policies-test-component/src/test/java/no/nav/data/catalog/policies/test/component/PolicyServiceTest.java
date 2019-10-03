@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -57,7 +58,7 @@ class PolicyServiceTest {
                 .purposeCode(PURPOSECODE)
                 .build();
         when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().datasetId(DATASET_ID_1).build());
-        when(policyRepository.existsByDatasetIdAndPurposeCode(any(String.class), anyString())).thenReturn(false);
+        when(policyRepository.findByDatasetIdAndPurposeCode(any(String.class), anyString())).thenReturn(List.of());
         service.validateRequests(List.of(request), false);
     }
 
@@ -102,7 +103,8 @@ class PolicyServiceTest {
                 .purposeCode(PURPOSECODE)
                 .build();
         when(datasetConsumer.getDatasetByTitle(request.getDatasetTitle())).thenReturn(Dataset.builder().datasetId(DATASET_ID_1).build());
-        when(policyRepository.existsByDatasetIdAndPurposeCode(any(String.class), anyString())).thenReturn(true);
+        when(policyRepository.findByDatasetIdAndPurposeCode(any(String.class), anyString()))
+                .thenReturn(List.of(Policy.builder().fom(LocalDate.now()).tom(LocalDate.now()).build()));
         when(codelistConsumer.getCodelistDescription(any(ListName.class), anyString())).thenReturn("purpose");
         try {
             service.validateRequests(List.of(request), false);

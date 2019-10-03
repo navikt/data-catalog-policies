@@ -19,14 +19,12 @@ public class PolicyRequest {
     private String legalBasisDescription;
     private String purposeCode;
     private String datasetTitle;
+    private String fom;
+    private String tom;
+
     @JsonIgnore
     private String datasetId;
     @JsonIgnore
     private Policy existingPolicy;
 
-    public PolicyRequest(String legalBasisDescription, String purposeCode, String datasetTitle) {
-        this.legalBasisDescription = legalBasisDescription;
-        this.purposeCode = purposeCode;
-        this.datasetTitle = datasetTitle;
-    }
 }

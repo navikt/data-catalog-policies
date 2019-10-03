@@ -12,8 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 
-import java.util.List;
+import java.time.LocalDate;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -35,7 +36,16 @@ class BehandlingsgrunnlagIT extends KafkaIntegrationTestBase {
 
     @Test
     void produserBehandlingsgrunnlag() {
-        createPolicy( 1);
+        createPolicy(3, (index, policy) -> {
+            // Inactive policy should not be sent
+            if (index == 1) {
+                policy.setPurposeCode("other-purpose");
+                policy.setDatasetTitle("other-title");
+                policy.setTom(LocalDate.now().minusDays(1));
+            } else if (index == 2) {
+                policy.setDatasetTitle(DATASET_TITLE + "2");
+            }
+        });
 
         behandlingsgrunnlagService.scheduleDistributeForPurpose(PURPOSE_CODE1);
         behandlingsgrunnlagService.distributeAll();
@@ -46,6 +56,6 @@ class BehandlingsgrunnlagIT extends KafkaIntegrationTestBase {
 
         assertEquals(PURPOSE_CODE1, singleRecord.key());
         assertEquals(PURPOSE_CODE1, singleRecord.value().getPurpose());
-        assertEquals(List.of(DATASET_TITLE), singleRecord.value().getDatasets());
+        assertThat(singleRecord.value().getDatasets()).contains(DATASET_TITLE, DATASET_TITLE + "2");
     }
 }

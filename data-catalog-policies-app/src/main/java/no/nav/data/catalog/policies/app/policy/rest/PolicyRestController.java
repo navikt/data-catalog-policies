@@ -2,6 +2,7 @@ package no.nav.data.catalog.policies.app.policy.rest;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
@@ -67,22 +68,27 @@ public class PolicyRestController {
         this.behandlingsgrunnlagService = behandlingsgrunnlagService;
     }
 
-
-    @ApiOperation(value = "Get all Policies", tags = {"Policies"})
+    @ApiOperation(value = "Get all Policies, get for datasetId will always return all policies", tags = {"Policies"})
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "All policies fetched", response = PolicyPage.class),
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping
-    public ResponseEntity<RestResponsePage<PolicyResponse>> getPolicies(PageParameters pageParameters, @RequestParam(required = false) String datasetId) {
-        Page<PolicyResponse> policyResponses;
+    public ResponseEntity<RestResponsePage<PolicyResponse>> getPolicies(PageParameters pageParameters,
+            @RequestParam(required = false) String datasetId,
+            @ApiParam("If fetching for a dataset, include inactive policies. For all policies, inactive will always be included")
+            @RequestParam(required = false, defaultValue = "false") Boolean includeInactive) {
         if (datasetId != null) {
             log.debug("Received request for Policies related to Dataset with id={}", datasetId);
-            policyResponses = policyRepository.findByDatasetId(pageParameters.createIdSortedPage(), datasetId).map(mapper::mapPolicyToResponse);
+            var policies = policyRepository.findByDatasetId(datasetId).stream()
+                    .filter(policy -> includeInactive || policy.isActive())
+                    .map(mapper::mapPolicyToResponse)
+                    .collect(toList());
+            return ResponseEntity.ok(new RestResponsePage<>(policies));
         } else {
             log.debug("Received request for all Policies");
-            policyResponses = policyRepository.findAll(pageParameters.createIdSortedPage()).map(mapper::mapPolicyToResponse);
+            Page<PolicyResponse> policyResponses = policyRepository.findAll(pageParameters.createIdSortedPage()).map(mapper::mapPolicyToResponse);
+            return ResponseEntity.ok(new RestResponsePage<>(policyResponses.getContent(), policyResponses.getPageable(), policyResponses.getTotalElements()));
         }
-        return ResponseEntity.ok(new RestResponsePage<>(policyResponses.getContent(), policyResponses.getPageable(), policyResponses.getTotalElements()));
     }
 
     @ApiOperation(value = "Count all Policies", tags = {"Policies"})

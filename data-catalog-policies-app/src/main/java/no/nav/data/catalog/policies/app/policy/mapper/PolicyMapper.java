@@ -11,6 +11,8 @@ import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+
 @Component
 @Slf4j
 public class PolicyMapper {
@@ -24,6 +26,8 @@ public class PolicyMapper {
         policy.setDatasetTitle(policyRequest.getDatasetTitle());
         policy.setPurposeCode(policyRequest.getPurposeCode());
         policy.setLegalBasisDescription(policyRequest.getLegalBasisDescription());
+        policy.setFom(parse(policyRequest.getFom(), LocalDate.of(1, 1, 1)));
+        policy.setTom(parse(policyRequest.getTom(), LocalDate.of(9999, 12, 31)));
         if (id != null) {
             policy.setPolicyId(id);
         }
@@ -40,6 +44,13 @@ public class PolicyMapper {
         response.setLegalBasisDescription(policy.getLegalBasisDescription());
         response.setDataset(new DatasetResponse(policy.getDatasetId(), policy.getDatasetTitle()));
         response.setPurpose(new CodeResponse(policy.getPurposeCode(), codelistConsumer.getCodelistDescription(ListName.PURPOSE, policy.getPurposeCode())));
+        response.setFom(policy.getFom());
+        response.setTom(policy.getTom());
+        response.setActive(policy.isActive());
         return response;
+    }
+
+    private LocalDate parse(String date, LocalDate defaultValue) {
+        return date == null ? defaultValue : LocalDate.parse(date);
     }
 }

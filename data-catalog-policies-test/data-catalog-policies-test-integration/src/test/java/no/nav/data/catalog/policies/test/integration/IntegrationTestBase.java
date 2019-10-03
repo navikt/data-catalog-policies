@@ -24,7 +24,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.PostgreSQLContainer;
 
+import java.time.LocalDate;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 import static org.mockito.Mockito.when;
 
@@ -72,6 +74,11 @@ public abstract class IntegrationTestBase {
     }
 
     protected void createPolicy(int rows) {
+        createPolicy(rows, (i, p) -> {
+        });
+    }
+
+    protected void createPolicy(int rows, BiConsumer<Integer, Policy> callback) {
         int i = 0;
         while (i++ < rows) {
             Policy policy = new Policy();
@@ -79,6 +86,9 @@ public abstract class IntegrationTestBase {
             policy.setDatasetTitle(DATASET_TITLE);
             policy.setLegalBasisDescription(LEGAL_BASIS_DESCRIPTION1);
             policy.setPurposeCode(PURPOSE_CODE1);
+            policy.setFom(LocalDate.now());
+            policy.setTom(LocalDate.now());
+            callback.accept(i, policy);
             policyRepository.save(policy);
         }
     }
