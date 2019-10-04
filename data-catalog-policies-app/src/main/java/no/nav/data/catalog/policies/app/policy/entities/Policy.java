@@ -9,6 +9,7 @@ import no.nav.data.catalog.policies.app.common.auditing.Auditable;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
+import java.time.LocalDate;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -46,7 +47,20 @@ public class Policy extends Auditable<String> {
     @Column(name = "LEGAL_BASIS_DESCRIPTION", length = 500)
     private String legalBasisDescription;
 
+    @NotNull
+    @Column(name = "FOM", nullable = false)
+    private LocalDate fom;
+
+    @NotNull
+    @Column(name = "TOM", nullable = false)
+    private LocalDate tom;
+
     public DatasetBehandlingsgrunnlagResponse convertToDatasetBehandlingsgrunnlagResponse() {
         return new DatasetBehandlingsgrunnlagResponse(datasetId, datasetTitle, legalBasisDescription);
+    }
+
+    public boolean isActive() {
+        return (fom == null || fom.minusDays(1).isBefore(LocalDate.now())) &&
+                (tom == null || tom.plusDays(1).isAfter(LocalDate.now()));
     }
 }

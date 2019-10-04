@@ -6,8 +6,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.data.catalog.policies.app.policy.PolicyService;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
-import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,12 +24,11 @@ import static java.util.stream.Collectors.toList;
 @RequestMapping("/behandlingsgrunnlag")
 public class BehandlingsgrunnlagController {
 
-    private final PolicyRepository policyRepository;
+    private final PolicyService policyService;
 
-    public BehandlingsgrunnlagController(PolicyRepository policyRepository) {
-        this.policyRepository = policyRepository;
+    public BehandlingsgrunnlagController(PolicyService policyService) {
+        this.policyService = policyService;
     }
-
 
     @ApiOperation(value = "Get Behandlingsgrunnlag for Purpose", tags = {"Behandlingsgrunnlag"})
     @ApiResponses(value = {
@@ -37,7 +36,9 @@ public class BehandlingsgrunnlagController {
             @ApiResponse(code = 500, message = "Internal server error")})
     @GetMapping("/purpose/{purpose}")
     public ResponseEntity<BehandlingsgrunnlagResponse> getBehandlingsgrunnlag(@PathVariable String purpose) {
-        var datasets = policyRepository.findByPurposeCode(purpose).stream().map(Policy::convertToDatasetBehandlingsgrunnlagResponse).collect(toList());
+        var datasets = policyService.findActiveByPurposeCode(purpose).stream()
+                .map(Policy::convertToDatasetBehandlingsgrunnlagResponse)
+                .collect(toList());
         return ResponseEntity.ok(new BehandlingsgrunnlagResponse(purpose, datasets));
     }
 }

@@ -5,6 +5,7 @@ import no.nav.data.catalog.policies.app.AppStarter;
 import no.nav.data.catalog.policies.app.behandlingsgrunnlag.BehandlingsgrunnlagService;
 import no.nav.data.catalog.policies.app.consumer.DatasetConsumer;
 import no.nav.data.catalog.policies.app.policy.PolicyService;
+import no.nav.data.catalog.policies.app.policy.domain.CodeResponse;
 import no.nav.data.catalog.policies.app.policy.domain.DatasetResponse;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
@@ -91,7 +92,7 @@ class PolicyRestControllerTest {
     @Test
     void getOnePolicy() throws Exception {
         Policy policy1 = createPolicyTestdata(DATASET_ID_1);
-        PolicyResponse response = new PolicyResponse(1L, new DatasetResponse(), "Description", null);
+        PolicyResponse response = createPolicyResponse("code", "Description", 1L);
 
         given(policyRepository.findById(1L)).willReturn(Optional.of(policy1));
         given(mapper.mapPolicyToResponse(policy1)).willReturn(response);
@@ -112,9 +113,8 @@ class PolicyRestControllerTest {
         Policy policy1 = createPolicyTestdata(DATASET_ID_1);
 
         List<Policy> policies = Collections.singletonList(policy1);
-        Page<Policy> policyPage = new PageImpl<>(policies, PageRequest.of(0, 100), 1);
-        given(policyRepository.findByDatasetId(new PageParameters(0, 100).createIdSortedPage(), DATASET_ID_1)).willReturn(policyPage);
-        mvc.perform(get("/policy?pageNumber=0&pageSize=100&datasetId=" + DATASET_ID_1).contentType(MediaType.APPLICATION_JSON))
+        given(policyRepository.findByDatasetId(DATASET_ID_1)).willReturn(policies);
+        mvc.perform(get("/policy?datasetId=" + DATASET_ID_1).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(1)));
 
@@ -159,7 +159,7 @@ class PolicyRestControllerTest {
     void createTwoPolicies() throws Exception {
         Policy policy1 = createPolicyTestdata(DATASET_ID_1);
         Policy policy2 = createPolicyTestdata(DATASET_ID_2);
-        List<PolicyRequest> request = Arrays.asList(new PolicyRequest("Desc1", "Code1", "Title1"), new PolicyRequest("Desc2", "Code2", "Title2"));
+        List<PolicyRequest> request = Arrays.asList(createPolicyRequest("Desc1", "Code1", "Title1"), createPolicyRequest("Desc2", "Code2", "Title2"));
         List<Policy> policies = Arrays.asList(policy1, policy2);
 
         given(mapper.mapRequestToPolicy(request.get(0), null)).willReturn(policy1);
@@ -178,7 +178,7 @@ class PolicyRestControllerTest {
     void updatePolicy() throws Exception {
         Policy policy1 = createPolicyTestdata(DATASET_ID_1);
         PolicyRequest request = PolicyRequest.builder().id(1L).build();
-        PolicyResponse response = new PolicyResponse(1L, new DatasetResponse(), "Description", null);
+        PolicyResponse response = createPolicyResponse("code", "Description", null);
 
         given(mapper.mapRequestToPolicy(request, 1L)).willReturn(policy1);
         given(policyRepository.findById(1L)).willReturn(Optional.of(policy1));
@@ -198,7 +198,7 @@ class PolicyRestControllerTest {
     void updateTwoPolicies() throws Exception {
         Policy policy1 = createPolicyTestdata(DATASET_ID_1);
         Policy policy2 = createPolicyTestdata(DATASET_ID_2);
-        List<PolicyRequest> request = Arrays.asList(new PolicyRequest("Desc1", "Code1", "Title1"), new PolicyRequest("Desc2", "Code2", "Title2"));
+        List<PolicyRequest> request = Arrays.asList(createPolicyRequest("Desc1", "Code1", "Title1"), createPolicyRequest("Desc2", "Code2", "Title2"));
         List<Policy> policies = Arrays.asList(policy1, policy2);
 
         given(mapper.mapRequestToPolicy(request.get(0), request.get(0).getId())).willReturn(policy1);
@@ -240,6 +240,14 @@ class PolicyRestControllerTest {
         policy.setDatasetId(datasetId);
         policy.setLegalBasisDescription("Description");
         return policy;
+    }
+
+    private PolicyRequest createPolicyRequest(String desc, String code, String title) {
+        return PolicyRequest.builder().legalBasisDescription(desc).purposeCode(code).datasetTitle(title).build();
+    }
+
+    private PolicyResponse createPolicyResponse(String purpose, String desc, Long id) {
+        return PolicyResponse.builder().policyId(id).purpose(new CodeResponse(purpose, "")).dataset(new DatasetResponse()).legalBasisDescription(desc).build();
     }
 
     private static String asJsonString(final Object obj) {

@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -105,7 +106,7 @@ public class PolicyService {
                 request.setDatasetId(dataset.getDatasetId());
             }
 
-            if (!isUpdate && dataset != null && policyRepository.existsByDatasetIdAndPurposeCode(dataset.getDatasetId(), request.getPurposeCode())) {
+            if (!isUpdate && dataset != null && exists(dataset.getDatasetId(), request.getPurposeCode())) {
                 validationErrors.put("datasetAndPurpose",
                         String.format("A policy combining Dataset %s and Purpose %s already exists", request.getDatasetTitle(), request.getPurposeCode()));
             }
@@ -117,4 +118,13 @@ public class PolicyService {
         return validationErrors;
     }
 
+    private boolean exists(String datasetId, String purposeCode) {
+        return policyRepository.findByDatasetIdAndPurposeCode(datasetId, purposeCode).stream().anyMatch(Policy::isActive);
+    }
+
+    public List<Policy> findActiveByPurposeCode(String purpose) {
+        return policyRepository.findByPurposeCode(purpose).stream()
+                .filter(Policy::isActive)
+                .collect(Collectors.toList());
+    }
 }

@@ -9,11 +9,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
+import java.time.LocalDate;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -58,8 +59,8 @@ class RepositoryTest {
     void getByDataset() {
         createTestdata(LEGAL_BASIS_DESCRIPTION1, PURPOSE_CODE1, DATASET_ID_1);
         createTestdata("Legal basis 2", "PUR2", DATASET_ID_2);
-        assertThat(policyRepository.findByDatasetId(PageRequest.of(0, 10), DATASET_ID_1).getTotalElements(), is(1L));
-        assertThat(policyRepository.findByDatasetId(PageRequest.of(0, 10), DATASET_ID_2).getTotalElements(), is(1L));
+        assertThat(policyRepository.findByDatasetId(DATASET_ID_1).size(), is(1));
+        assertThat(policyRepository.findByDatasetId(DATASET_ID_2).size(), is(1));
     }
 
     @Test
@@ -75,6 +76,8 @@ class RepositoryTest {
         policy.setDatasetId(datasetId);
         policy.setPurposeCode(purposeCode);
         policy.setLegalBasisDescription(legalBasisDescription);
+        policy.setFom(LocalDate.now());
+        policy.setTom(LocalDate.now());
         policyRepository.save(policy);
     }
 }

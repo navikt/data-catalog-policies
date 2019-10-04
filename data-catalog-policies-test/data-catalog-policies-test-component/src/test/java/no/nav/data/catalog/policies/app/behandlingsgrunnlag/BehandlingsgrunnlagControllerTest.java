@@ -1,8 +1,8 @@
 package no.nav.data.catalog.policies.app.behandlingsgrunnlag;
 
 import no.nav.data.catalog.policies.app.AppStarter;
+import no.nav.data.catalog.policies.app.policy.PolicyService;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
-import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +30,11 @@ class BehandlingsgrunnlagControllerTest {
     private MockMvc mvc;
 
     @MockBean
-    private PolicyRepository policyRepository;
+    private PolicyService policyService;
 
     @Test
     void hentBehandlingsgrunnlag() throws Exception {
-        given(policyRepository.findByPurposeCode("the-purpose"))
+        given(policyService.findActiveByPurposeCode("the-purpose"))
                 .willReturn(List.of(Policy.builder().datasetId("id").datasetTitle("title").legalBasisDescription("legaldesc").build()));
 
         mvc.perform(get("/behandlingsgrunnlag/purpose/{purpose}", "the-purpose"))
