@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
+import static no.nav.data.catalog.policies.app.common.util.MdcUtils.wrapAsync;
 
 @Service
 public class BehandlingsgrunnlagService {
@@ -59,6 +60,7 @@ public class BehandlingsgrunnlagService {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
         scheduler.setThreadNamePrefix("BehGrnlgDist");
         scheduler.initialize();
-        scheduler.scheduleAtFixedRate(this::distributeAll, Instant.now().plus(1, ChronoUnit.MINUTES), Duration.ofSeconds(rate));
+        scheduler.scheduleAtFixedRate(wrapAsync(this::distributeAll, scheduler.getThreadNamePrefix()),
+                Instant.now().plus(1, ChronoUnit.MINUTES), Duration.ofSeconds(rate));
     }
 }
