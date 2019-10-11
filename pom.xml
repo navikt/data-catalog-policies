@@ -28,6 +28,7 @@
 		<prometheus.version>0.7.0</prometheus.version>
 		<confluent.version>5.3.0</confluent.version>
 		<azure.version>2.1.7</azure.version>
+		<nav-vault-jdbc.version>1.3.1</nav-vault-jdbc.version>
 		<!-- From io.confluent:common-parent kafka-avro-serializer -->
 		<avro.version>1.8.1</avro.version>
 

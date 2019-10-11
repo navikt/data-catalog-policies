@@ -23,8 +23,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -64,9 +64,9 @@ class DatasetConsumerTest {
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(BackendDataset.class), eq(DATASET_ID_1)))
                 .thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
 
-        var exception = assertThrows(DataCatalogPoliciesNotFoundException.class,
-                () -> consumer.getDatasetById(DATASET_ID_1));
-        assertEquals("Dataset with id=cd7f037e-374e-4e68-b705-55b61966b2fc does not exist", exception.getMessage());
+        assertThatThrownBy(() -> consumer.getDatasetById(DATASET_ID_1))
+                .isInstanceOf(DataCatalogPoliciesNotFoundException.class)
+                .hasMessageContaining("Dataset with id=cd7f037e-374e-4e68-b705-55b61966b2fc does not exist");
     }
 
     @Test
@@ -74,9 +74,9 @@ class DatasetConsumerTest {
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(BackendDataset.class), eq(DATASET_ID_1)))
                 .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
 
-        var exception = assertThrows(DataCatalogPoliciesTechnicalException.class,
-                () -> consumer.getDatasetById(DATASET_ID_1));
-        assertEquals("Getting Dataset with id=cd7f037e-374e-4e68-b705-55b61966b2fc failed with status=500 INTERNAL_SERVER_ERROR message=", exception.getMessage());
+        assertThatThrownBy(() -> consumer.getDatasetById(DATASET_ID_1))
+                .isInstanceOf(DataCatalogPoliciesTechnicalException.class)
+                .hasMessageContaining("Getting Dataset with id=cd7f037e-374e-4e68-b705-55b61966b2fc failed with status=500 INTERNAL_SERVER_ERROR message=");
     }
 
     @Test
@@ -93,9 +93,9 @@ class DatasetConsumerTest {
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(BackendDataset.class), eq(TITLE)))
                 .thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
 
-        var exception = assertThrows(DataCatalogPoliciesNotFoundException.class,
-                () -> consumer.getDatasetByTitle(TITLE));
-        assertEquals("Dataset with title=Dataset title does not exist", exception.getMessage());
+        assertThatThrownBy(() -> consumer.getDatasetByTitle(TITLE))
+                .isInstanceOf(DataCatalogPoliciesNotFoundException.class)
+                .hasMessageContaining("Dataset with title=Dataset title does not exist");
     }
 
     @Test
@@ -103,9 +103,9 @@ class DatasetConsumerTest {
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(BackendDataset.class), eq(TITLE)))
                 .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
 
-        var exception = assertThrows(DataCatalogPoliciesTechnicalException.class,
-                () -> consumer.getDatasetByTitle(TITLE));
-        assertEquals("Getting Dataset with title=Dataset title failed with status=500 INTERNAL_SERVER_ERROR message=", exception.getMessage());
+        assertThatThrownBy(() -> consumer.getDatasetByTitle(TITLE))
+                .isInstanceOf(DataCatalogPoliciesTechnicalException.class)
+                .hasMessageContaining("Getting Dataset with title=Dataset title failed with status=500 INTERNAL_SERVER_ERROR message=");
     }
 
     private void assertDataset(Dataset dataset) {
