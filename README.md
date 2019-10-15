@@ -20,4 +20,5 @@ For å kjøre, navigèr til ``data-catalog-policies-app`` og kjør
 ``mvn exec:java -Dspring.profiles.active=test``
 
 Swagger-dokumentasjon av tjenestene er tilgjengelig på
-http://localhost:8080/swagger-ui.html
+http://localhost:8080/policies/swagger-ui.html
+
