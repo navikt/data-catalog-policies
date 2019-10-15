@@ -1,4 +1,4 @@
-package no.nav.data.catalog.policies.app.policy.domain;
+package no.nav.data.catalog.policies.app.codelist.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;

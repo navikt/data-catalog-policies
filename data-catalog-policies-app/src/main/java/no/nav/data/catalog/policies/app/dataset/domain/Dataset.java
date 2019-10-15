@@ -1,4 +1,4 @@
-package no.nav.data.catalog.policies.app.policy.domain;
+package no.nav.data.catalog.policies.app.dataset.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

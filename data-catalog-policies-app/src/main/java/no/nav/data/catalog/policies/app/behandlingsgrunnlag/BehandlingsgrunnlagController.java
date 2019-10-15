@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.data.catalog.policies.app.behandlingsgrunnlag.domain.BehandlingsgrunnlagResponse;
 import no.nav.data.catalog.policies.app.policy.PolicyService;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import org.springframework.http.ResponseEntity;

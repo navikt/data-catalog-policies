@@ -2,8 +2,8 @@ package no.nav.data.catalog.policies.test.component.consumer;
 
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesTechnicalException;
-import no.nav.data.catalog.policies.app.consumer.CodelistConsumer;
-import no.nav.data.catalog.policies.app.policy.domain.ListName;
+import no.nav.data.catalog.policies.app.codelist.CodelistConsumer;
+import no.nav.data.catalog.policies.app.codelist.domain.ListName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

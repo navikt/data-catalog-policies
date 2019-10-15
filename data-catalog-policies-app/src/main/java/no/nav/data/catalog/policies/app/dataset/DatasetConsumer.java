@@ -1,11 +1,11 @@
-package no.nav.data.catalog.policies.app.consumer;
+package no.nav.data.catalog.policies.app.dataset;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesTechnicalException;
 import no.nav.data.catalog.policies.app.common.security.AzureTokenProvider;
-import no.nav.data.catalog.policies.app.policy.domain.BackendDataset;
-import no.nav.data.catalog.policies.app.policy.domain.Dataset;
+import no.nav.data.catalog.policies.app.dataset.domain.BackendDataset;
+import no.nav.data.catalog.policies.app.dataset.domain.Dataset;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;

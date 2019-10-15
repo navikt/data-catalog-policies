@@ -9,7 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.data.catalog.policies.app.behandlingsgrunnlag.BehandlingsgrunnlagService;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.common.exceptions.ValidationException;
-import no.nav.data.catalog.policies.app.consumer.DatasetConsumer;
+import no.nav.data.catalog.policies.app.common.web.PageParameters;
+import no.nav.data.catalog.policies.app.common.web.RestResponsePage;
+import no.nav.data.catalog.policies.app.dataset.DatasetConsumer;
 import no.nav.data.catalog.policies.app.policy.PolicyService;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
@@ -39,6 +41,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 import static no.nav.data.catalog.policies.app.common.cache.CacheConfig.CODELIST_CACHE;
 import static no.nav.data.catalog.policies.app.common.cache.CacheConfig.DATASET_BY_ID_CACHE;
@@ -136,7 +139,7 @@ public class PolicyRestController {
         log.debug("Received request for Policy with id={}", id);
         Optional<Policy> optionalPolicy = policyRepository.findById(id);
         if (optionalPolicy.isEmpty()) {
-            return notFoundError(id);
+            throw notFoundError(id);
         }
         return ResponseEntity.ok(mapper.mapPolicyToResponse(optionalPolicy.get()));
     }
@@ -151,7 +154,7 @@ public class PolicyRestController {
         log.debug("Received request to delete Policy with id={}", id);
         Optional<Policy> optionalPolicy = policyRepository.findById(id);
         if (optionalPolicy.isEmpty()) {
-            notFoundError(id);
+            throw notFoundError(id);
         }
         onChange(List.of(optionalPolicy.get()));
         policyRepository.deleteById(id);
@@ -181,7 +184,7 @@ public class PolicyRestController {
     public ResponseEntity<PolicyResponse> updatePolicy(@PathVariable Long id, @Valid @RequestBody PolicyRequest policyRequest) {
         log.debug("Received request to update Policy with id={}", id);
         if (policyRepository.findById(id).isEmpty()) {
-            return notFoundError(id);
+            throw notFoundError(id);
         }
         if (!Objects.equals(id, policyRequest.getId())) {
             throw new ValidationException(String.format("id mismatch in request %d and path %d", policyRequest.getId(), id));
@@ -212,13 +215,13 @@ public class PolicyRestController {
             @ApiResponse(code = 500, message = "Internal server error")})
     @PostMapping("/clearcache")
     public ResponseEntity clearCache() {
-        cachemanager.getCache(CODELIST_CACHE).clear();
-        cachemanager.getCache(DATASET_BY_TITLE_CACHE).clear();
-        cachemanager.getCache(DATASET_BY_ID_CACHE).clear();
+        requireNonNull(cachemanager.getCache(CODELIST_CACHE)).clear();
+        requireNonNull(cachemanager.getCache(DATASET_BY_TITLE_CACHE)).clear();
+        requireNonNull(cachemanager.getCache(DATASET_BY_ID_CACHE)).clear();
         return ResponseEntity.ok("OK");
     }
 
-    private <T> ResponseEntity<T> notFoundError(Long id) {
+    private RuntimeException notFoundError(Long id) {
         String message = String.format("Cannot find Policy with id: %s", id);
         log.warn(message);
         throw new DataCatalogPoliciesNotFoundException(message);

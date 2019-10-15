@@ -1,4 +1,4 @@
-package no.nav.data.catalog.policies.app.policy.rest;
+package no.nav.data.catalog.policies.app.common.web;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;

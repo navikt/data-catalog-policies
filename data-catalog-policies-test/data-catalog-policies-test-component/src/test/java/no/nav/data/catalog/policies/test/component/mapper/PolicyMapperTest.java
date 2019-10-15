@@ -1,9 +1,9 @@
 package no.nav.data.catalog.policies.test.component.mapper;
 
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
-import no.nav.data.catalog.policies.app.consumer.CodelistConsumer;
-import no.nav.data.catalog.policies.app.policy.domain.DatasetResponse;
-import no.nav.data.catalog.policies.app.policy.domain.ListName;
+import no.nav.data.catalog.policies.app.codelist.CodelistConsumer;
+import no.nav.data.catalog.policies.app.dataset.domain.DatasetResponse;
+import no.nav.data.catalog.policies.app.codelist.domain.ListName;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;

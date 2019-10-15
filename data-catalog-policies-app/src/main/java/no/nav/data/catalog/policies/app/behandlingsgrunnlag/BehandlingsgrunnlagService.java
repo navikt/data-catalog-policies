@@ -1,5 +1,6 @@
 package no.nav.data.catalog.policies.app.behandlingsgrunnlag;
 
+import no.nav.data.catalog.policies.app.behandlingsgrunnlag.domain.BehandlingsgrunnlagDistribution;
 import no.nav.data.catalog.policies.app.common.nais.LeaderElectionService;
 import no.nav.data.catalog.policies.app.policy.PolicyService;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;

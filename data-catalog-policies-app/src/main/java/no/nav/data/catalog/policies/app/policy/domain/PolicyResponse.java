@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import no.nav.data.catalog.policies.app.codelist.domain.CodeResponse;
+import no.nav.data.catalog.policies.app.dataset.domain.DatasetResponse;
 
 import java.time.LocalDate;
 

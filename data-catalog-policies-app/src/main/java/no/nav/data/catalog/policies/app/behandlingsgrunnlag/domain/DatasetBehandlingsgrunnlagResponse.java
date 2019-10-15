@@ -1,4 +1,4 @@
-package no.nav.data.catalog.policies.app.behandlingsgrunnlag;
+package no.nav.data.catalog.policies.app.behandlingsgrunnlag.domain;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Value;

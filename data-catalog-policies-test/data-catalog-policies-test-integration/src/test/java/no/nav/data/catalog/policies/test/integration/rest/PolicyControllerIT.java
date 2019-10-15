@@ -1,11 +1,11 @@
 package no.nav.data.catalog.policies.test.integration.rest;
 
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import no.nav.data.catalog.policies.app.behandlingsgrunnlag.BehandlingsgrunnlagDistribution;
+import no.nav.data.catalog.policies.app.behandlingsgrunnlag.domain.BehandlingsgrunnlagDistribution;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyResponse;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
-import no.nav.data.catalog.policies.app.policy.rest.RestResponsePage;
+import no.nav.data.catalog.policies.app.common.web.RestResponsePage;
 import no.nav.data.catalog.policies.test.integration.IntegrationTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
