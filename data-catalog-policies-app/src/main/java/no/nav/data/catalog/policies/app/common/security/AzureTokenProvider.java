@@ -24,7 +24,6 @@ public class AzureTokenProvider {
     private final AADAuthenticationProperties aadAuthProps;
     private final Proxy proxy;
     private final ServiceEndpoints serviceEndpoints;
-    private final String appIdUrl;
     private final boolean enable;
 
     private final ExecutorService service = Executors.newFixedThreadPool(1);
@@ -32,11 +31,10 @@ public class AzureTokenProvider {
     private Instant expires = Instant.MIN;
 
     public AzureTokenProvider(AADAuthenticationProperties aadAuthProps, ServiceEndpointsProperties serviceEndpointsProps,
-            @Value("${azure.app.id.uri}") String appIdUrl, @Value("${security.client.enabled:true}") boolean enable, Proxy proxy) {
+            @Value("${security.client.enabled:true}") boolean enable, Proxy proxy) {
         this.aadAuthProps = aadAuthProps;
         this.proxy = proxy;
         this.serviceEndpoints = serviceEndpointsProps.getServiceEndpoints(aadAuthProps.getEnvironment());
-        this.appIdUrl = appIdUrl;
         this.enable = enable;
     }
 
@@ -51,7 +49,7 @@ public class AzureTokenProvider {
         try {
             AuthenticationContext context = createContext();
             AuthenticationResult authenticationResult = context
-                    .acquireToken(appIdUrl, new ClientCredential(aadAuthProps.getClientId(), aadAuthProps.getClientSecret()), null)
+                    .acquireToken(aadAuthProps.getAppIdUri(), new ClientCredential(aadAuthProps.getClientId(), aadAuthProps.getClientSecret()), null)
                     .get();
             expires = authenticationResult.getExpiresOnDate().toInstant().minusSeconds(60);
             token = authenticationResult.getAccessToken();
