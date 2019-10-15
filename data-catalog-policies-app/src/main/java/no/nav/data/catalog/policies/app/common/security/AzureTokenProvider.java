@@ -32,7 +32,7 @@ public class AzureTokenProvider {
     private Instant expires = Instant.MIN;
 
     public AzureTokenProvider(AADAuthenticationProperties aadAuthProps, ServiceEndpointsProperties serviceEndpointsProps,
-            @Value("${azure.app.id.uri}") String appIdUrl, @Value("${security.enabled:true}") boolean enable, Proxy proxy) {
+            @Value("${azure.app.id.uri}") String appIdUrl, @Value("${security.client.enabled:true}") boolean enable, Proxy proxy) {
         this.aadAuthProps = aadAuthProps;
         this.proxy = proxy;
         this.serviceEndpoints = serviceEndpointsProps.getServiceEndpoints(aadAuthProps.getEnvironment());
