@@ -1,9 +1,6 @@
 package no.nav.data.catalog.policies.app.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.microsoft.azure.spring.autoconfigure.aad.AADAuthenticationProperties;
-import com.nimbusds.jose.util.DefaultResourceRetriever;
-import com.nimbusds.jose.util.ResourceRetriever;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.hotspot.DefaultExports;
 import no.nav.data.catalog.policies.app.common.auditing.AuditorAwareImpl;
@@ -49,14 +46,6 @@ public class CommonConfig {
         MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
         jsonConverter.setObjectMapper(objectMapper());
         return jsonConverter;
-    }
-
-    @Bean
-    public ResourceRetriever getJWTResourceRetriever(AADAuthenticationProperties aadAuthProps, Proxy proxy) {
-        DefaultResourceRetriever defaultResourceRetriever = new DefaultResourceRetriever(aadAuthProps.getJwtConnectTimeout(), aadAuthProps.getJwtReadTimeout(),
-                aadAuthProps.getJwtSizeLimit());
-        defaultResourceRetriever.setProxy(proxy);
-        return defaultResourceRetriever;
     }
 
     @Bean
