@@ -1,6 +1,5 @@
 package no.nav.data.catalog.policies.test.integration;
 
-import io.prometheus.client.CollectorRegistry;
 import no.nav.data.catalog.policies.app.AppStarter;
 import no.nav.data.catalog.policies.app.behandlingsgrunnlag.BehandlingsgrunnlagDistributionRepository;
 import no.nav.data.catalog.policies.app.common.security.AzureTokenProvider;
@@ -70,7 +69,6 @@ public abstract class IntegrationTestBase {
     @AfterEach
     public void cleanUpAbstract() {
         policyRepository.deleteAll();
-        CollectorRegistry.defaultRegistry.clear();
     }
 
     protected void createPolicy(int rows) {

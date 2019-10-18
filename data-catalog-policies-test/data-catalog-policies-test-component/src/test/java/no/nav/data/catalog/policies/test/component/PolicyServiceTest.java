@@ -1,13 +1,13 @@
 package no.nav.data.catalog.policies.test.component;
 
+import no.nav.data.catalog.policies.app.codelist.CodelistConsumer;
+import no.nav.data.catalog.policies.app.codelist.domain.ListName;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesNotFoundException;
 import no.nav.data.catalog.policies.app.common.exceptions.ValidationException;
 import no.nav.data.catalog.policies.app.common.util.JsonUtils;
-import no.nav.data.catalog.policies.app.codelist.CodelistConsumer;
 import no.nav.data.catalog.policies.app.dataset.DatasetConsumer;
-import no.nav.data.catalog.policies.app.policy.PolicyService;
 import no.nav.data.catalog.policies.app.dataset.domain.Dataset;
-import no.nav.data.catalog.policies.app.codelist.domain.ListName;
+import no.nav.data.catalog.policies.app.policy.PolicyService;
 import no.nav.data.catalog.policies.app.policy.domain.PolicyRequest;
 import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
@@ -16,7 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -30,7 +29,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@ActiveProfiles("test")
 class PolicyServiceTest {
 
     private static final String DATASET_TITLE = "Personalia";

@@ -5,6 +5,7 @@ import no.nav.data.catalog.policies.app.policy.entities.Policy;
 import no.nav.data.catalog.policies.app.policy.repository.PolicyRepository;
 import no.nav.data.catalog.policies.test.component.PolicyTestContainer;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,6 @@ class RepositoryTest {
 
     private static final String LEGAL_BASIS_DESCRIPTION1 = "Legal basis 1";
     private static final String PURPOSE_CODE1 = "PUR1";
-    private static final String DATASET_TITLE = "DatasetTitle1";
     private static final String DATASET_ID_1 = "cd7f037e-374e-4e68-b705-55b61966b2fc";
     private static final String DATASET_ID_2 = "5992e0d0-1fc9-4d67-b825-d198be0827bf";
 
@@ -37,8 +37,13 @@ class RepositoryTest {
     @Autowired
     private PolicyRepository policyRepository;
 
-    @AfterEach
+    @BeforeEach
     void setUp() {
+        policyRepository.deleteAll();
+    }
+
+    @AfterEach
+    void cleanup() {
         policyRepository.deleteAll();
     }
 

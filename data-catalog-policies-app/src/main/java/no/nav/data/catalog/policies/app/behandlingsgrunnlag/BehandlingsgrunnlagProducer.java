@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+import static no.nav.data.catalog.policies.app.common.util.MetricUtils.counter;
+
 @Slf4j
 @Component
 public class BehandlingsgrunnlagProducer {
@@ -46,7 +48,8 @@ public class BehandlingsgrunnlagProducer {
     }
 
     private void initMetrics() {
-        counter = Counter.build()
+        counter = counter()
+                .labels("feil").labels("ok")
                 .name(Collector.sanitizeMetricName(String.format("kafka_producer_%s_counter", topic)))
                 .help(String.format("Kafka melding lagt på topic %s", topic))
                 .labelNames("resultat")

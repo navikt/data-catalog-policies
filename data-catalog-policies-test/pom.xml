@@ -20,8 +20,8 @@
     </modules>
 
     <properties>
-        <!-- Wiremock funker ikke med tomcat 9 >_> -->
-        <tomcat.version>8.5.45</tomcat.version>
+        <!-- spring kafka test cleanup -->
+        <scala.version>2.12.10</scala.version>
     </properties>
 
     <dependencies>
@@ -46,8 +46,8 @@
             <scope>test</scope>
             <exclusions>
                 <exclusion>
-                    <groupId>junit</groupId>
-                    <artifactId>junit</artifactId>
+                    <groupId>org.junit.vintage</groupId>
+                    <artifactId>junit-vintage-engine</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -99,4 +99,19 @@
             </exclusions>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-library</artifactId>
+                <version>${scala.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-reflect</artifactId>
+                <version>${scala.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>
