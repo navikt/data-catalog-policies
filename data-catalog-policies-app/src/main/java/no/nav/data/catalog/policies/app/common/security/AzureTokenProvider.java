@@ -38,7 +38,7 @@ public class AzureTokenProvider {
     }
 
     public String getConsumerTokenForDatacatalog() {
-        return getConsumerToken(aadAuthProps.getAppIdUri());
+        return getConsumerToken(aadAuthProps.getClientId());
     }
 
     public String getConsumerToken(String resource) {
