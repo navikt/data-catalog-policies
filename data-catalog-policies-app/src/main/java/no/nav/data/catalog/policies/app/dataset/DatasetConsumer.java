@@ -105,7 +105,7 @@ public class DatasetConsumer {
 
     private HttpHeaders authToken() {
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setBearerAuth(azureTokenProvider.getToken());
+        httpHeaders.setBearerAuth(azureTokenProvider.getConsumerTokenForDatacatalog());
         return httpHeaders;
     }
 

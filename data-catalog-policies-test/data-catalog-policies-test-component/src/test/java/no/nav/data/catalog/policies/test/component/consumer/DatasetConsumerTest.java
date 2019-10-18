@@ -47,7 +47,7 @@ class DatasetConsumerTest {
 
     @BeforeEach
     void setUp() {
-        when(tokenProvider.getToken()).thenReturn("token");
+        when(tokenProvider.getConsumerTokenForDatacatalog()).thenReturn("token");
     }
 
     @Test

@@ -63,7 +63,7 @@ public abstract class IntegrationTestBase {
     @BeforeEach
     public void setUpAbstract() {
         IntegrationTestConfig.mockDataCatalogBackend();
-        when(azureTokenProvider.getToken()).thenReturn("token");
+        when(azureTokenProvider.getConsumerTokenForDatacatalog()).thenReturn("token");
         policyRepository.deleteAll();
     }
 

@@ -31,7 +31,7 @@ public class CommonConfig {
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
         return builder
-                .additionalInterceptors(new TraceHeaderRequestInterceptor())
+                .additionalInterceptors(TraceHeaderRequestInterceptor.fullInterceptor())
                 .build();
     }
 

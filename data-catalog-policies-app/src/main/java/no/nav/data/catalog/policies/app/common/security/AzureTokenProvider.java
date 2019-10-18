@@ -1,51 +1,85 @@
 package no.nav.data.catalog.policies.app.common.security;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.microsoft.aad.adal4j.AuthenticationContext;
 import com.microsoft.aad.adal4j.AuthenticationResult;
 import com.microsoft.aad.adal4j.ClientCredential;
 import com.microsoft.azure.spring.autoconfigure.aad.AADAuthenticationProperties;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.data.catalog.policies.app.common.exceptions.DataCatalogPoliciesTechnicalException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
+import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @Service
 public class AzureTokenProvider {
 
+    private static final String TOKEN_TYPE = "Bearer ";
+
+    private final Cache<String, AuthenticationResult> accessTokenCache;
     private final AADAuthenticationProperties aadAuthProps;
     private final AuthenticationContext authenticationContext;
-    private final boolean enable;
+    private final ClientCredential credential;
+    private final boolean enableClientAuth;
 
-    private String token = "";
-    private Instant expires = Instant.MIN;
-
-    public AzureTokenProvider(AADAuthenticationProperties aadAuthProps, AuthenticationContext authenticationContext, @Value("${security.client.enabled:true}") boolean enable) {
+    public AzureTokenProvider(AADAuthenticationProperties aadAuthProps, AuthenticationContext authenticationContext,
+            @Value("${security.client.enabled:true}") boolean enableClientAuth) {
         this.aadAuthProps = aadAuthProps;
         this.authenticationContext = authenticationContext;
-        this.enable = enable;
+        this.enableClientAuth = enableClientAuth;
+        this.credential = new ClientCredential(aadAuthProps.getClientId(), aadAuthProps.getClientSecret());
+        this.accessTokenCache = Caffeine.newBuilder()
+                .expireAfter(new AuthResultExpiry())
+                .maximumSize(1000).build();
     }
 
-    public String getToken() {
-        if (enable && expires.isBefore(Instant.now())) {
-            refresh();
+    public String getConsumerTokenForDatacatalog() {
+        return getConsumerToken(aadAuthProps.getAppIdUri());
+    }
+
+    public String getConsumerToken(String resource) {
+        if (!enableClientAuth) {
+            return StringUtils.EMPTY;
         }
-        return token;
+        return Credential.getCredential()
+                .filter(Credential::hasRefreshToken)
+                .map(cred -> TOKEN_TYPE + getAccessTokenForResource(cred.getRefreshToken(), resource))
+                .orElseGet(() -> TOKEN_TYPE + getApplicationTokenForResource(resource));
     }
 
-    private void refresh() {
+    public String getAccessToken(String refreshToken) {
+        return getAccessTokenForResource(refreshToken, aadAuthProps.getClientId());
+    }
+
+    private String getApplicationTokenForResource(String resource) {
+        log.debug("Getting application token for resource {}", resource);
+        return requireNonNull(accessTokenCache.get("credential" + resource, cacheKey -> acquireTokenByCredential(aadAuthProps.getAppIdUri()))).getAccessToken();
+    }
+
+    private String getAccessTokenForResource(String refreshToken, String resource) {
+        log.debug("Getting access token for resource {}", resource);
+        return requireNonNull(accessTokenCache.get("refresh" + refreshToken + resource, cacheKey -> acquireTokenByRefreshToken(refreshToken, resource))).getAccessToken();
+    }
+
+    private AuthenticationResult acquireTokenByRefreshToken(String refreshToken, String resource) {
         try {
-            AuthenticationResult authenticationResult = authenticationContext
-                    .acquireToken(aadAuthProps.getAppIdUri(), new ClientCredential(aadAuthProps.getClientId(), aadAuthProps.getClientSecret()), null)
-                    .get();
-            expires = authenticationResult.getExpiresOnDate().toInstant().minusSeconds(60);
-            token = authenticationResult.getAccessToken();
-            log.info("Acquired new azure token, expires {}", expires);
+            log.debug("Looking up access token for resource {}", resource);
+            return authenticationContext.acquireTokenByRefreshToken(refreshToken, credential, resource, null).get();
         } catch (Exception e) {
-            log.error("error refreshing azure token", e);
-            throw new DataCatalogPoliciesTechnicalException("error refreshing azure token", e);
+            throw new DataCatalogPoliciesTechnicalException("Failed to get access token for refreshToken", e);
+        }
+    }
+
+    private AuthenticationResult acquireTokenByCredential(String resource) {
+        try {
+            log.debug("Looking up application token for resource {}", resource);
+            return authenticationContext.acquireToken(resource, credential, null).get();
+        } catch (Exception e) {
+            throw new DataCatalogPoliciesTechnicalException("Failed to get access token for credential", e);
         }
     }
 
