@@ -38,17 +38,17 @@ public class AzureTokenProvider {
     }
 
     public String getConsumerTokenForDatacatalog() {
-        return getConsumerToken(aadAuthProps.getClientId());
+        return getConsumerToken(aadAuthProps.getClientId(), aadAuthProps.getAppIdUri());
     }
 
-    public String getConsumerToken(String resource) {
+    public String getConsumerToken(String resource, String appIdUri) {
         if (!enableClientAuth) {
             return StringUtils.EMPTY;
         }
         return Credential.getCredential()
                 .filter(Credential::hasRefreshToken)
                 .map(cred -> TOKEN_TYPE + getAccessTokenForResource(cred.getRefreshToken(), resource))
-                .orElseGet(() -> TOKEN_TYPE + getApplicationTokenForResource(resource));
+                .orElseGet(() -> TOKEN_TYPE + getApplicationTokenForResource(appIdUri));
     }
 
     public String getAccessToken(String refreshToken) {
@@ -57,7 +57,7 @@ public class AzureTokenProvider {
 
     private String getApplicationTokenForResource(String resource) {
         log.debug("Getting application token for resource {}", resource);
-        return requireNonNull(accessTokenCache.get("credential" + resource, cacheKey -> acquireTokenByCredential(aadAuthProps.getAppIdUri()))).getAccessToken();
+        return requireNonNull(accessTokenCache.get("credential" + resource, cacheKey -> acquireTokenByCredential(resource))).getAccessToken();
     }
 
     private String getAccessTokenForResource(String refreshToken, String resource) {
