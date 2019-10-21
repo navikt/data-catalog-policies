@@ -49,7 +49,7 @@ public final class MetricUtils {
         for (String[] label : labels) {
             collector.labels(label);
         }
-        return collector;
+        return collector.register();
     }
 
     public static class CounterBuilder extends Builder {
